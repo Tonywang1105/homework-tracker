@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Homework Tracker</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="module" src="src/main.js"></script>
+  </head>
+  <body>
+    <header class="page-header">
+      <h1>Homework Tracker</h1>
+      <p class="tagline">Everything due, soonest first, with your own notes.</p>
+    </header>
+
+    <div id="storage-error" class="banner banner-error" role="alert" hidden>
+      <p id="storage-error-message"></p>
+      <button type="button" id="reset-storage" class="button button-danger">Start over with an empty list</button>
+    </div>
+
+    <main class="layout">
+      <section class="panel form-panel" aria-labelledby="form-heading">
+        <h2 id="form-heading">Add an assignment</h2>
+        <form id="assignment-form" novalidate>
+          <div class="field">
+            <label for="title">Assignment</label>
+            <input id="title" name="title" type="text" placeholder="e.g. MP2: Checkpoint 1" autocomplete="off" required />
+            <p class="field-error" id="title-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="course">Course <span class="optional">optional</span></label>
+            <input id="course" name="course" type="text" placeholder="e.g. CS 124" autocomplete="off" list="course-suggestions" />
+            <datalist id="course-suggestions"></datalist>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="dueDate">Due date</label>
+              <input id="dueDate" name="dueDate" type="date" required />
+              <p class="field-error" id="dueDate-error"></p>
+            </div>
+            <div class="field">
+              <label for="dueTime">Time <span class="optional">default 11:59 PM</span></label>
+              <input id="dueTime" name="dueTime" type="time" />
+              <p class="field-error" id="dueTime-error"></p>
+            </div>
+          </div>
+
+          <fieldset class="field priority-picker">
+            <legend>Size</legend>
+            <label class="priority-option">
+              <input type="radio" name="priority" value="big" checked />
+              <span><strong>Big</strong> assignment</span>
+            </label>
+            <label class="priority-option">
+              <input type="radio" name="priority" value="small" />
+              <span><strong>Small</strong> reminder</span>
+            </label>
+            <p class="field-error" id="priority-error"></p>
+          </fieldset>
+
+          <div class="field">
+            <label for="notes">Notes <span class="optional">optional</span></label>
+            <textarea id="notes" name="notes" rows="4" placeholder="Slides to review, hints, links…"></textarea>
+            <p class="field-error" id="notes-error"></p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-button" class="button button-primary">Add assignment</button>
+            <button type="button" id="cancel-edit" class="button" hidden>Cancel</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel list-panel" aria-labelledby="list-heading">
+        <div class="list-header">
+          <h2 id="list-heading">To do <span id="todo-count" class="count"></span></h2>
+          <label class="toggle">
+            <input type="checkbox" id="show-small" checked />
+            Show small reminders
+          </label>
+        </div>
+        <p id="empty-message" class="empty" hidden></p>
+        <ul id="todo-list" class="assignment-list"></ul>
+
+        <details id="done-section" class="done-section" hidden>
+          <summary>Completed <span id="done-count" class="count"></span></summary>
+          <ul id="done-list" class="assignment-list"></ul>
+        </details>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+      <span id="toast-message"></span>
+      <button type="button" id="toast-undo" class="toast-undo" hidden>Undo</button>
+    </div>
+
+    <noscript><p class="banner banner-error">This app needs JavaScript turned on.</p></noscript>
+  </body>
+</html>
