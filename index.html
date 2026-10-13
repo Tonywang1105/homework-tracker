@@ -76,18 +76,53 @@
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="list-header">
           <h2 id="list-heading">To do <span id="todo-count" class="count"></span></h2>
+          <div class="view-switch" role="group" aria-label="View">
+            <button type="button" class="view-button" data-view="list" aria-pressed="true">List</button>
+            <button type="button" class="view-button" data-view="calendar" aria-pressed="false">Calendar</button>
+          </div>
           <label class="toggle">
             <input type="checkbox" id="show-small" checked />
             Show small reminders
           </label>
         </div>
-        <p id="empty-message" class="empty" hidden></p>
-        <ul id="todo-list" class="assignment-list"></ul>
 
-        <details id="done-section" class="done-section" hidden>
-          <summary>Completed <span id="done-count" class="count"></span></summary>
-          <ul id="done-list" class="assignment-list"></ul>
-        </details>
+        <div id="list-view">
+          <p id="empty-message" class="empty" hidden></p>
+          <ul id="todo-list" class="assignment-list"></ul>
+
+          <details id="done-section" class="done-section" hidden>
+            <summary>Completed <span id="done-count" class="count"></span></summary>
+            <ul id="done-list" class="assignment-list"></ul>
+          </details>
+        </div>
+
+        <div id="calendar-view" hidden>
+          <div class="calendar-nav">
+            <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month">‹</button>
+            <h3 id="calendar-month" class="calendar-month" aria-live="polite"></h3>
+            <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month">›</button>
+            <button type="button" id="this-month" class="button">Today</button>
+          </div>
+          <table class="calendar">
+            <thead>
+              <tr id="calendar-weekdays"></tr>
+            </thead>
+            <tbody id="calendar-body"></tbody>
+          </table>
+          <p id="calendar-empty" class="empty" hidden></p>
+
+          <div id="calendar-details" class="calendar-details" role="dialog" aria-labelledby="details-title" tabindex="-1" hidden>
+            <button type="button" id="details-close" class="details-close" aria-label="Close details">×</button>
+            <h3 id="details-title" class="details-title"></h3>
+            <div id="details-tags" class="title-line"></div>
+            <div id="details-due" class="due-line"></div>
+            <p id="details-notes" class="notes"></p>
+            <div class="details-actions">
+              <button type="button" id="details-edit" class="button">Edit</button>
+              <button type="button" id="details-done" class="button button-primary">Mark done</button>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
 

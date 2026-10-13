@@ -1,10 +1,13 @@
 // Connects the page to the assignment logic and storage: reads the form, renders the lists, handles clicks.
 
 import { createAssignment, describeDue, groupAssignments, toDueDate, validateAssignmentInput } from "./assignments.js";
+import { buildMonthGrid, shiftMonth } from "./calendar.js";
 import { loadAssignments, saveAssignments } from "./storage.js";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "notes"];
 const TOAST_DURATION_MS = 6000;
+const VIEW_STORAGE_KEY = "homework-tracker.view";
+const VIEWS = ["list", "calendar"];
 
 const elements = {
   form: document.getElementById("assignment-form"),
@@ -25,6 +28,24 @@ const elements = {
   toast: document.getElementById("toast"),
   toastMessage: document.getElementById("toast-message"),
   toastUndo: document.getElementById("toast-undo"),
+  viewButtons: document.querySelectorAll(".view-button"),
+  listView: document.getElementById("list-view"),
+  calendarView: document.getElementById("calendar-view"),
+  calendarMonth: document.getElementById("calendar-month"),
+  calendarWeekdays: document.getElementById("calendar-weekdays"),
+  calendarBody: document.getElementById("calendar-body"),
+  calendarEmpty: document.getElementById("calendar-empty"),
+  previousMonth: document.getElementById("previous-month"),
+  nextMonth: document.getElementById("next-month"),
+  thisMonth: document.getElementById("this-month"),
+  details: document.getElementById("calendar-details"),
+  detailsTitle: document.getElementById("details-title"),
+  detailsTags: document.getElementById("details-tags"),
+  detailsDue: document.getElementById("details-due"),
+  detailsNotes: document.getElementById("details-notes"),
+  detailsClose: document.getElementById("details-close"),
+  detailsEdit: document.getElementById("details-edit"),
+  detailsDone: document.getElementById("details-done"),
 };
 
 const state = {
@@ -34,15 +55,28 @@ const state = {
   storageReadable: true,
   toastTimer: null,
   undoAction: null,
+  // The assignment whose details box is open on the calendar, or null.
+  detailsId: null,
+  view: "list",
+  // The month the calendar shows, as { year, month } with month 0-11.
+  shownMonth: currentMonth(),
 };
 
-const dueFormatter = new Intl.DateTimeFormat(undefined, {
+// Dates always read like "Fri, 10/16, 11:59 PM" and the calendar in English, whatever language the browser uses.
+const DATE_LOCALE = "en-US";
+const dueFormatter = new Intl.DateTimeFormat(DATE_LOCALE, {
   weekday: "short",
-  month: "short",
+  month: "numeric",
   day: "numeric",
   hour: "numeric",
   minute: "2-digit",
 });
+const monthFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { month: "long", year: "numeric" });
+const timeFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { hour: "numeric", minute: "2-digit" });
+
+function currentMonth(now = new Date()) {
+  return { year: now.getFullYear(), month: now.getMonth() };
+}
 
 // ----- Saving -----
 
@@ -76,7 +110,197 @@ function render() {
   elements.doneCount.textContent = `(${done.length})`;
   elements.doneSection.hidden = done.length === 0;
 
+  elements.listView.hidden = state.view !== "list";
+  elements.calendarView.hidden = state.view !== "calendar";
+  for (const button of elements.viewButtons) {
+    button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
+  }
+  if (state.view === "calendar") {
+    renderCalendar(todo, now);
+    renderDetails(now);
+  } else {
+    state.detailsId = null;
+    elements.details.hidden = true;
+  }
+
   renderCourseSuggestions();
+}
+
+// ----- Calendar -----
+
+function renderCalendar(todo, now) {
+  const weeks = buildMonthGrid(state.shownMonth, todo, now);
+  const monthName = monthFormatter.format(new Date(state.shownMonth.year, state.shownMonth.month, 1));
+  elements.calendarMonth.textContent = monthName;
+
+  elements.calendarBody.replaceChildren(
+    ...weeks.map((week) => {
+      const row = document.createElement("tr");
+      row.append(...week.map(renderCalendarDay));
+      return row;
+    }),
+  );
+
+  const dueThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.length > 0);
+  elements.calendarEmpty.hidden = dueThisMonth;
+  elements.calendarEmpty.textContent =
+    state.assignments.length === 0 ? "No assignments yet. Add your first one with the form." : `Nothing to do in ${monthName}.`;
+}
+
+function renderCalendarDay(day) {
+  const cell = document.createElement("td");
+  cell.className = "calendar-day";
+  cell.classList.toggle("outside-month", !day.inMonth);
+  cell.classList.toggle("is-today", day.isToday);
+
+  const number = document.createElement("span");
+  number.className = "day-number";
+  number.textContent = day.dayOfMonth;
+  if (day.isToday) {
+    number.setAttribute("aria-label", `${day.dayOfMonth}, today`);
+  }
+  cell.append(number);
+
+  if (day.assignments.length > 0) {
+    const list = document.createElement("ul");
+    list.className = "calendar-items";
+    list.append(...day.assignments.map(renderCalendarItem));
+    cell.append(list);
+  }
+  return cell;
+}
+
+function renderCalendarItem(assignment) {
+  const item = document.createElement("li");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = `calendar-item priority-${assignment.priority}`;
+  button.classList.toggle("is-selected", assignment.id === state.detailsId);
+  button.dataset.id = assignment.id;
+  button.textContent = calendarTagText(assignment);
+  button.setAttribute("aria-haspopup", "dialog");
+  button.setAttribute("aria-expanded", String(assignment.id === state.detailsId));
+
+  const dueTime = timeFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
+  const size = assignment.priority === "big" ? "Big assignment" : "Small reminder";
+  const course = assignment.course ? ` (${assignment.course})` : "";
+  // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
+  button.title = `${assignment.title}${course}, due ${dueTime}`;
+  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${size}, due ${dueTime}`);
+
+  item.append(button);
+  return item;
+}
+
+/** The short label on the calendar: the course, or the title's first word when there is no course. */
+function calendarTagText(assignment) {
+  return assignment.course || assignment.title.split(/\s+/)[0];
+}
+
+function renderWeekdayHeadings() {
+  const shortName = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short" });
+  const longName = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "long" });
+  // 2026-10-04 is a Sunday, so the next seven days give the weekday names in grid order.
+  const week = Array.from({ length: 7 }, (_, index) => new Date(2026, 9, 4 + index));
+  elements.calendarWeekdays.replaceChildren(
+    ...week.map((date) => {
+      const heading = document.createElement("th");
+      heading.scope = "col";
+      const abbreviation = document.createElement("abbr");
+      abbreviation.title = longName.format(date);
+      abbreviation.textContent = shortName.format(date);
+      heading.append(abbreviation);
+      return heading;
+    }),
+  );
+}
+
+function handleCalendarClick(event) {
+  const button = event.target.closest(".calendar-item");
+  if (button) {
+    // Clicking the open tag again closes its box.
+    toggleDetails(button.dataset.id === state.detailsId ? null : button.dataset.id);
+  }
+}
+
+// ----- Calendar details box -----
+
+function toggleDetails(assignmentId) {
+  const closingId = state.detailsId;
+  state.detailsId = assignmentId;
+  render();
+  if (assignmentId) {
+    elements.details.focus();
+  } else if (closingId) {
+    // Put keyboard focus back on the tag that opened the box.
+    calendarItemButton(closingId)?.focus();
+  }
+}
+
+function calendarItemButton(assignmentId) {
+  return elements.calendarBody.querySelector(`.calendar-item[data-id="${CSS.escape(assignmentId)}"]`);
+}
+
+function renderDetails(now) {
+  const assignment = state.assignments.find((a) => a.id === state.detailsId);
+  const button = assignment && calendarItemButton(assignment.id);
+  if (!button) {
+    // The assignment was deleted, completed, hidden, or is in another month: close the box.
+    state.detailsId = null;
+    elements.details.hidden = true;
+    return;
+  }
+
+  elements.detailsTitle.textContent = assignment.title;
+  elements.detailsTags.replaceChildren(...renderTags(assignment));
+  elements.detailsDue.replaceChildren(...renderDueParts(assignment, now));
+  // textContent (not innerHTML) so anything typed in a note is shown as text, never run as HTML.
+  elements.detailsNotes.textContent = assignment.notes || "No notes.";
+  elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
+  elements.details.hidden = false;
+  positionDetails(button);
+}
+
+/** Places the box just below the tag, kept inside the calendar's width. */
+function positionDetails(button) {
+  const container = elements.calendarView.getBoundingClientRect();
+  const tag = button.getBoundingClientRect();
+  const boxWidth = elements.details.offsetWidth;
+  const left = Math.min(Math.max(0, tag.left - container.left), container.width - boxWidth);
+  elements.details.style.left = `${Math.max(0, left)}px`;
+  elements.details.style.top = `${tag.bottom - container.top + 4}px`;
+}
+
+function handleOutsideClick(event) {
+  if (state.detailsId && !elements.details.contains(event.target) && !event.target.closest(".calendar-item")) {
+    toggleDetails(null);
+  }
+}
+
+function showMonth(month) {
+  state.shownMonth = month;
+  render();
+}
+
+// ----- Switching between list and calendar -----
+
+function setView(view) {
+  state.view = view;
+  try {
+    localStorage.setItem(VIEW_STORAGE_KEY, view);
+  } catch {
+    // Remembering the view is only a convenience; the app works the same without it.
+  }
+  render();
+}
+
+function loadSavedView() {
+  try {
+    const saved = localStorage.getItem(VIEW_STORAGE_KEY);
+    return VIEWS.includes(saved) ? saved : "list";
+  } catch {
+    return "list";
+  }
 }
 
 function emptyMessageText(doneCount) {
@@ -113,25 +337,11 @@ function renderAssignment(assignment, now) {
   const title = document.createElement("span");
   title.className = "assignment-title";
   title.textContent = assignment.title;
-  titleLine.append(title);
-  if (assignment.course) {
-    titleLine.append(makeTag(assignment.course, "course-tag"));
-  }
-  titleLine.append(makeTag(assignment.priority === "big" ? "Big" : "Small", `priority-tag priority-tag-${assignment.priority}`));
+  titleLine.append(title, ...renderTags(assignment));
 
   const dueLine = document.createElement("div");
   dueLine.className = "due-line";
-  const dueAt = document.createElement("time");
-  dueAt.dateTime = `${assignment.dueDate}T${assignment.dueTime}`;
-  dueAt.textContent = dueFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
-  dueLine.append(dueAt);
-  if (!assignment.done) {
-    const { text, urgency } = describeDue(assignment, now);
-    const relative = document.createElement("span");
-    relative.className = `relative-due urgency-${urgency}`;
-    relative.textContent = text;
-    dueLine.append(relative);
-  }
+  dueLine.append(...renderDueParts(assignment, now));
 
   body.append(titleLine, dueLine);
   if (assignment.notes) {
@@ -148,6 +358,31 @@ function renderAssignment(assignment, now) {
 
   item.append(checkbox, body, actions);
   return item;
+}
+
+/** The course tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
+function renderTags(assignment) {
+  const tags = [];
+  if (assignment.course) {
+    tags.push(makeTag(assignment.course, "course-tag"));
+  }
+  tags.push(makeTag(assignment.priority === "big" ? "Big" : "Small", `priority-tag priority-tag-${assignment.priority}`));
+  return tags;
+}
+
+/** The due date and time, plus "due in 3 days" style text for unfinished work. */
+function renderDueParts(assignment, now) {
+  const dueAt = document.createElement("time");
+  dueAt.dateTime = `${assignment.dueDate}T${assignment.dueTime}`;
+  dueAt.textContent = dueFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
+  if (assignment.done) {
+    return [dueAt];
+  }
+  const { text, urgency } = describeDue(assignment, now);
+  const relative = document.createElement("span");
+  relative.className = `relative-due urgency-${urgency}`;
+  relative.textContent = text;
+  return [dueAt, relative];
 }
 
 function makeTag(text, className) {
@@ -269,12 +504,7 @@ function handleListClick(event) {
 
   switch (control.dataset.action) {
     case "toggle-done":
-      updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...a, done: !a.done } : a)));
-      if (!assignment.done) {
-        showToast(`Done: "${assignment.title}".`, () =>
-          updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...a, done: false } : a))),
-        );
-      }
+      toggleDone(assignment);
       break;
     case "edit":
       startEditing(assignment);
@@ -288,6 +518,15 @@ function handleListClick(event) {
       showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous));
       break;
     }
+  }
+}
+
+/** Marks an assignment done (with Undo) or, if it is already done, back to not done. */
+function toggleDone(assignment) {
+  const setDone = (done) => updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...a, done } : a)));
+  setDone(!assignment.done);
+  if (!assignment.done) {
+    showToast(`Done: "${assignment.title}".`, () => setDone(false));
   }
 }
 
@@ -333,12 +572,42 @@ function start() {
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
   elements.toastUndo.addEventListener("click", handleUndo);
+  elements.calendarBody.addEventListener("click", handleCalendarClick);
+  elements.detailsClose.addEventListener("click", () => toggleDetails(null));
+  elements.detailsEdit.addEventListener("click", () => {
+    const assignment = state.assignments.find((a) => a.id === state.detailsId);
+    toggleDetails(null);
+    if (assignment) {
+      startEditing(assignment);
+    }
+  });
+  elements.detailsDone.addEventListener("click", () => {
+    const assignment = state.assignments.find((a) => a.id === state.detailsId);
+    if (assignment) {
+      toggleDone(assignment);
+    }
+  });
+  document.addEventListener("click", handleOutsideClick);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && state.detailsId) {
+      toggleDetails(null);
+    }
+  });
+  for (const button of elements.viewButtons) {
+    button.addEventListener("click", () => setView(button.dataset.view));
+  }
+  elements.previousMonth.addEventListener("click", () => showMonth(shiftMonth(state.shownMonth, -1)));
+  elements.nextMonth.addEventListener("click", () => showMonth(shiftMonth(state.shownMonth, 1)));
+  elements.thisMonth.addEventListener("click", () => showMonth(currentMonth()));
   elements.resetStorage.addEventListener("click", () => {
     state.storageReadable = true;
     elements.storageError.hidden = true;
     updateAssignments([]);
     showToast("Started over with an empty list.");
   });
+
+  state.view = loadSavedView();
+  renderWeekdayHeadings();
 
   // Refresh the "due in …" text every minute so it stays accurate if the tab stays open.
   setInterval(render, 60 * 1000);
