@@ -50,6 +50,16 @@ export function createAssignment(fields, { id = crypto.randomUUID(), now = new D
   return { id, ...fields, done: false, createdAt: now.toISOString() };
 }
 
+/** A new list where the assignment with this id has `changes` applied, e.g. { done: true }. */
+export function updateAssignment(assignments, id, changes) {
+  return assignments.map((a) => (a.id === id ? { ...a, ...changes } : a));
+}
+
+/** A new list without the assignment with this id. */
+export function removeAssignment(assignments, id) {
+  return assignments.filter((a) => a.id !== id);
+}
+
 /** The due moment as a Date, read in the browser's local time zone. */
 export function toDueDate(dueDate, dueTime) {
   return new Date(`${dueDate}T${dueTime}`);

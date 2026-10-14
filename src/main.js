@@ -1,7 +1,15 @@
 // Connects the page to the assignment logic and storage: reads the form, renders the lists, handles clicks.
 
-import { createAssignment, describeDue, groupAssignments, toDueDate, validateAssignmentInput } from "./assignments.js";
-import { buildMonthGrid, shiftMonth } from "./calendar.js";
+import {
+  createAssignment,
+  describeDue,
+  groupAssignments,
+  removeAssignment,
+  toDueDate,
+  updateAssignment,
+  validateAssignmentInput,
+} from "./assignments.js";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js";
 import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js";
 import { loadAssignments, saveAssignments } from "./storage.js";
 
@@ -87,10 +95,6 @@ const monthFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { month: "long", yea
 const timeFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { hour: "numeric", minute: "2-digit" });
 const dayFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short", month: "numeric", day: "numeric" });
 
-function currentMonth(now = new Date()) {
-  return { year: now.getFullYear(), month: now.getMonth() };
-}
-
 // ----- Saving -----
 
 function persist() {
@@ -100,6 +104,10 @@ function persist() {
   if (!saveAssignments(localStorage, state.assignments)) {
     showToast("Couldn't save. Your browser blocked storage, so changes will be lost on reload.");
   }
+}
+
+function findAssignment(id) {
+  return state.assignments.find((a) => a.id === id);
 }
 
 function updateAssignments(newAssignments) {
@@ -131,7 +139,7 @@ function render() {
   }
   if (state.view === "calendar") {
     // The calendar also shows finished work (greyed out), with the same big/small filter as the list.
-    renderCalendar([...todo, ...done.filter((a) => !bigOnly || a.priority === "big")], now);
+    renderCalendar(state.assignments.filter((a) => !bigOnly || a.priority === "big"), now);
     renderDetails(now);
   } else {
     state.detailsId = null;
@@ -171,23 +179,20 @@ function renderCalendarDay(day) {
 
   // The day number is a button so the keyboard can add an assignment too; a click anywhere else in the day does the same.
   const dayName = formatDay(day.key);
-  const number = document.createElement("button");
-  number.type = "button";
-  number.className = "day-number";
-  number.textContent = day.dayOfMonth;
+  const number = makeButton("day-number", day.dayOfMonth);
   number.setAttribute("aria-label", `Add an assignment due ${dayName}${day.isToday ? " (today)" : ""}`);
   cell.title = `Add an assignment due ${dayName}`;
   cell.append(number);
 
   if (day.assignments.length > 0) {
-    const expanded = state.expandedDays.has(day.key);
-    const fits = day.assignments.length <= MAX_LINES_PER_DAY;
-    // When they don't all fit, the last line becomes the "+N more" link.
-    const hiddenCount = expanded || fits ? 0 : day.assignments.length - (MAX_LINES_PER_DAY - 1);
+    const { shown, hiddenCount, hasToggle } = visibleOnDay(day.assignments, {
+      maxLines: MAX_LINES_PER_DAY,
+      expanded: state.expandedDays.has(day.key),
+    });
     const list = document.createElement("ul");
     list.className = "calendar-items";
-    list.append(...day.assignments.slice(0, day.assignments.length - hiddenCount).map(renderCalendarItem));
-    if (!fits) {
+    list.append(...shown.map(renderCalendarItem));
+    if (hasToggle) {
       list.append(renderMoreToggle(hiddenCount, dayName));
     }
     cell.append(list);
@@ -198,9 +203,7 @@ function renderCalendarDay(day) {
 /** "+2 more" on a busy day, or "Show less" once it is expanded. */
 function renderMoreToggle(hiddenCount, dayName) {
   const item = document.createElement("li");
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "calendar-more";
+  const button = makeButton("calendar-more");
   if (hiddenCount > 0) {
     // On a phone the day is too narrow for "+3 more", so CSS hides the word "more" there.
     const moreWord = document.createElement("span");
@@ -220,13 +223,10 @@ function renderMoreToggle(hiddenCount, dayName) {
 
 function renderCalendarItem(assignment) {
   const item = document.createElement("li");
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = `calendar-item priority-${assignment.priority}`;
+  const button = makeButton(`calendar-item priority-${assignment.priority}`, calendarTagText(assignment));
   button.classList.toggle("is-done", assignment.done);
   button.classList.toggle("is-selected", assignment.id === state.detailsId);
   button.dataset.id = assignment.id;
-  button.textContent = calendarTagText(assignment);
   button.setAttribute("aria-haspopup", "dialog");
   button.setAttribute("aria-expanded", String(assignment.id === state.detailsId));
 
@@ -240,11 +240,6 @@ function renderCalendarItem(assignment) {
 
   item.append(button);
   return item;
-}
-
-/** The short label on the calendar: the course, or the title's first word when there is no course. */
-function calendarTagText(assignment) {
-  return assignment.course || assignment.title.split(/\s+/)[0];
 }
 
 function renderWeekdayHeadings() {
@@ -326,7 +321,7 @@ function calendarItemButton(assignmentId) {
 }
 
 function renderDetails(now) {
-  const assignment = state.assignments.find((a) => a.id === state.detailsId);
+  const assignment = findAssignment(state.detailsId);
   const button = assignment && calendarItemButton(assignment.id);
   if (!button) {
     // The assignment was deleted, hidden by the small-reminders filter, or is in another month: close the box.
@@ -479,12 +474,18 @@ function makeTag(text, className) {
 }
 
 function makeActionButton(label, action, assignmentTitle) {
+  const button = makeButton(`link-button action-${action}`, label);
+  button.dataset.action = action;
+  button.setAttribute("aria-label", `${label} "${assignmentTitle}"`);
+  return button;
+}
+
+/** A plain button (type="button", so it never submits a form) with a class and optional text. */
+function makeButton(className, text = "") {
   const button = document.createElement("button");
   button.type = "button";
-  button.className = `link-button action-${action}`;
-  button.dataset.action = action;
-  button.textContent = label;
-  button.setAttribute("aria-label", `${label} "${assignmentTitle}"`);
+  button.className = className;
+  button.textContent = text;
   return button;
 }
 
@@ -532,7 +533,7 @@ function handleSubmit(event) {
 
   if (state.editingId) {
     const editedTitle = result.fields.title;
-    updateAssignments(state.assignments.map((a) => (a.id === state.editingId ? { ...a, ...result.fields } : a)));
+    updateAssignments(updateAssignment(state.assignments, state.editingId, result.fields));
     stopEditing();
     showToast(`Saved changes to "${editedTitle}".`);
   } else {
@@ -583,7 +584,7 @@ function handleListClick(event) {
   if (!control || !item) {
     return;
   }
-  const assignment = state.assignments.find((a) => a.id === item.dataset.id);
+  const assignment = findAssignment(item.dataset.id);
   if (!assignment) {
     return;
   }
@@ -600,7 +601,7 @@ function handleListClick(event) {
       if (state.editingId === assignment.id) {
         stopEditing();
       }
-      updateAssignments(previous.filter((a) => a.id !== assignment.id));
+      updateAssignments(removeAssignment(previous, assignment.id));
       showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous));
       break;
     }
@@ -609,7 +610,7 @@ function handleListClick(event) {
 
 /** Marks an assignment done (with Undo) or, if it is already done, back to not done. */
 function toggleDone(assignment) {
-  const setDone = (done) => updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...a, done } : a)));
+  const setDone = (done) => updateAssignments(updateAssignment(state.assignments, assignment.id, { done }));
   setDone(!assignment.done);
   if (!assignment.done) {
     showToast(`Done: "${assignment.title}".`, () => setDone(false));
@@ -733,14 +734,14 @@ function start() {
   elements.calendarBody.addEventListener("click", handleCalendarClick);
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
   elements.detailsEdit.addEventListener("click", () => {
-    const assignment = state.assignments.find((a) => a.id === state.detailsId);
+    const assignment = findAssignment(state.detailsId);
     toggleDetails(null);
     if (assignment) {
       startEditing(assignment);
     }
   });
   elements.detailsDone.addEventListener("click", () => {
-    const assignment = state.assignments.find((a) => a.id === state.detailsId);
+    const assignment = findAssignment(state.detailsId);
     if (assignment) {
       toggleDone(assignment);
     }

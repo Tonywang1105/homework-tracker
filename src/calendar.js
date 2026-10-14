@@ -20,6 +20,11 @@ export function toDateKey(date) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
+/** The { year, month } containing `now`: where the calendar opens, and where Today goes back to. */
+export function currentMonth(now = new Date()) {
+  return { year: now.getFullYear(), month: now.getMonth() };
+}
+
 /** The { year, month } that is `offset` months away (month is 0-11, like Date). */
 export function shiftMonth({ year, month }, offset) {
   const shifted = new Date(year, month + offset, 1);
@@ -63,4 +68,24 @@ export function buildMonthGrid({ year, month }, assignments, today = new Date())
     });
   }
   return weeks;
+}
+
+/** The short label on the calendar: the course, or the title's first word when there is no course. */
+export function calendarTagText(assignment) {
+  return assignment.course || assignment.title.split(/\s+/)[0];
+}
+
+/**
+ * Which of a day's assignments the calendar shows, given that a day has room for `maxLines` lines.
+ * When they don't all fit, the last line becomes a "+N more" toggle; an expanded day shows everything.
+ * Returns { shown, hiddenCount, hasToggle }.
+ */
+export function visibleOnDay(dayAssignments, { maxLines, expanded = false }) {
+  const fits = dayAssignments.length <= maxLines;
+  const hiddenCount = fits || expanded ? 0 : dayAssignments.length - (maxLines - 1);
+  return {
+    shown: dayAssignments.slice(0, dayAssignments.length - hiddenCount),
+    hiddenCount,
+    hasToggle: !fits,
+  };
 }
