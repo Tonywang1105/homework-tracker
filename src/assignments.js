@@ -128,6 +128,15 @@ export function filterAssignments(assignments, { course = "", hideSmall = false,
   );
 }
 
+/**
+ * Unfinished assignments that are overdue or due within the next `hours`, soonest first: the
+ * "Due soon" reminder. Every size counts, and the list's filters don't apply, so nothing urgent hides.
+ */
+export function dueSoon(assignments, now = new Date(), hours = 24) {
+  const cutoff = now.getTime() + hours * 60 * 60 * 1000;
+  return sortByDue(assignments.filter((a) => !a.done && toDueDate(a.dueDate, a.dueTime).getTime() <= cutoff));
+}
+
 /** Every course name used in the list, sorted, without blanks or repeats. */
 export function courseNames(assignments) {
   return [...new Set(assignments.map((a) => a.course).filter(Boolean))].sort((a, b) => a.localeCompare(b));

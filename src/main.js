@@ -6,6 +6,7 @@ import {
   courseNames,
   createAssignment,
   describeDue,
+  dueSoon,
   filterAssignments,
   groupAssignments,
   PRIORITY_LABELS,
@@ -15,12 +16,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=bfbe6663";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=bfbe6663";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=bfbe6663";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=bfbe6663";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=bfbe6663";
-import { loadAssignments, saveAssignments } from "./storage.js?v=bfbe6663";
+} from "./assignments.js?v=05593c77";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=05593c77";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=05593c77";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=05593c77";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=05593c77";
+import { loadAssignments, saveAssignments } from "./storage.js?v=05593c77";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -48,6 +49,9 @@ const elements = {
   todoList: document.getElementById("todo-list"),
   todoCount: document.getElementById("todo-count"),
   emptyMessage: document.getElementById("empty-message"),
+  dueSoon: document.getElementById("due-soon"),
+  dueSoonCount: document.getElementById("due-soon-count"),
+  dueSoonList: document.getElementById("due-soon-list"),
   gettingStarted: document.getElementById("getting-started"),
   tryExamples: document.getElementById("try-examples"),
   exampleBar: document.getElementById("example-bar"),
@@ -162,6 +166,7 @@ function render() {
   elements.gettingStarted.hidden = !noAssignments;
   elements.exampleBar.hidden = !hasExamples(state.assignments);
   elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
+  renderDueSoon(now);
   elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -468,6 +473,48 @@ function setTheme(theme) {
   saveChoice(THEME_STORAGE_KEY, theme);
 }
 
+// ----- Due soon -----
+
+/** The reminder box: everything unfinished that is overdue or due within a day, whatever the filters. */
+function renderDueSoon(now) {
+  const soon = dueSoon(state.assignments, now);
+  elements.dueSoon.hidden = soon.length === 0;
+  elements.dueSoonCount.textContent = `(${soon.length})`;
+  elements.dueSoonList.replaceChildren(...soon.map((assignment) => renderDueSoonItem(assignment, now)));
+}
+
+function renderDueSoonItem(assignment, now) {
+  const item = document.createElement("li");
+  item.className = "due-soon-item";
+  item.dataset.id = assignment.id;
+
+  const checkbox = document.createElement("input");
+  checkbox.type = "checkbox";
+  checkbox.className = "done-checkbox";
+  checkbox.dataset.action = "toggle-done";
+  checkbox.setAttribute("aria-label", `Mark "${assignment.title}" as done`);
+
+  const title = makeButton("link-button", assignment.title);
+  title.dataset.action = "edit";
+  title.setAttribute("aria-label", `Edit "${assignment.title}"`);
+
+  const type = assignmentType(assignment);
+  if (type) {
+    const dot = document.createElement("span");
+    dot.className = `type-dot type-${type}`;
+    title.prepend(dot);
+  }
+
+  const { text, urgency } = describeDue(assignment, now);
+  const relative = makeTag(text, `relative-due urgency-${urgency}`);
+  item.append(checkbox, title);
+  if (assignment.course) {
+    item.append(makeTag(assignment.course, "course-tag"));
+  }
+  item.append(relative);
+  return item;
+}
+
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
 function emptyMessageText({ course, hideSmall }) {
   if (!state.assignments.some((a) => !a.done)) {
@@ -681,7 +728,8 @@ function stopEditing() {
 
 function handleListClick(event) {
   const control = event.target.closest("[data-action]");
-  const item = event.target.closest(".assignment");
+  // Rows in the list and in the Due soon box both carry the assignment's id.
+  const item = event.target.closest("li[data-id]");
   if (!control || !item) {
     return;
   }
@@ -925,6 +973,7 @@ function start() {
   elements.courseFilter.addEventListener("change", render);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
+  elements.dueSoonList.addEventListener("click", handleListClick);
   elements.toastUndo.addEventListener("click", handleUndo);
   elements.calendarBody.addEventListener("click", handleCalendarClick);
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));

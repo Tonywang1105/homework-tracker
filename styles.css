@@ -361,6 +361,53 @@ button:focus-visible {
   font-size: 0.9rem;
 }
 
+/* ----- Due soon: unfinished work that is overdue or due within a day ----- */
+
+.due-soon {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--soon);
+  border-radius: 8px;
+}
+
+.due-soon[hidden] {
+  display: none;
+}
+
+.due-soon-heading {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.due-soon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.due-soon-item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-size: 0.9rem;
+}
+
+.due-soon-item .done-checkbox {
+  margin: 0;
+}
+
+.due-soon-item .link-button {
+  padding: 2px 0;
+  font-size: inherit;
+  font-weight: 600;
+  color: var(--text);
+  text-align: left;
+}
+
 .empty {
   color: var(--muted);
   padding: 24px 0;
