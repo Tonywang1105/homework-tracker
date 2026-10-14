@@ -36,7 +36,12 @@
           <div class="field-row">
             <div class="field">
               <label for="dueDate">Due date</label>
-              <input id="dueDate" name="dueDate" type="date" required />
+              <div class="date-field">
+                <input id="dueDate" name="dueDate" type="date" required />
+                <!-- The browser draws the empty date box in the computer's language (年/月/日); this English
+                     label covers it until a date is chosen. Screen readers use the field's label instead. -->
+                <span class="date-placeholder" aria-hidden="true">yyyy/mm/dd</span>
+              </div>
               <p class="field-error" id="dueDate-error"></p>
             </div>
             <div class="field">

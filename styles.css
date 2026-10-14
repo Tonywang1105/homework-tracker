@@ -245,6 +245,29 @@ button:focus-visible {
   font-size: 0.88rem;
 }
 
+.date-field {
+  position: relative;
+}
+
+/* While the date box is empty (the required field is :invalid) and not being typed in, hide the
+   browser's own placeholder text and show the English .date-placeholder in the same spot. */
+.date-field input:invalid:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-placeholder {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.date-field input:valid ~ .date-placeholder,
+.date-field input:focus ~ .date-placeholder {
+  display: none;
+}
+
 /* ----- List ----- */
 
 .list-header {
