@@ -1,7 +1,7 @@
 // Pure logic for the month calendar: which days the grid shows and which assignments fall on each.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { PRIORITIES, sortByDue } from "./assignments.js?v=2819d7a4";
+import { PRIORITIES, sortByDue } from "./assignments.js?v=82eac025";
 
 const DAYS_PER_WEEK = 7;
 
@@ -88,4 +88,11 @@ export function visibleOnDay(dayAssignments, { maxLines, expanded = false }) {
     hiddenCount,
     hasToggle: !fits,
   };
+}
+
+/** True when every day of a grid week is before today, so the calendar can show it slimmer. */
+export function isPastWeek(week, today = new Date()) {
+  const todayKey = toDateKey(today);
+  // "YYYY-MM-DD" keys sort the same way as the dates they name.
+  return week.every((day) => day.key < todayKey);
 }

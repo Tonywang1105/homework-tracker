@@ -16,12 +16,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=2819d7a4";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=2819d7a4";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=2819d7a4";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=2819d7a4";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=2819d7a4";
-import { loadAssignments, saveAssignments } from "./storage.js?v=2819d7a4";
+} from "./assignments.js?v=82eac025";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=82eac025";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=82eac025";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=82eac025";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=82eac025";
+import { loadAssignments, saveAssignments } from "./storage.js?v=82eac025";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -101,8 +101,10 @@ const state = {
   storageReadable: true,
   toastTimer: null,
   undoAction: null,
-  // The assignment whose details box is open on the calendar, or null.
+  // The assignment whose details box is open on the calendar, or null, and whether a Due soon
+  // chip (rather than a calendar tag) opened it, which decides where the box appears.
   detailsId: null,
+  detailsFromChip: false,
   // Calendar days ("YYYY-MM-DD") whose "+N more" link was clicked, so they show every tag.
   expandedDays: new Set(),
   view: "list",
@@ -203,6 +205,8 @@ function renderCalendar(assignments, course, now) {
   elements.calendarBody.replaceChildren(
     ...weeks.map((week) => {
       const row = document.createElement("tr");
+      // Weeks already over are drawn slimmer, so this week stays near the top of the screen.
+      row.classList.toggle("past-week", isPastWeek(week, now));
       row.append(...week.map(renderCalendarDay));
       return row;
     }),
@@ -342,7 +346,7 @@ function handleCalendarClick(event) {
   const button = event.target.closest(".calendar-item");
   if (button) {
     // Clicking the open tag again closes its box.
-    toggleDetails(button.dataset.id === state.detailsId ? null : button.dataset.id);
+    toggleDetails(button.dataset.id === state.detailsId && !state.detailsFromChip ? null : button.dataset.id);
     return;
   }
   const cell = event.target.closest(".calendar-day");
@@ -372,16 +376,22 @@ function formatDay(dateKey) {
 
 // ----- Calendar details box -----
 
-function toggleDetails(assignmentId) {
+function toggleDetails(assignmentId, { fromChip = false } = {}) {
   const closingId = state.detailsId;
+  const closingFromChip = state.detailsFromChip;
   state.detailsId = assignmentId;
+  state.detailsFromChip = fromChip;
   render();
   if (assignmentId) {
     elements.details.focus();
   } else if (closingId) {
-    // Put keyboard focus back on the tag that opened the box.
-    calendarItemButton(closingId)?.focus();
+    // Put keyboard focus back on the tag or chip that opened the box.
+    (closingFromChip ? dueSoonChip(closingId) : calendarItemButton(closingId))?.focus();
   }
+}
+
+function dueSoonChip(assignmentId) {
+  return elements.dueSoonList.querySelector(`.due-soon-chip[data-id="${CSS.escape(assignmentId)}"]`);
 }
 
 function calendarItemButton(assignmentId) {
@@ -390,9 +400,9 @@ function calendarItemButton(assignmentId) {
 
 function renderDetails(now) {
   const assignment = findAssignment(state.detailsId);
-  const button = assignment && calendarItemButton(assignment.id);
+  const button = assignment && (state.detailsFromChip ? dueSoonChip(assignment.id) : calendarItemButton(assignment.id));
   if (!button) {
-    // The assignment was deleted, hidden by the small-reminders filter, or is in another month: close the box.
+    // The assignment was deleted, or its tag or chip is gone (filtered out, another month, no longer due soon): close the box.
     state.detailsId = null;
     elements.details.hidden = true;
     return;
@@ -420,7 +430,8 @@ function positionDetails(button) {
 }
 
 function handleOutsideClick(event) {
-  if (state.detailsId && !elements.details.contains(event.target) && !event.target.closest(".calendar-item")) {
+  const onOpener = event.target.closest(".calendar-item, .due-soon-chip");
+  if (state.detailsId && !elements.details.contains(event.target) && !onOpener) {
     toggleDetails(null);
   }
 }
@@ -486,39 +497,44 @@ function renderDueSoon(soon, now) {
   // Only in Calendar view: in List view the same items already sit at the top, tinted (see renderAssignment).
   elements.dueSoon.hidden = soon.length === 0 || state.view !== "calendar";
   elements.dueSoonCount.textContent = `(${soon.length})`;
-  elements.dueSoonList.replaceChildren(...soon.map((assignment) => renderDueSoonItem(assignment, now)));
+  elements.dueSoonList.replaceChildren(...soon.map((assignment) => renderDueSoonChip(assignment, now)));
 }
 
-function renderDueSoonItem(assignment, now) {
+/** One compact chip: type dot, title and time left. Clicking it opens the same details box as a calendar tag. */
+function renderDueSoonChip(assignment, now) {
   const item = document.createElement("li");
-  item.className = "due-soon-item";
-  item.dataset.id = assignment.id;
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.className = "done-checkbox";
-  checkbox.dataset.action = "toggle-done";
-  checkbox.setAttribute("aria-label", `Mark "${assignment.title}" as done`);
-
-  const title = makeButton("link-button", assignment.title);
-  title.dataset.action = "edit";
-  title.setAttribute("aria-label", `Edit "${assignment.title}"`);
+  const { text, urgency } = describeDue(assignment, now);
+  const chip = makeButton(`due-soon-chip urgency-${urgency}`);
+  chip.dataset.id = assignment.id;
+  chip.classList.toggle("is-selected", state.detailsFromChip && assignment.id === state.detailsId);
+  chip.setAttribute("aria-haspopup", "dialog");
+  const course = assignment.course ? ` (${assignment.course})` : "";
+  chip.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${text}`);
 
   const type = assignmentType(assignment);
   if (type) {
     const dot = document.createElement("span");
     dot.className = `type-dot type-${type}`;
-    title.prepend(dot);
+    chip.append(dot);
   }
+  const title = document.createElement("span");
+  title.className = "due-soon-title";
+  title.textContent = assignment.title;
+  const when = document.createElement("span");
+  when.className = "due-soon-when";
+  when.textContent = text;
+  chip.append(title, when);
 
-  const { text, urgency } = describeDue(assignment, now);
-  const relative = makeTag(text, `relative-due urgency-${urgency}`);
-  item.append(checkbox, title);
-  if (assignment.course) {
-    item.append(makeTag(assignment.course, "course-tag"));
-  }
-  item.append(relative);
+  item.append(chip);
   return item;
+}
+
+function handleDueSoonClick(event) {
+  const chip = event.target.closest(".due-soon-chip");
+  if (chip) {
+    const isOpen = chip.dataset.id === state.detailsId && state.detailsFromChip;
+    toggleDetails(isOpen ? null : chip.dataset.id, { fromChip: true });
+  }
 }
 
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
@@ -763,7 +779,6 @@ function stopEditing() {
 
 function handleListClick(event) {
   const control = event.target.closest("[data-action]");
-  // Rows in the list and in the Due soon box both carry the assignment's id.
   const item = event.target.closest("li[data-id]");
   if (!control || !item) {
     return;
@@ -1012,7 +1027,7 @@ function start() {
   elements.courseFilter.addEventListener("change", render);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
-  elements.dueSoonList.addEventListener("click", handleListClick);
+  elements.dueSoonList.addEventListener("click", handleDueSoonClick);
   elements.toastUndo.addEventListener("click", handleUndo);
   elements.calendarBody.addEventListener("click", handleCalendarClick);
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));

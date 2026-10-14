@@ -401,7 +401,7 @@ button:focus-visible {
 }
 
 .due-soon-heading {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 0.95rem;
 }
 
@@ -409,28 +409,53 @@ button:focus-visible {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: grid;
-  gap: 4px;
-}
-
-.due-soon-item {
   display: flex;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 2px 8px;
-  font-size: 0.9rem;
+  gap: 6px;
 }
 
-.due-soon-item .done-checkbox {
-  margin: 0;
-}
-
-.due-soon-item .link-button {
-  padding: 2px 0;
-  font-size: inherit;
-  font-weight: 600;
+/* One chip per assignment, so the box stays short and the calendar's current week stays in view. */
+.due-soon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 0.85rem;
   color: var(--text);
-  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.due-soon-chip:hover {
+  background: var(--small-soft);
+}
+
+.due-soon-chip.is-selected {
+  outline: 2px solid var(--accent);
+}
+
+.due-soon-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.due-soon-when {
+  flex: none;
+  font-size: 0.8rem;
+}
+
+.due-soon-chip.urgency-overdue .due-soon-when {
+  color: var(--overdue);
+}
+
+.due-soon-chip.urgency-soon .due-soon-when {
+  color: var(--soon);
 }
 
 .empty {
@@ -709,6 +734,11 @@ button:focus-visible {
 
 .calendar-day.outside-month {
   background: var(--bg);
+}
+
+/* Weeks already over are slimmer, so this week stays near the top; a day with items still grows to fit them. */
+.past-week .calendar-day {
+  height: 52px;
 }
 
 .calendar-day {
