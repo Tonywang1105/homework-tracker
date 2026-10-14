@@ -1,8 +1,8 @@
 // Repeating assignments: one form entry becomes a series of separate weekly or every-other-week
 // assignments. No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment } from "./assignments.js?v=0e407b5c";
-import { toDateKey } from "./calendar.js?v=0e407b5c";
+import { createAssignment } from "./assignments.js?v=b639ce8e";
+import { toDateKey } from "./calendar.js?v=b639ce8e";
 
 // The Repeat choices in the form, as days between copies. "" means the assignment doesn't repeat.
 export const REPEAT_DAYS = { "": 0, weekly: 7, biweekly: 14 };
@@ -62,4 +62,33 @@ export function createSeries(fields, dates, { now = new Date(), seriesId = crypt
     ...createAssignment({ ...fields, title: numberedTitle(fields.title, index), dueDate }, { now }),
     ...(dates.length > 1 ? { seriesId } : {}),
   }));
+}
+
+/**
+ * Rows for the to-do list with each series combined: only its next item shows, with how many more
+ * come later; an expanded series lists the rest right under it. `todo` must be sorted soonest first.
+ * Returns [{ assignment, laterInSeries, inSeries }]: laterInSeries is set on a series' first row,
+ * inSeries marks the later rows of an expanded series.
+ */
+export function combineSeries(todo, expandedSeries = new Set()) {
+  const bySeries = new Map();
+  for (const assignment of todo) {
+    if (assignment.seriesId) {
+      bySeries.set(assignment.seriesId, [...(bySeries.get(assignment.seriesId) ?? []), assignment]);
+    }
+  }
+  const rows = [];
+  for (const assignment of todo) {
+    const series = assignment.seriesId ? bySeries.get(assignment.seriesId) : null;
+    if (!series) {
+      rows.push({ assignment, laterInSeries: 0, inSeries: false });
+    } else if (series[0] === assignment) {
+      const later = series.slice(1);
+      rows.push({ assignment, laterInSeries: later.length, inSeries: false });
+      if (expandedSeries.has(assignment.seriesId)) {
+        rows.push(...later.map((laterAssignment) => ({ assignment: laterAssignment, laterInSeries: 0, inSeries: true })));
+      }
+    }
+  }
+  return rows;
 }

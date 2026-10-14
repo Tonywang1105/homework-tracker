@@ -16,13 +16,13 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=0e407b5c";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=0e407b5c";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=0e407b5c";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=0e407b5c";
-import { createSeries, validateRepeat } from "./repeat.js?v=0e407b5c";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=0e407b5c";
-import { loadAssignments, saveAssignments } from "./storage.js?v=0e407b5c";
+} from "./assignments.js?v=b639ce8e";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=b639ce8e";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=b639ce8e";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=b639ce8e";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=b639ce8e";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=b639ce8e";
+import { loadAssignments, saveAssignments } from "./storage.js?v=b639ce8e";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -111,6 +111,8 @@ const state = {
   detailsFromChip: false,
   // Calendar days ("YYYY-MM-DD") whose "+N more" link was clicked, so they show every tag.
   expandedDays: new Set(),
+  // Repeating series whose later items are shown in the to-do list (normally only the next one is).
+  expandedSeries: new Set(),
   view: "list",
   // The month the calendar shows, as { year, month } with month 0-11.
   shownMonth: currentMonth(),
@@ -170,7 +172,7 @@ function render() {
   const soon = dueSoon(state.assignments, now);
   const soonIds = new Set(soon.map((a) => a.id));
 
-  elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now, soonIds)));
+  elements.todoList.replaceChildren(...combineSeries(todo, state.expandedSeries).flatMap((row) => renderTodoRow(row, now, soonIds)));
   elements.todoCount.textContent = todo.length > 0 ? `(${todo.length})` : "";
   // With no assignments at all, the getting-started box (with the examples button) takes the place of the empty messages.
   const noAssignments = state.assignments.length === 0;
@@ -555,6 +557,23 @@ function emptyMessageText({ course, hideSmall }) {
   return `Nothing left but small reminders.${smallHidden}`;
 }
 
+/** One to-do row; a series' first row also gets its "+N more in this series" link, later rows are indented. */
+function renderTodoRow({ assignment, laterInSeries, inSeries }, now, soonIds) {
+  const item = renderAssignment(assignment, now, soonIds);
+  item.classList.toggle("in-series", inSeries);
+  if (laterInSeries === 0) {
+    return [item];
+  }
+  const expanded = state.expandedSeries.has(assignment.seriesId);
+  const toggleItem = document.createElement("li");
+  toggleItem.className = "series-toggle";
+  const toggle = makeButton("link-button", expanded ? `Hide the ${laterInSeries} later ones` : `+${laterInSeries} more in this series`);
+  toggle.dataset.seriesToggle = assignment.seriesId;
+  toggle.setAttribute("aria-expanded", String(expanded));
+  toggleItem.append(toggle);
+  return [item, toggleItem];
+}
+
 function renderAssignment(assignment, now, soonIds = new Set()) {
   const item = document.createElement("li");
   item.className = `assignment priority-${assignment.priority}${assignment.done ? " is-done" : ""}`;
@@ -810,6 +829,17 @@ function stopEditing() {
 // ----- List actions -----
 
 function handleListClick(event) {
+  const seriesToggle = event.target.closest("[data-series-toggle]");
+  if (seriesToggle) {
+    const seriesId = seriesToggle.dataset.seriesToggle;
+    if (!state.expandedSeries.delete(seriesId)) {
+      state.expandedSeries.add(seriesId);
+    }
+    render();
+    // render() replaced the link, so put keyboard focus on the new one.
+    elements.todoList.querySelector(`[data-series-toggle="${CSS.escape(seriesId)}"]`)?.focus();
+    return;
+  }
   const control = event.target.closest("[data-action]");
   const item = event.target.closest("li[data-id]");
   if (!control || !item) {

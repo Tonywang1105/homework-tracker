@@ -511,6 +511,20 @@ button:focus-visible {
   background: var(--error-soft);
 }
 
+/* Later items of an expanded repeating series sit indented under the series' next item. */
+.assignment.in-series {
+  padding-left: 32px;
+}
+
+.series-toggle {
+  padding: 0 12px 8px 46px;
+  margin-top: -6px;
+}
+
+.series-toggle .link-button {
+  padding: 2px 0;
+}
+
 .assignment.is-editing {
   background: var(--small-soft);
 }

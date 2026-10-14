@@ -1,8 +1,8 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=0e407b5c";
-import { toDateKey } from "./calendar.js?v=0e407b5c";
+import { validateAssignmentInput } from "./assignments.js?v=b639ce8e";
+import { toDateKey } from "./calendar.js?v=b639ce8e";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -77,6 +77,10 @@ function restoreAssignment(saved) {
   };
   if (typeof saved.canvasUid === "string") {
     restored.canvasUid = saved.canvasUid;
+  }
+  // Keeps a repeating series combined in the list after a backup is restored.
+  if (typeof saved.seriesId === "string") {
+    restored.seriesId = saved.seriesId;
   }
   // Keeps "Remove example assignments" working after a backup is restored.
   if (saved.example === true) {
