@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Homework Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=10b70bb1" />
-    <script type="module" src="src/main.js?v=10b70bb1"></script>
+    <link rel="stylesheet" href="styles.css?v=9802d704" />
+    <script type="module" src="src/main.js?v=9802d704"></script>
   </head>
   <body>
     <header class="page-header">
@@ -115,6 +115,15 @@
             <input type="checkbox" id="hide-done" />
             Hide completed
           </label>
+        </div>
+
+        <div id="getting-started" class="getting-started" hidden>
+          <p>No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.</p>
+          <button type="button" id="try-examples" class="button button-primary">Try with example assignments</button>
+        </div>
+        <div id="example-bar" class="example-bar" hidden>
+          <span>You're looking at example assignments.</span>
+          <button type="button" id="remove-examples" class="link-button">Remove them</button>
         </div>
 
         <div id="list-view">

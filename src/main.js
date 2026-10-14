@@ -15,11 +15,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=10b70bb1";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=10b70bb1";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=10b70bb1";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=10b70bb1";
-import { loadAssignments, saveAssignments } from "./storage.js?v=10b70bb1";
+} from "./assignments.js?v=9802d704";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=9802d704";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=9802d704";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=9802d704";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=9802d704";
+import { loadAssignments, saveAssignments } from "./storage.js?v=9802d704";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -31,7 +32,6 @@ const MAX_LINES_PER_DAY = 3;
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 // How screen readers hear each size on the calendar.
 const SIZE_NAMES = { big: "Big assignment", regular: "Regular assignment", small: "Small reminder" };
-const NO_ASSIGNMENTS_MESSAGE = "No assignments yet. Add one with the form, or use Import from Canvas below.";
 
 const elements = {
   form: document.getElementById("assignment-form"),
@@ -45,6 +45,10 @@ const elements = {
   todoList: document.getElementById("todo-list"),
   todoCount: document.getElementById("todo-count"),
   emptyMessage: document.getElementById("empty-message"),
+  gettingStarted: document.getElementById("getting-started"),
+  tryExamples: document.getElementById("try-examples"),
+  exampleBar: document.getElementById("example-bar"),
+  removeExamples: document.getElementById("remove-examples"),
   doneSection: document.getElementById("done-section"),
   doneList: document.getElementById("done-list"),
   doneCount: document.getElementById("done-count"),
@@ -149,7 +153,11 @@ function render() {
 
   elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now)));
   elements.todoCount.textContent = todo.length > 0 ? `(${todo.length})` : "";
-  elements.emptyMessage.hidden = todo.length > 0;
+  // With no assignments at all, the getting-started box (with the examples button) takes the place of the empty messages.
+  const noAssignments = state.assignments.length === 0;
+  elements.gettingStarted.hidden = !noAssignments;
+  elements.exampleBar.hidden = !hasExamples(state.assignments);
+  elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
   elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -187,10 +195,9 @@ function renderCalendar(assignments, course, now) {
   );
 
   const leftThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.some((a) => !a.done));
-  elements.calendarEmpty.hidden = leftThisMonth;
+  elements.calendarEmpty.hidden = leftThisMonth || state.assignments.length === 0;
   const forCourse = course ? ` for ${course}` : "";
-  elements.calendarEmpty.textContent =
-    state.assignments.length === 0 ? NO_ASSIGNMENTS_MESSAGE : `Nothing left to do${forCourse} in ${monthName}.`;
+  elements.calendarEmpty.textContent = `Nothing left to do${forCourse} in ${monthName}.`;
 }
 
 function renderCalendarDay(day) {
@@ -432,9 +439,6 @@ function loadSavedView() {
 
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
 function emptyMessageText({ course, hideSmall }) {
-  if (state.assignments.length === 0) {
-    return NO_ASSIGNMENTS_MESSAGE;
-  }
   if (!state.assignments.some((a) => !a.done)) {
     return "All caught up. Nothing left to do.";
   }
@@ -822,6 +826,20 @@ async function handleBackupFile() {
   showToast(`Restored ${countAssignments(result.assignments.length)}.${skipped}`, () => updateAssignments(previous));
 }
 
+// ----- Example assignments -----
+
+function addExamples() {
+  const examples = exampleAssignments();
+  updateAssignments([...state.assignments, ...examples]);
+  showToast(`Added ${countAssignments(examples.length)} as examples. Try the calendar, filters and details.`);
+}
+
+function handleRemoveExamples() {
+  const previous = state.assignments;
+  updateAssignments(removeExamples(previous));
+  showToast("Removed the example assignments.", () => updateAssignments(previous));
+}
+
 // ----- Toast (short confirmation message, optionally with Undo) -----
 
 function showToast(message, undoAction = null) {
@@ -868,6 +886,8 @@ function start() {
   elements.backupDownloadButton.addEventListener("click", handleBackupDownload);
   elements.backupRestoreButton.addEventListener("click", () => elements.backupFile.click());
   elements.backupFile.addEventListener("change", handleBackupFile);
+  elements.tryExamples.addEventListener("click", addExamples);
+  elements.removeExamples.addEventListener("click", handleRemoveExamples);
   elements.cancelEdit.addEventListener("click", stopEditing);
   elements.showSmall.addEventListener("change", render);
   elements.hideDone.addEventListener("change", render);
