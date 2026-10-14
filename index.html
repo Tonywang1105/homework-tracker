@@ -84,9 +84,22 @@
             <button type="button" class="view-button" data-view="list" aria-pressed="true">List</button>
             <button type="button" class="view-button" data-view="calendar" aria-pressed="false">Calendar</button>
           </div>
+        </div>
+
+        <div class="filters" role="group" aria-label="Filters">
+          <label class="filter-course">
+            Course
+            <select id="course-filter">
+              <option value="">All courses</option>
+            </select>
+          </label>
           <label class="toggle">
             <input type="checkbox" id="show-small" checked />
             Show small reminders
+          </label>
+          <label class="toggle">
+            <input type="checkbox" id="hide-done" />
+            Hide completed
           </label>
         </div>
 

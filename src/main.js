@@ -1,8 +1,10 @@
 // Connects the page to the assignment logic and storage: reads the form, renders the lists, handles clicks.
 
 import {
+  courseNames,
   createAssignment,
   describeDue,
+  filterAssignments,
   groupAssignments,
   removeAssignment,
   toDueDate,
@@ -21,6 +23,7 @@ const VIEWS = ["list", "calendar"];
 const MAX_LINES_PER_DAY = 3;
 // A semester's Canvas feed is well under 1 MB; anything far bigger is the wrong file.
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+const NO_ASSIGNMENTS_MESSAGE = "No assignments yet. Add one with the form, or use Import from Canvas below.";
 
 const elements = {
   form: document.getElementById("assignment-form"),
@@ -29,6 +32,8 @@ const elements = {
   cancelEdit: document.getElementById("cancel-edit"),
   courseSuggestions: document.getElementById("course-suggestions"),
   showSmall: document.getElementById("show-small"),
+  hideDone: document.getElementById("hide-done"),
+  courseFilter: document.getElementById("course-filter"),
   todoList: document.getElementById("todo-list"),
   todoCount: document.getElementById("todo-count"),
   emptyMessage: document.getElementById("empty-message"),
@@ -119,14 +124,24 @@ function updateAssignments(newAssignments) {
 // ----- Rendering -----
 
 function render() {
-  const bigOnly = !elements.showSmall.checked;
-  const { todo, done } = groupAssignments(state.assignments, { bigOnly });
+  const courses = courseNames(state.assignments);
+  renderCourseFilter(courses);
+  renderCourseSuggestions(courses);
+
+  const filters = {
+    course: elements.courseFilter.value,
+    bigOnly: !elements.showSmall.checked,
+    hideDone: elements.hideDone.checked,
+  };
+  // The list and the calendar both draw from this, so they always agree.
+  const visible = filterAssignments(state.assignments, filters);
+  const { todo, done } = groupAssignments(visible);
   const now = new Date();
 
   elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now)));
   elements.todoCount.textContent = todo.length > 0 ? `(${todo.length})` : "";
   elements.emptyMessage.hidden = todo.length > 0;
-  elements.emptyMessage.textContent = emptyMessageText(done.length);
+  elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
   elements.doneCount.textContent = `(${done.length})`;
@@ -138,20 +153,18 @@ function render() {
     button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
   }
   if (state.view === "calendar") {
-    // The calendar also shows finished work (greyed out), with the same big/small filter as the list.
-    renderCalendar(state.assignments.filter((a) => !bigOnly || a.priority === "big"), now);
+    // Unless "Hide completed" is ticked, the calendar also shows finished work, greyed out.
+    renderCalendar(visible, filters.course, now);
     renderDetails(now);
   } else {
     state.detailsId = null;
     elements.details.hidden = true;
   }
-
-  renderCourseSuggestions();
 }
 
 // ----- Calendar -----
 
-function renderCalendar(assignments, now) {
+function renderCalendar(assignments, course, now) {
   const weeks = buildMonthGrid(state.shownMonth, assignments, now);
   const monthName = monthFormatter.format(new Date(state.shownMonth.year, state.shownMonth.month, 1));
   elements.calendarMonth.textContent = monthName;
@@ -166,8 +179,9 @@ function renderCalendar(assignments, now) {
 
   const leftThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.some((a) => !a.done));
   elements.calendarEmpty.hidden = leftThisMonth;
+  const forCourse = course ? ` for ${course}` : "";
   elements.calendarEmpty.textContent =
-    state.assignments.length === 0 ? "No assignments yet. Add one with the form, or use Import from Canvas below." : `Nothing left to do in ${monthName}.`;
+    state.assignments.length === 0 ? NO_ASSIGNMENTS_MESSAGE : `Nothing left to do${forCourse} in ${monthName}.`;
 }
 
 function renderCalendarDay(day) {
@@ -384,15 +398,19 @@ function loadSavedView() {
   }
 }
 
-function emptyMessageText(doneCount) {
-  const hiddenSmall = !elements.showSmall.checked && state.assignments.some((a) => !a.done && a.priority === "small");
-  if (hiddenSmall) {
-    return "No big assignments left. Small reminders are hidden.";
+/** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
+function emptyMessageText({ course, bigOnly }) {
+  if (state.assignments.length === 0) {
+    return NO_ASSIGNMENTS_MESSAGE;
   }
-  if (doneCount > 0) {
+  if (!state.assignments.some((a) => !a.done)) {
     return "All caught up. Nothing left to do.";
   }
-  return "No assignments yet. Add one with the form, or use Import from Canvas below.";
+  const smallHidden = bigOnly ? " Small reminders are hidden." : "";
+  if (course) {
+    return `Nothing left to do for ${course}.${smallHidden}`;
+  }
+  return `No big assignments left.${smallHidden}`;
 }
 
 function renderAssignment(assignment, now) {
@@ -489,15 +507,25 @@ function makeButton(className, text = "") {
   return button;
 }
 
-function renderCourseSuggestions() {
-  const courses = [...new Set(state.assignments.map((a) => a.course).filter(Boolean))].sort();
-  elements.courseSuggestions.replaceChildren(
-    ...courses.map((course) => {
-      const option = document.createElement("option");
-      option.value = course;
-      return option;
-    }),
-  );
+/** The form's Course box suggests courses already in use. */
+function renderCourseSuggestions(courses) {
+  elements.courseSuggestions.replaceChildren(...courses.map((course) => makeOption(course)));
+}
+
+/** The Course filter lists every course; if the chosen one is gone (its last assignment deleted), it goes back to All. */
+function renderCourseFilter(courses) {
+  const chosen = courses.includes(elements.courseFilter.value) ? elements.courseFilter.value : "";
+  elements.courseFilter.replaceChildren(makeOption("", "All courses"), ...courses.map((course) => makeOption(course, course)));
+  elements.courseFilter.value = chosen;
+}
+
+function makeOption(value, text) {
+  const option = document.createElement("option");
+  option.value = value;
+  if (text !== undefined) {
+    option.textContent = text;
+  }
+  return option;
 }
 
 // ----- The form -----
@@ -728,6 +756,8 @@ function start() {
   elements.canvasFile.addEventListener("change", handleCanvasFile);
   elements.cancelEdit.addEventListener("click", stopEditing);
   elements.showSmall.addEventListener("change", render);
+  elements.hideDone.addEventListener("change", render);
+  elements.courseFilter.addEventListener("change", render);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
   elements.toastUndo.addEventListener("click", handleUndo);

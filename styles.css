@@ -284,6 +284,33 @@ button:focus-visible {
   font-weight: 400;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 12px;
+  font-size: 0.92rem;
+}
+
+.filter-course {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.filter-course select {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  max-width: 14em;
+}
+
 .toggle {
   display: flex;
   align-items: center;

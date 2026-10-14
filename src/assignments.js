@@ -76,16 +76,28 @@ export function sortByDue(assignments) {
   });
 }
 
-/**
- * Splits assignments into the to-do list and the completed list, each sorted by due date.
- * With bigOnly, small reminders are hidden from the to-do list.
- */
-export function groupAssignments(assignments, { bigOnly = false } = {}) {
+/** Splits assignments into the to-do list and the completed list, each sorted by due date. */
+export function groupAssignments(assignments) {
   const sorted = sortByDue(assignments);
   return {
-    todo: sorted.filter((a) => !a.done && (!bigOnly || a.priority === "big")),
+    todo: sorted.filter((a) => !a.done),
     done: sorted.filter((a) => a.done),
   };
+}
+
+/**
+ * The assignments that pass the list's filters, used by both the list and the calendar so they agree.
+ * course: only that course ("" for all); bigOnly: hide small reminders; hideDone: hide finished work.
+ */
+export function filterAssignments(assignments, { course = "", bigOnly = false, hideDone = false } = {}) {
+  return assignments.filter(
+    (a) => (course === "" || a.course === course) && (!bigOnly || a.priority === "big") && (!hideDone || !a.done),
+  );
+}
+
+/** Every course name used in the list, sorted, without blanks or repeats. */
+export function courseNames(assignments) {
+  return [...new Set(assignments.map((a) => a.course).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 
 const MINUTE = 60 * 1000;
