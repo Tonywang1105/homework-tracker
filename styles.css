@@ -17,6 +17,7 @@
   --later: light-dark(#4d6a4f, #9cc39e);
   --error: light-dark(#b42318, #ff8a7a);
   --error-soft: light-dark(#fdecea, #3a2222);
+  --soon-soft: light-dark(#fdf3e1, #352b1a);
   --shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.06), transparent);
   --radius: 10px;
   /* Assignment types. Kept clear of --big (red-orange), so a type never looks like "big". */
@@ -447,6 +448,15 @@ button:focus-visible {
   padding-top: 9px;
   padding-bottom: 9px;
   font-size: 0.92rem;
+}
+
+/* Unfinished work that is overdue or due within a day: the same items as the calendar's Due soon box. */
+.assignment.is-due-soon {
+  background: var(--soon-soft);
+}
+
+.assignment.is-overdue {
+  background: var(--error-soft);
 }
 
 .assignment.is-editing {

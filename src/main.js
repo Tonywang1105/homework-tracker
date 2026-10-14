@@ -16,12 +16,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=05593c77";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=05593c77";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=05593c77";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=05593c77";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=05593c77";
-import { loadAssignments, saveAssignments } from "./storage.js?v=05593c77";
+} from "./assignments.js?v=c86de48e";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=c86de48e";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=c86de48e";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=c86de48e";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=c86de48e";
+import { loadAssignments, saveAssignments } from "./storage.js?v=c86de48e";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -158,15 +158,18 @@ function render() {
   const visible = filterAssignments(state.assignments, filters);
   const { todo, done } = groupAssignments(visible);
   const now = new Date();
+  // Shared by the Due soon box (calendar) and the tinted rows (list), so both views agree on what is urgent.
+  const soon = dueSoon(state.assignments, now);
+  const soonIds = new Set(soon.map((a) => a.id));
 
-  elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now)));
+  elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now, soonIds)));
   elements.todoCount.textContent = todo.length > 0 ? `(${todo.length})` : "";
   // With no assignments at all, the getting-started box (with the examples button) takes the place of the empty messages.
   const noAssignments = state.assignments.length === 0;
   elements.gettingStarted.hidden = !noAssignments;
   elements.exampleBar.hidden = !hasExamples(state.assignments);
   elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
-  renderDueSoon(now);
+  renderDueSoon(soon, now);
   elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -475,10 +478,10 @@ function setTheme(theme) {
 
 // ----- Due soon -----
 
-/** The reminder box: everything unfinished that is overdue or due within a day, whatever the filters. */
-function renderDueSoon(now) {
-  const soon = dueSoon(state.assignments, now);
-  elements.dueSoon.hidden = soon.length === 0;
+/** The reminder box on the calendar: everything unfinished that is overdue or due within a day, whatever the filters. */
+function renderDueSoon(soon, now) {
+  // Only in Calendar view: in List view the same items already sit at the top, tinted (see renderAssignment).
+  elements.dueSoon.hidden = soon.length === 0 || state.view !== "calendar";
   elements.dueSoonCount.textContent = `(${soon.length})`;
   elements.dueSoonList.replaceChildren(...soon.map((assignment) => renderDueSoonItem(assignment, now)));
 }
@@ -527,10 +530,14 @@ function emptyMessageText({ course, hideSmall }) {
   return `Nothing left but small reminders.${smallHidden}`;
 }
 
-function renderAssignment(assignment, now) {
+function renderAssignment(assignment, now, soonIds = new Set()) {
   const item = document.createElement("li");
   item.className = `assignment priority-${assignment.priority}${assignment.done ? " is-done" : ""}`;
   item.dataset.id = assignment.id;
+  if (soonIds.has(assignment.id)) {
+    const overdue = toDueDate(assignment.dueDate, assignment.dueTime) < now;
+    item.classList.add(overdue ? "is-overdue" : "is-due-soon");
+  }
   if (assignment.id === state.editingId) {
     item.classList.add("is-editing");
   }
