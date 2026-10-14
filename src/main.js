@@ -73,6 +73,7 @@ const dueFormatter = new Intl.DateTimeFormat(DATE_LOCALE, {
 });
 const monthFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { month: "long", year: "numeric" });
 const timeFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { hour: "numeric", minute: "2-digit" });
+const dayFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short", month: "numeric", day: "numeric" });
 
 function currentMonth(now = new Date()) {
   return { year: now.getFullYear(), month: now.getMonth() };
@@ -98,7 +99,8 @@ function updateAssignments(newAssignments) {
 // ----- Rendering -----
 
 function render() {
-  const { todo, done } = groupAssignments(state.assignments, { bigOnly: !elements.showSmall.checked });
+  const bigOnly = !elements.showSmall.checked;
+  const { todo, done } = groupAssignments(state.assignments, { bigOnly });
   const now = new Date();
 
   elements.todoList.replaceChildren(...todo.map((assignment) => renderAssignment(assignment, now)));
@@ -116,7 +118,8 @@ function render() {
     button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
   }
   if (state.view === "calendar") {
-    renderCalendar(todo, now);
+    // The calendar also shows finished work (greyed out), with the same big/small filter as the list.
+    renderCalendar([...todo, ...done.filter((a) => !bigOnly || a.priority === "big")], now);
     renderDetails(now);
   } else {
     state.detailsId = null;
@@ -128,8 +131,8 @@ function render() {
 
 // ----- Calendar -----
 
-function renderCalendar(todo, now) {
-  const weeks = buildMonthGrid(state.shownMonth, todo, now);
+function renderCalendar(assignments, now) {
+  const weeks = buildMonthGrid(state.shownMonth, assignments, now);
   const monthName = monthFormatter.format(new Date(state.shownMonth.year, state.shownMonth.month, 1));
   elements.calendarMonth.textContent = monthName;
 
@@ -141,10 +144,10 @@ function renderCalendar(todo, now) {
     }),
   );
 
-  const dueThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.length > 0);
-  elements.calendarEmpty.hidden = dueThisMonth;
+  const leftThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.some((a) => !a.done));
+  elements.calendarEmpty.hidden = leftThisMonth;
   elements.calendarEmpty.textContent =
-    state.assignments.length === 0 ? "No assignments yet. Add your first one with the form." : `Nothing to do in ${monthName}.`;
+    state.assignments.length === 0 ? "No assignments yet. Add your first one with the form." : `Nothing left to do in ${monthName}.`;
 }
 
 function renderCalendarDay(day) {
@@ -152,13 +155,16 @@ function renderCalendarDay(day) {
   cell.className = "calendar-day";
   cell.classList.toggle("outside-month", !day.inMonth);
   cell.classList.toggle("is-today", day.isToday);
+  cell.dataset.date = day.key;
 
-  const number = document.createElement("span");
+  // The day number is a button so the keyboard can add an assignment too; a click anywhere else in the day does the same.
+  const dayName = formatDay(day.key);
+  const number = document.createElement("button");
+  number.type = "button";
   number.className = "day-number";
   number.textContent = day.dayOfMonth;
-  if (day.isToday) {
-    number.setAttribute("aria-label", `${day.dayOfMonth}, today`);
-  }
+  number.setAttribute("aria-label", `Add an assignment due ${dayName}${day.isToday ? " (today)" : ""}`);
+  cell.title = `Add an assignment due ${dayName}`;
   cell.append(number);
 
   if (day.assignments.length > 0) {
@@ -175,6 +181,7 @@ function renderCalendarItem(assignment) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = `calendar-item priority-${assignment.priority}`;
+  button.classList.toggle("is-done", assignment.done);
   button.classList.toggle("is-selected", assignment.id === state.detailsId);
   button.dataset.id = assignment.id;
   button.textContent = calendarTagText(assignment);
@@ -186,7 +193,8 @@ function renderCalendarItem(assignment) {
   const course = assignment.course ? ` (${assignment.course})` : "";
   // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
   button.title = `${assignment.title}${course}, due ${dueTime}`;
-  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${size}, due ${dueTime}`);
+  const status = assignment.done ? ", done" : "";
+  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${size}, due ${dueTime}${status}`);
 
   item.append(button);
   return item;
@@ -220,7 +228,30 @@ function handleCalendarClick(event) {
   if (button) {
     // Clicking the open tag again closes its box.
     toggleDetails(button.dataset.id === state.detailsId ? null : button.dataset.id);
+    return;
   }
+  const cell = event.target.closest(".calendar-day");
+  // While a details box is open, a click elsewhere only closes it (see handleOutsideClick).
+  if (cell && !state.detailsId) {
+    startAddingOn(cell.dataset.date);
+  }
+}
+
+/** Starts a new assignment due on the clicked calendar day. */
+function startAddingOn(dateKey) {
+  if (state.editingId) {
+    stopEditing();
+  }
+  elements.form.elements.dueDate.value = dateKey;
+  showErrors({});
+  elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
+  elements.form.elements.title.focus({ preventScroll: true });
+  showToast(`New assignment due ${formatDay(dateKey)}. Type a name.`);
+}
+
+/** "Wed, 10/21" for a "YYYY-MM-DD" date. */
+function formatDay(dateKey) {
+  return dayFormatter.format(toDueDate(dateKey, "12:00"));
 }
 
 // ----- Calendar details box -----
@@ -245,7 +276,7 @@ function renderDetails(now) {
   const assignment = state.assignments.find((a) => a.id === state.detailsId);
   const button = assignment && calendarItemButton(assignment.id);
   if (!button) {
-    // The assignment was deleted, completed, hidden, or is in another month: close the box.
+    // The assignment was deleted, hidden by the small-reminders filter, or is in another month: close the box.
     state.detailsId = null;
     elements.details.hidden = true;
     return;
@@ -257,6 +288,7 @@ function renderDetails(now) {
   // textContent (not innerHTML) so anything typed in a note is shown as text, never run as HTML.
   elements.detailsNotes.textContent = assignment.notes || "No notes.";
   elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
+  elements.detailsDone.textContent = assignment.done ? "Mark not done" : "Mark done";
   elements.details.hidden = false;
   positionDetails(button);
 }

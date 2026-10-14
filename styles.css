@@ -322,6 +322,10 @@ button:focus-visible {
 .course-tag {
   border: 1px solid var(--border);
   color: var(--muted);
+  /* A very long course name is cut off with … instead of pushing the list wider than the screen. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .priority-tag-big {
@@ -497,6 +501,14 @@ button:focus-visible {
   background: var(--bg);
 }
 
+.calendar-day {
+  cursor: pointer;
+}
+
+.calendar-day:hover {
+  background: var(--small-soft);
+}
+
 .calendar-day.outside-month .day-number {
   color: var(--muted);
   opacity: 0.6;
@@ -505,9 +517,15 @@ button:focus-visible {
 .day-number {
   display: inline-block;
   min-width: 1.6em;
+  padding: 0;
+  font: inherit;
   font-size: 0.8rem;
   text-align: center;
+  color: inherit;
+  background: transparent;
+  border: 0;
   border-radius: 999px;
+  cursor: pointer;
 }
 
 .calendar-day.is-today .day-number {
@@ -555,6 +573,15 @@ button:focus-visible {
   color: var(--muted);
 }
 
+.calendar-item.is-done {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: line-through;
+  border-left: 3px solid var(--border);
+  opacity: 0.75;
+}
+
 .calendar-item.is-selected {
   outline: 2px solid var(--accent);
 }
@@ -574,7 +601,16 @@ button:focus-visible {
   border-radius: var(--radius);
   box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
   display: grid;
+  /* minmax(0, 1fr) keeps long content inside the box's width instead of stretching past it. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
+}
+
+/* The box has room to show a long course name in full, so let it wrap. */
+.calendar-details .course-tag {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-radius: 10px;
 }
 
 .calendar-details[hidden] {
