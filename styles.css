@@ -238,6 +238,12 @@ button:focus-visible {
   border-top: 1px solid var(--border);
 }
 
+.import-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
 /* Quieter than other links: importing is occasional, so it shouldn't compete with the list. */
 .link-button.import-toggle {
   color: var(--muted);
@@ -250,6 +256,7 @@ button:focus-visible {
 
 .import-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
 }
 

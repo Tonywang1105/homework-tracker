@@ -15,10 +15,11 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=2d376c3b";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=2d376c3b";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=2d376c3b";
-import { loadAssignments, saveAssignments } from "./storage.js?v=2d376c3b";
+} from "./assignments.js?v=10b70bb1";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=10b70bb1";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=10b70bb1";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=10b70bb1";
+import { loadAssignments, saveAssignments } from "./storage.js?v=10b70bb1";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -26,7 +27,7 @@ const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
-// A semester's Canvas feed is well under 1 MB; anything far bigger is the wrong file.
+// A semester's Canvas feed or a backup is well under 1 MB; anything far bigger is the wrong file.
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 // How screen readers hear each size on the calendar.
 const SIZE_NAMES = { big: "Big assignment", regular: "Regular assignment", small: "Small reminder" };
@@ -64,11 +65,11 @@ const elements = {
   previousMonth: document.getElementById("previous-month"),
   nextMonth: document.getElementById("next-month"),
   thisMonth: document.getElementById("this-month"),
-  importPanel: document.getElementById("import-panel"),
-  importPanelToggle: document.getElementById("canvas-panel-toggle"),
-  importPanelClose: document.getElementById("canvas-panel-close"),
   canvasImportButton: document.getElementById("canvas-import-button"),
   canvasFile: document.getElementById("canvas-file"),
+  backupDownloadButton: document.getElementById("backup-download-button"),
+  backupRestoreButton: document.getElementById("backup-restore-button"),
+  backupFile: document.getElementById("backup-file"),
   details: document.getElementById("calendar-details"),
   detailsTitle: document.getElementById("details-title"),
   detailsTags: document.getElementById("details-tags"),
@@ -684,36 +685,60 @@ function toggleDone(assignment) {
 
 // ----- Canvas import -----
 
-function setImportPanelOpen(open) {
-  elements.importPanel.hidden = !open;
-  elements.importPanelToggle.setAttribute("aria-expanded", String(open));
+// The two panels under the To do list ("Import from Canvas…" and "Backup & restore…"). Only one is open at a time.
+const panels = [
+  { toggleId: "canvas-panel-toggle", panelId: "import-panel", firstButtonId: "canvas-import-button", closeId: "canvas-panel-close" },
+  { toggleId: "backup-panel-toggle", panelId: "backup-panel", firstButtonId: "backup-download-button", closeId: "backup-panel-close" },
+].map(({ toggleId, panelId, firstButtonId, closeId }) => ({
+  toggle: document.getElementById(toggleId),
+  panel: document.getElementById(panelId),
+  firstButton: document.getElementById(firstButtonId),
+  close: document.getElementById(closeId),
+}));
+
+function setPanelOpen(chosen, open) {
+  for (const panel of panels) {
+    const isOpen = open && panel === chosen;
+    panel.panel.hidden = !isOpen;
+    panel.toggle.setAttribute("aria-expanded", String(isOpen));
+  }
   // Focus first: moving focus after starting a smooth scroll cancels the scroll in Chrome.
-  (open ? elements.canvasImportButton : elements.importPanelToggle).focus({ preventScroll: true });
+  (open ? chosen.firstButton : chosen.toggle).focus({ preventScroll: true });
   if (open) {
     // Scroll far enough to show the buttons, which sit below the how-to text.
-    elements.importPanelClose.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    chosen.close.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+/**
+ * Reads the file just chosen in a hidden file input. Returns its { file, text }, or null after
+ * telling the student what went wrong. `kind` names the file in messages, e.g. "Canvas calendar file".
+ */
+async function readChosenFile(input, kind) {
+  const file = input.files[0];
+  // Clear the choice so picking the same file again still fires "change".
+  input.value = "";
+  if (!file) {
+    return null;
+  }
+  if (file.size > MAX_IMPORT_BYTES) {
+    showToast(`"${file.name}" is too big to be a ${kind}.`);
+    return null;
+  }
+  try {
+    return { file, text: await file.text() };
+  } catch {
+    showToast(`Couldn't read "${file.name}". Try choosing it again.`);
+    return null;
   }
 }
 
 async function handleCanvasFile() {
-  const file = elements.canvasFile.files[0];
-  // Clear the choice so picking the same file again (a re-import) still fires "change".
-  elements.canvasFile.value = "";
-  if (!file) {
+  const chosen = await readChosenFile(elements.canvasFile, "Canvas calendar file");
+  if (!chosen) {
     return;
   }
-  if (file.size > MAX_IMPORT_BYTES) {
-    showToast(`"${file.name}" is too big to be a Canvas calendar file.`);
-    return;
-  }
-
-  let text;
-  try {
-    text = await file.text();
-  } catch {
-    showToast(`Couldn't read "${file.name}". Try downloading it from Canvas again.`);
-    return;
-  }
+  const { file, text } = chosen;
   if (!isIcsCalendar(text)) {
     showToast(`"${file.name}" isn't a calendar (.ics) file. Use the Calendar Feed link in Canvas Calendar.`);
     return;
@@ -748,6 +773,53 @@ function importSummary({ added, updated, skippedPast }) {
     summary += ` Skipped ${skippedPast} already past due.`;
   }
   return summary;
+}
+
+// ----- Backup and restore -----
+
+/** "1 assignment", "12 assignments" */
+function countAssignments(count) {
+  return `${count} assignment${count === 1 ? "" : "s"}`;
+}
+
+function handleBackupDownload() {
+  if (state.assignments.length === 0) {
+    showToast("Nothing to back up yet.");
+    return;
+  }
+  const fileName = backupFileName();
+  const contents = JSON.stringify(createBackup(state.assignments), null, 2);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
+  link.download = fileName;
+  link.click();
+  // Give the browser a moment to start the download before freeing the file's memory.
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  showToast(`Backed up ${countAssignments(state.assignments.length)} to ${fileName}.`);
+}
+
+async function handleBackupFile() {
+  const chosen = await readChosenFile(elements.backupFile, "Homework Tracker backup");
+  if (!chosen) {
+    return;
+  }
+  const result = readBackup(chosen.text);
+  if (!result.ok) {
+    showToast(result.error);
+    return;
+  }
+  const previous = state.assignments;
+  const replacing = `Replace your ${countAssignments(previous.length)} with the ${countAssignments(result.assignments.length)} in this backup?`;
+  if (previous.length > 0 && !window.confirm(replacing)) {
+    return;
+  }
+
+  // A restore is also the way back from unreadable saved data, so saving is allowed again.
+  state.storageReadable = true;
+  elements.storageError.hidden = true;
+  updateAssignments(result.assignments);
+  const skipped = result.skipped > 0 ? ` Skipped ${result.skipped} that couldn't be read.` : "";
+  showToast(`Restored ${countAssignments(result.assignments.length)}.${skipped}`, () => updateAssignments(previous));
 }
 
 // ----- Toast (short confirmation message, optionally with Undo) -----
@@ -787,10 +859,15 @@ function start() {
   }
 
   elements.form.addEventListener("submit", handleSubmit);
-  elements.importPanelToggle.addEventListener("click", () => setImportPanelOpen(elements.importPanel.hidden));
-  elements.importPanelClose.addEventListener("click", () => setImportPanelOpen(false));
+  for (const panel of panels) {
+    panel.toggle.addEventListener("click", () => setPanelOpen(panel, panel.panel.hidden));
+    panel.close.addEventListener("click", () => setPanelOpen(panel, false));
+  }
   elements.canvasImportButton.addEventListener("click", () => elements.canvasFile.click());
   elements.canvasFile.addEventListener("change", handleCanvasFile);
+  elements.backupDownloadButton.addEventListener("click", handleBackupDownload);
+  elements.backupRestoreButton.addEventListener("click", () => elements.backupFile.click());
+  elements.backupFile.addEventListener("change", handleBackupFile);
   elements.cancelEdit.addEventListener("click", stopEditing);
   elements.showSmall.addEventListener("change", render);
   elements.hideDone.addEventListener("change", render);

@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Homework Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=2d376c3b" />
-    <script type="module" src="src/main.js?v=2d376c3b"></script>
+    <link rel="stylesheet" href="styles.css?v=10b70bb1" />
+    <script type="module" src="src/main.js?v=10b70bb1"></script>
   </head>
   <body>
     <header class="page-header">
@@ -157,9 +157,14 @@
         </div>
 
         <div class="import-section">
-          <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel">
-            Import from Canvas…
-          </button>
+          <div class="import-links">
+            <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel">
+              Import from Canvas…
+            </button>
+            <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel">
+              Backup &amp; restore…
+            </button>
+          </div>
           <div id="import-panel" class="import-panel" hidden>
             <p class="import-help">
               In Canvas, open <strong>Calendar</strong>, click <strong>Calendar Feed</strong>, and open the link to download a
@@ -170,6 +175,19 @@
               <button type="button" id="canvas-panel-close" class="button">Close</button>
             </div>
             <input type="file" id="canvas-file" accept=".ics,text/calendar" hidden />
+          </div>
+          <div id="backup-panel" class="import-panel" hidden>
+            <p class="import-help">
+              Your assignments are saved only in this browser. <strong>Back up</strong> downloads them to a file you can keep
+              safe or open in another browser or device. <strong>Restore</strong> replaces this browser's list with a backup.
+              The file includes your notes, so keep it private.
+            </p>
+            <div class="import-actions">
+              <button type="button" id="backup-download-button" class="button button-primary">Back up</button>
+              <button type="button" id="backup-restore-button" class="button">Restore from file…</button>
+              <button type="button" id="backup-panel-close" class="button">Close</button>
+            </div>
+            <input type="file" id="backup-file" accept=".json,application/json" hidden />
           </div>
         </div>
       </section>
