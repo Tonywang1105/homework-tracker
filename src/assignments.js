@@ -1,6 +1,8 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-export const PRIORITIES = ["big", "small"];
+// Sizes, most important first: ties in due time and busy calendar days follow this order.
+export const PRIORITIES = ["big", "regular", "small"];
+export const PRIORITY_LABELS = { big: "Big", regular: "Regular", small: "Small" };
 export const DEFAULT_DUE_TIME = "23:59";
 
 // Assignment types, each with its own color. "" means no type. The form also offers AUTO_TYPE.
@@ -59,7 +61,7 @@ export function validateAssignmentInput(input) {
     errors.dueTime = "Pick a time, or leave it empty for 11:59 PM.";
   }
   if (!PRIORITIES.includes(priority)) {
-    errors.priority = "Choose big or small.";
+    errors.priority = "Choose big, regular or small.";
   }
   if (notes.length > MAX_NOTES_LENGTH) {
     errors.notes = `Keep notes under ${MAX_NOTES_LENGTH} characters.`;
@@ -118,11 +120,11 @@ export function groupAssignments(assignments) {
 
 /**
  * The assignments that pass the list's filters, used by both the list and the calendar so they agree.
- * course: only that course ("" for all); bigOnly: hide small reminders; hideDone: hide finished work.
+ * course: only that course ("" for all); hideSmall: hide small reminders; hideDone: hide finished work.
  */
-export function filterAssignments(assignments, { course = "", bigOnly = false, hideDone = false } = {}) {
+export function filterAssignments(assignments, { course = "", hideSmall = false, hideDone = false } = {}) {
   return assignments.filter(
-    (a) => (course === "" || a.course === course) && (!bigOnly || a.priority === "big") && (!hideDone || !a.done),
+    (a) => (course === "" || a.course === course) && (!hideSmall || a.priority !== "small") && (!hideDone || !a.done),
   );
 }
 

@@ -364,6 +364,11 @@ button:focus-visible {
   border-left-color: var(--big);
 }
 
+/* Regular: visible but quieter than big, so big work still stands out. */
+.assignment.priority-regular {
+  border-left-color: var(--muted);
+}
+
 .assignment.priority-small {
   padding-top: 9px;
   padding-bottom: 9px;
@@ -422,6 +427,11 @@ button:focus-visible {
 .priority-tag-big {
   background: var(--big-soft);
   color: var(--big);
+}
+
+.priority-tag-regular {
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
 .priority-tag-small {
@@ -658,6 +668,14 @@ button:focus-visible {
   background: var(--big-soft);
   color: var(--big);
   border-left: 3px solid var(--big);
+}
+
+.calendar-item.priority-regular {
+  font-weight: 400;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
 }
 
 .calendar-item.priority-small {

@@ -8,16 +8,17 @@ import {
   describeDue,
   filterAssignments,
   groupAssignments,
+  PRIORITY_LABELS,
   removeAssignment,
   toDueDate,
   TYPE_LABELS,
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=42e6f9e0";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=42e6f9e0";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=42e6f9e0";
-import { loadAssignments, saveAssignments } from "./storage.js?v=42e6f9e0";
+} from "./assignments.js?v=2d376c3b";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=2d376c3b";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=2d376c3b";
+import { loadAssignments, saveAssignments } from "./storage.js?v=2d376c3b";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -27,6 +28,8 @@ const VIEWS = ["list", "calendar"];
 const MAX_LINES_PER_DAY = 3;
 // A semester's Canvas feed is well under 1 MB; anything far bigger is the wrong file.
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+// How screen readers hear each size on the calendar.
+const SIZE_NAMES = { big: "Big assignment", regular: "Regular assignment", small: "Small reminder" };
 const NO_ASSIGNMENTS_MESSAGE = "No assignments yet. Add one with the form, or use Import from Canvas below.";
 
 const elements = {
@@ -135,7 +138,7 @@ function render() {
 
   const filters = {
     course: elements.courseFilter.value,
-    bigOnly: !elements.showSmall.checked,
+    hideSmall: !elements.showSmall.checked,
     hideDone: elements.hideDone.checked,
   };
   // The list and the calendar both draw from this, so they always agree.
@@ -250,7 +253,7 @@ function renderCalendarItem(assignment) {
   button.setAttribute("aria-expanded", String(assignment.id === state.detailsId));
 
   const dueTime = timeFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
-  const size = assignment.priority === "big" ? "Big assignment" : "Small reminder";
+  const size = SIZE_NAMES[assignment.priority];
   const course = assignment.course ? ` (${assignment.course})` : "";
   const type = assignmentType(assignment);
   const typeName = type ? `${TYPE_LABELS[type]}, ` : "";
@@ -427,18 +430,18 @@ function loadSavedView() {
 }
 
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
-function emptyMessageText({ course, bigOnly }) {
+function emptyMessageText({ course, hideSmall }) {
   if (state.assignments.length === 0) {
     return NO_ASSIGNMENTS_MESSAGE;
   }
   if (!state.assignments.some((a) => !a.done)) {
     return "All caught up. Nothing left to do.";
   }
-  const smallHidden = bigOnly ? " Small reminders are hidden." : "";
+  const smallHidden = hideSmall ? " Small reminders are hidden." : "";
   if (course) {
     return `Nothing left to do for ${course}.${smallHidden}`;
   }
-  return `No big assignments left.${smallHidden}`;
+  return `Nothing left but small reminders.${smallHidden}`;
 }
 
 function renderAssignment(assignment, now) {
@@ -497,7 +500,7 @@ function renderTags(assignment) {
   if (type) {
     tags.push(makeTag(TYPE_LABELS[type], `type-tag type-${type}`));
   }
-  tags.push(makeTag(assignment.priority === "big" ? "Big" : "Small", `priority-tag priority-tag-${assignment.priority}`));
+  tags.push(makeTag(PRIORITY_LABELS[assignment.priority], `priority-tag priority-tag-${assignment.priority}`));
   return tags;
 }
 
