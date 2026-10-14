@@ -16,6 +16,13 @@
   --error-soft: #fdecea;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.06);
   --radius: 10px;
+  /* Assignment types. Kept clear of --big (red-orange), so a type never looks like "big". */
+  --type-exam: #7b3fc4;
+  --type-quiz: #0aa5c8;
+  --type-mp: #2b6cd6;
+  --type-lab: #2f8a4e;
+  --type-homework: #c08400;
+  --type-reading: #c23d85;
   color-scheme: light;
 }
 
@@ -37,6 +44,12 @@
     --error: #ff8a7a;
     --error-soft: #3a2222;
     --shadow: none;
+    --type-exam: #b48af0;
+    --type-quiz: #5fd3ee;
+    --type-mp: #7aa7f5;
+    --type-lab: #6cc98a;
+    --type-homework: #e8b84f;
+    --type-reading: #ee88bf;
     color-scheme: dark;
   }
 }
@@ -136,6 +149,7 @@ legend {
 input[type="text"],
 input[type="date"],
 input[type="time"],
+.field select,
 textarea {
   width: 100%;
   font: inherit;
@@ -787,6 +801,63 @@ button:focus-visible {
   .more-word {
     display: none;
   }
+}
+
+/* ----- Assignment types ----- */
+
+.type-exam { --type-color: var(--type-exam); }
+.type-quiz { --type-color: var(--type-quiz); }
+.type-mp { --type-color: var(--type-mp); }
+.type-lab { --type-color: var(--type-lab); }
+.type-homework { --type-color: var(--type-homework); }
+.type-reading { --type-color: var(--type-reading); }
+
+/* The colored dot: on calendar tags, in "Exam"-style labels, and in the legend. */
+.type-dot,
+.type-tag::before,
+.type-legend li::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--type-color);
+}
+
+.type-dot {
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.type-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.type-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
 /* ----- Banner and toast ----- */

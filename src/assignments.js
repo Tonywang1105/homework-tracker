@@ -3,6 +3,31 @@
 export const PRIORITIES = ["big", "small"];
 export const DEFAULT_DUE_TIME = "23:59";
 
+// Assignment types, each with its own color. "" means no type. The form also offers AUTO_TYPE.
+export const TYPES = ["exam", "quiz", "mp", "lab", "homework", "reading"];
+export const TYPE_LABELS = { exam: "Exam", quiz: "Quiz", mp: "MP", lab: "Lab", homework: "Homework", reading: "Reading" };
+export const AUTO_TYPE = "auto";
+
+// Checked in order, so "Midterm quiz review" counts as an exam. Each matches whole words only.
+const TYPE_PATTERNS = [
+  ["exam", /\b(exams?|midterms?|final exam)\b/i],
+  ["quiz", /\b(quiz|quizzes)\b/i],
+  ["mp", /\b(mp\s*\d+|machine problem)/i],
+  ["lab", /\blabs?\b/i],
+  ["homework", /\b(homework|hw\s*\d*|problem sets?|psets?)\b/i],
+  ["reading", /\breadings?\b/i],
+];
+
+/** A type guessed from the title, e.g. "MP3: Checkpoint 1" is "mp"; "" when nothing matches. */
+export function guessType(title) {
+  return TYPE_PATTERNS.find(([, pattern]) => pattern.test(title))?.[0] ?? "";
+}
+
+/** The assignment's type; ones saved before types existed get one guessed from their title. */
+export function assignmentType(assignment) {
+  return assignment.type ?? guessType(assignment.title);
+}
+
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^\d{2}:\d{2}$/;
 const MAX_TITLE_LENGTH = 200;
@@ -19,6 +44,7 @@ export function validateAssignmentInput(input) {
   const dueTime = (input.dueTime ?? "").trim() || DEFAULT_DUE_TIME;
   const priority = input.priority ?? "big";
   const notes = (input.notes ?? "").trim();
+  const chosenType = input.type ?? AUTO_TYPE;
   const errors = {};
 
   if (title === "") {
@@ -38,11 +64,16 @@ export function validateAssignmentInput(input) {
   if (notes.length > MAX_NOTES_LENGTH) {
     errors.notes = `Keep notes under ${MAX_NOTES_LENGTH} characters.`;
   }
+  if (chosenType !== AUTO_TYPE && chosenType !== "" && !TYPES.includes(chosenType)) {
+    errors.type = "Choose a type from the list.";
+  }
 
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
-  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes } };
+  // "Guess from title" is saved as the guess, so renaming the assignment later doesn't change its type.
+  const type = chosenType === AUTO_TYPE ? guessType(title) : chosenType;
+  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type } };
 }
 
 /** Builds a new assignment from validated fields. */

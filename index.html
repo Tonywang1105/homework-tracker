@@ -4,8 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Homework Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=a4b4aefb" />
-    <script type="module" src="src/main.js?v=a4b4aefb"></script>
+    <link rel="stylesheet" href="styles.css?v=42e6f9e0" />
+    <script type="module" src="src/main.js?v=42e6f9e0"></script>
   </head>
   <body>
     <header class="page-header">
@@ -63,6 +63,16 @@
             </label>
             <p class="field-error" id="priority-error"></p>
           </fieldset>
+
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type" name="type">
+              <option value="auto">Guess from title</option>
+              <option value="">None</option>
+              <!-- main.js adds one option per type, from the same list the rest of the app uses. -->
+            </select>
+            <p class="field-error" id="type-error"></p>
+          </div>
 
           <div class="field">
             <label for="notes">Notes <span class="optional">optional</span></label>
@@ -126,6 +136,7 @@
             </thead>
             <tbody id="calendar-body"></tbody>
           </table>
+          <ul id="type-legend" class="type-legend" aria-label="Type colors"></ul>
           <p id="calendar-empty" class="empty" hidden></p>
 
           <div id="calendar-details" class="calendar-details" role="dialog" aria-labelledby="details-title" tabindex="-1" hidden>

@@ -1,6 +1,8 @@
 // Connects the page to the assignment logic and storage: reads the form, renders the lists, handles clicks.
 
 import {
+  assignmentType,
+  AUTO_TYPE,
   courseNames,
   createAssignment,
   describeDue,
@@ -8,14 +10,16 @@ import {
   groupAssignments,
   removeAssignment,
   toDueDate,
+  TYPE_LABELS,
+  TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=a4b4aefb";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=a4b4aefb";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=a4b4aefb";
-import { loadAssignments, saveAssignments } from "./storage.js?v=a4b4aefb";
+} from "./assignments.js?v=42e6f9e0";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=42e6f9e0";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=42e6f9e0";
+import { loadAssignments, saveAssignments } from "./storage.js?v=42e6f9e0";
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
 const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
@@ -51,6 +55,7 @@ const elements = {
   calendarView: document.getElementById("calendar-view"),
   calendarMonth: document.getElementById("calendar-month"),
   calendarWeekdays: document.getElementById("calendar-weekdays"),
+  typeLegend: document.getElementById("type-legend"),
   calendarBody: document.getElementById("calendar-body"),
   calendarEmpty: document.getElementById("calendar-empty"),
   previousMonth: document.getElementById("previous-month"),
@@ -247,13 +252,36 @@ function renderCalendarItem(assignment) {
   const dueTime = timeFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
   const size = assignment.priority === "big" ? "Big assignment" : "Small reminder";
   const course = assignment.course ? ` (${assignment.course})` : "";
+  const type = assignmentType(assignment);
+  const typeName = type ? `${TYPE_LABELS[type]}, ` : "";
+  if (type) {
+    const dot = document.createElement("span");
+    dot.className = `type-dot type-${type}`;
+    button.prepend(dot);
+  }
   // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
-  button.title = `${assignment.title}${course}, due ${dueTime}`;
+  button.title = `${assignment.title}${course}, ${typeName}due ${dueTime}`;
   const status = assignment.done ? ", done" : "";
-  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${size}, due ${dueTime}${status}`);
+  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${typeName}${size}, due ${dueTime}${status}`);
 
   item.append(button);
   return item;
+}
+
+/** The color key under the calendar, built from the same list of types the app uses everywhere. */
+function renderTypeLegend() {
+  elements.typeLegend.replaceChildren(
+    ...TYPES.map((type) => {
+      const item = document.createElement("li");
+      item.className = `type-${type}`;
+      item.textContent = TYPE_LABELS[type];
+      return item;
+    }),
+  );
+}
+
+function renderTypeOptions() {
+  elements.form.elements.type.append(...TYPES.map((type) => makeOption(type, TYPE_LABELS[type])));
 }
 
 function renderWeekdayHeadings() {
@@ -459,11 +487,15 @@ function renderAssignment(assignment, now) {
   return item;
 }
 
-/** The course tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
+/** The course tag, the type tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
 function renderTags(assignment) {
   const tags = [];
   if (assignment.course) {
     tags.push(makeTag(assignment.course, "course-tag"));
+  }
+  const type = assignmentType(assignment);
+  if (type) {
+    tags.push(makeTag(TYPE_LABELS[type], `type-tag type-${type}`));
   }
   tags.push(makeTag(assignment.priority === "big" ? "Big" : "Small", `priority-tag priority-tag-${assignment.priority}`));
   return tags;
@@ -532,7 +564,7 @@ function makeOption(value, text) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  return Object.fromEntries(["title", "course", "dueDate", "dueTime", "priority", "notes"].map((name) => [name, data.get(name) ?? ""]));
+  return Object.fromEntries(["title", "course", "dueDate", "dueTime", "priority", "type", "notes"].map((name) => [name, data.get(name) ?? ""]));
 }
 
 function showErrors(errors) {
@@ -585,6 +617,8 @@ function startEditing(assignment) {
   fields.dueDate.value = assignment.dueDate;
   fields.dueTime.value = assignment.dueTime;
   fields.priority.value = assignment.priority;
+  // Assignments saved before types existed have none stored, so the form offers the guess again.
+  fields.type.value = assignment.type ?? AUTO_TYPE;
   fields.notes.value = assignment.notes;
   showErrors({});
   elements.formHeading.textContent = "Edit assignment";
@@ -797,6 +831,8 @@ function start() {
 
   state.view = loadSavedView();
   renderWeekdayHeadings();
+  renderTypeLegend();
+  renderTypeOptions();
 
   // Refresh the "due in …" text every minute so it stays accurate if the tab stays open.
   setInterval(render, 60 * 1000);
