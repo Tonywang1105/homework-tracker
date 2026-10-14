@@ -371,7 +371,9 @@ button:focus-visible {
 
 .getting-started[hidden],
 .example-bar[hidden],
-.filters[hidden] {
+.filters[hidden],
+.field[hidden],
+.field-row[hidden] {
   display: none;
 }
 

@@ -16,14 +16,15 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=3a4dc152";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=3a4dc152";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3a4dc152";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=3a4dc152";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3a4dc152";
-import { loadAssignments, saveAssignments } from "./storage.js?v=3a4dc152";
+} from "./assignments.js?v=0e407b5c";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=0e407b5c";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=0e407b5c";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=0e407b5c";
+import { createSeries, validateRepeat } from "./repeat.js?v=0e407b5c";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=0e407b5c";
+import { loadAssignments, saveAssignments } from "./storage.js?v=0e407b5c";
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
 const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
@@ -41,6 +42,8 @@ const elements = {
   form: document.getElementById("assignment-form"),
   formHeading: document.getElementById("form-heading"),
   formPanel: document.getElementById("form-panel"),
+  repeatFields: document.getElementById("repeat-fields"),
+  untilField: document.getElementById("until-field"),
   addToggle: document.getElementById("add-toggle"),
   submitButton: document.getElementById("submit-button"),
   cancelEdit: document.getElementById("cancel-edit"),
@@ -679,7 +682,8 @@ function makeOption(value, text) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  return Object.fromEntries(["title", "course", "dueDate", "dueTime", "priority", "type", "notes"].map((name) => [name, data.get(name) ?? ""]));
+  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "repeat", "untilDate", "notes"];
+  return Object.fromEntries(names.map((name) => [name, data.get(name) ?? ""]));
 }
 
 function showErrors(errors) {
@@ -699,9 +703,12 @@ function showErrors(errors) {
 
 function handleSubmit(event) {
   event.preventDefault();
-  const result = validateAssignmentInput(readForm());
-  if (!result.ok) {
-    showErrors(result.errors);
+  const input = readForm();
+  const result = validateAssignmentInput(input);
+  // Repeating only applies when adding; the Repeat fields are hidden while editing.
+  const repeat = state.editingId ? { ok: true } : validateRepeat(input, result.ok ? result.fields.dueDate : input.dueDate);
+  if (!result.ok || !repeat.ok) {
+    showErrors({ ...(result.errors ?? {}), ...(repeat.errors ?? {}) });
     return;
   }
   showErrors({});
@@ -713,16 +720,36 @@ function handleSubmit(event) {
     stopEditing();
     showToast(`Saved changes to "${editedTitle}".`);
   } else {
-    updateAssignments([...state.assignments, createAssignment(result.fields)]);
+    const previous = state.assignments;
+    const added = createSeries(result.fields, repeat.dates);
+    updateAssignments([...previous, ...added]);
     // On a phone the form folds back, so the new assignment is visible in the list.
     setFormOpen(false);
     resetForm();
-    showToast(`Added "${result.fields.title}".`);
+    if (added.length === 1) {
+      showToast(`Added "${added[0].title}".`);
+    } else {
+      const [first, last] = [added[0], added.at(-1)];
+      const summary =
+        first.title === last.title
+          ? `Added "${first.title}" ${added.length} times, ${formatDay(first.dueDate)} to ${formatDay(last.dueDate)}.`
+          : `Added ${countAssignments(added.length)}, "${first.title}" to "${last.title}".`;
+      // Undo takes back the whole series, in case the dates or the end date were wrong.
+      showToast(summary, () => updateAssignments(previous));
+    }
   }
+}
+
+/** The Until date only matters (and is only required) when the assignment repeats. */
+function updateRepeatFields() {
+  const repeating = elements.form.elements.repeat.value !== "";
+  elements.untilField.hidden = !repeating;
+  elements.form.elements.untilDate.required = repeating;
 }
 
 function resetForm() {
   elements.form.reset();
+  updateRepeatFields();
   showErrors({});
   focusForm();
 }
@@ -761,6 +788,7 @@ function startEditing(assignment) {
   fields.type.value = assignment.type ?? AUTO_TYPE;
   fields.notes.value = assignment.notes;
   showErrors({});
+  elements.repeatFields.hidden = true;
   elements.formHeading.textContent = "Edit assignment";
   elements.submitButton.textContent = "Save changes";
   elements.cancelEdit.hidden = false;
@@ -771,6 +799,7 @@ function startEditing(assignment) {
 
 function stopEditing() {
   state.editingId = null;
+  elements.repeatFields.hidden = false;
   elements.formHeading.textContent = "Add an assignment";
   elements.submitButton.textContent = "Add assignment";
   elements.cancelEdit.hidden = true;
@@ -1009,6 +1038,7 @@ function start() {
   }
 
   elements.form.addEventListener("submit", handleSubmit);
+  elements.form.elements.repeat.addEventListener("change", updateRepeatFields);
   for (const panel of panels) {
     panel.toggle.addEventListener("click", () => setPanelOpen(panel, panel.panel.hidden));
     panel.close.addEventListener("click", () => setPanelOpen(panel, false));

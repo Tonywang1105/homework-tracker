@@ -16,8 +16,8 @@
         // Storage can be blocked; the page then follows the computer's setting.
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=3a4dc152" />
-    <script type="module" src="src/main.js?v=3a4dc152"></script>
+    <link rel="stylesheet" href="styles.css?v=0e407b5c" />
+    <script type="module" src="src/main.js?v=0e407b5c"></script>
   </head>
   <body>
     <header class="page-header">
@@ -99,6 +99,27 @@
               <!-- main.js adds one option per type, from the same list the rest of the app uses. -->
             </select>
             <p class="field-error" id="type-error"></p>
+          </div>
+
+          <!-- Only when adding: one entry can become a weekly or every-other-week series. -->
+          <div id="repeat-fields" class="field-row">
+            <div class="field">
+              <label for="repeat">Repeat</label>
+              <select id="repeat" name="repeat">
+                <option value="">Doesn't repeat</option>
+                <option value="weekly">Weekly</option>
+                <option value="biweekly">Every 2 weeks</option>
+              </select>
+              <p class="field-error" id="repeat-error"></p>
+            </div>
+            <div class="field" id="until-field" hidden>
+              <label for="untilDate">Until</label>
+              <div class="date-field">
+                <input id="untilDate" name="untilDate" type="date" />
+                <span class="date-placeholder" aria-hidden="true">yyyy/mm/dd</span>
+              </div>
+              <p class="field-error" id="untilDate-error"></p>
+            </div>
           </div>
 
           <div class="field">
