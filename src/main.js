@@ -15,17 +15,20 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=9802d704";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=9802d704";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=9802d704";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=9802d704";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=9802d704";
-import { loadAssignments, saveAssignments } from "./storage.js?v=9802d704";
+} from "./assignments.js?v=bfbe6663";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=bfbe6663";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=bfbe6663";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=bfbe6663";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=bfbe6663";
+import { loadAssignments, saveAssignments } from "./storage.js?v=bfbe6663";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
 const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
+// Also read by the small script at the top of index.html, which applies the theme before the page is drawn.
+const THEME_STORAGE_KEY = "homework-tracker.theme";
+const THEMES = ["system", "light", "dark"];
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
 // A semester's Canvas feed or a backup is well under 1 MB; anything far bigger is the wrong file.
@@ -59,6 +62,7 @@ const elements = {
   toastMessage: document.getElementById("toast-message"),
   toastUndo: document.getElementById("toast-undo"),
   viewButtons: document.querySelectorAll(".view-button"),
+  themeButtons: document.querySelectorAll(".theme-button"),
   listView: document.getElementById("list-view"),
   calendarView: document.getElementById("calendar-view"),
   calendarMonth: document.getElementById("calendar-month"),
@@ -420,21 +424,48 @@ function showMonth(month) {
 
 function setView(view) {
   state.view = view;
-  try {
-    localStorage.setItem(VIEW_STORAGE_KEY, view);
-  } catch {
-    // Remembering the view is only a convenience; the app works the same without it.
-  }
+  saveChoice(VIEW_STORAGE_KEY, view);
   render();
 }
 
-function loadSavedView() {
+// ----- Remembered choices (view and theme) -----
+
+/** Remembering a choice is only a convenience, so if the browser blocks storage the app just carries on. */
+function saveChoice(key, value) {
   try {
-    const saved = localStorage.getItem(VIEW_STORAGE_KEY);
-    return VIEWS.includes(saved) ? saved : "list";
+    localStorage.setItem(key, value);
   } catch {
-    return "list";
+    // Nothing to do: the choice still applies until the page is reloaded.
   }
+}
+
+/** The saved choice if it is one of `allowed`, otherwise `fallback`. */
+function loadChoice(key, allowed, fallback) {
+  try {
+    const saved = localStorage.getItem(key);
+    return allowed.includes(saved) ? saved : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+// ----- Color theme -----
+
+/** "system" follows the computer's light or dark setting; "light" and "dark" override it. */
+function applyTheme(theme) {
+  if (theme === "system") {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = theme;
+  }
+  for (const button of elements.themeButtons) {
+    button.setAttribute("aria-pressed", String(button.dataset.themeChoice === theme));
+  }
+}
+
+function setTheme(theme) {
+  applyTheme(theme);
+  saveChoice(THEME_STORAGE_KEY, theme);
 }
 
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
@@ -919,6 +950,9 @@ function start() {
   for (const button of elements.viewButtons) {
     button.addEventListener("click", () => setView(button.dataset.view));
   }
+  for (const button of elements.themeButtons) {
+    button.addEventListener("click", () => setTheme(button.dataset.themeChoice));
+  }
   elements.previousMonth.addEventListener("click", () => showMonth(shiftMonth(state.shownMonth, -1)));
   elements.nextMonth.addEventListener("click", () => showMonth(shiftMonth(state.shownMonth, 1)));
   elements.thisMonth.addEventListener("click", () => showMonth(currentMonth()));
@@ -929,7 +963,8 @@ function start() {
     showToast("Started over with an empty list.");
   });
 
-  state.view = loadSavedView();
+  state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
+  applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
   renderWeekdayHeadings();
   renderTypeLegend();
   renderTypeOptions();

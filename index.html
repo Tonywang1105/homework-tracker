@@ -4,13 +4,32 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Homework Tracker</title>
-    <link rel="stylesheet" href="styles.css?v=9802d704" />
-    <script type="module" src="src/main.js?v=9802d704"></script>
+    <script>
+      // Apply a saved Light/Dark choice before the page is drawn, so it never flashes the other theme.
+      // Kept tiny and inline on purpose; main.js handles the switch itself.
+      try {
+        const savedTheme = localStorage.getItem("homework-tracker.theme");
+        if (savedTheme === "light" || savedTheme === "dark") {
+          document.documentElement.dataset.theme = savedTheme;
+        }
+      } catch {
+        // Storage can be blocked; the page then follows the computer's setting.
+      }
+    </script>
+    <link rel="stylesheet" href="styles.css?v=bfbe6663" />
+    <script type="module" src="src/main.js?v=bfbe6663"></script>
   </head>
   <body>
     <header class="page-header">
-      <h1>Homework Tracker</h1>
-      <p class="tagline">Everything due, soonest first, with your own notes.</p>
+      <div>
+        <h1>Homework Tracker</h1>
+        <p class="tagline">Everything due, soonest first, with your own notes.</p>
+      </div>
+      <div class="segmented theme-switch" role="group" aria-label="Color theme">
+        <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
+        <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
+        <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+      </div>
     </header>
     <div id="storage-error" class="banner banner-error" role="alert" hidden>
       <p id="storage-error-message"></p>
@@ -94,9 +113,9 @@
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="list-header">
           <h2 id="list-heading">To do <span id="todo-count" class="count"></span></h2>
-          <div class="view-switch" role="group" aria-label="View">
-            <button type="button" class="view-button" data-view="list" aria-pressed="true">List</button>
-            <button type="button" class="view-button" data-view="calendar" aria-pressed="false">Calendar</button>
+          <div class="segmented" role="group" aria-label="View">
+            <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true">List</button>
+            <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false">Calendar</button>
           </div>
         </div>
 
