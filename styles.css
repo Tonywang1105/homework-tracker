@@ -90,9 +90,33 @@ h2 {
   align-items: start;
 }
 
+.add-toggle {
+  display: none;
+  width: 100%;
+}
+
 @media (max-width: 760px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  /* On phones the form folds into one "+ Add assignment" button, so the To do list starts near the top. */
+  .form-panel:not(.is-open) {
+    padding: 12px;
+  }
+
+  .form-panel:not(.is-open) .add-toggle {
+    display: block;
+  }
+
+  .form-panel:not(.is-open) h2,
+  .form-panel:not(.is-open) form {
+    display: none;
+  }
+
+  /* While the form is open on a phone, Cancel folds it again, even when adding rather than editing. */
+  .form-panel.is-open #cancel-edit[hidden] {
+    display: inline-block;
   }
 }
 

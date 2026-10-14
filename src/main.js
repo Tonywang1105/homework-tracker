@@ -16,12 +16,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=c86de48e";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=c86de48e";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=c86de48e";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=c86de48e";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=c86de48e";
-import { loadAssignments, saveAssignments } from "./storage.js?v=c86de48e";
+} from "./assignments.js?v=2819d7a4";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=2819d7a4";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=2819d7a4";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=2819d7a4";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=2819d7a4";
+import { loadAssignments, saveAssignments } from "./storage.js?v=2819d7a4";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -40,6 +40,8 @@ const SIZE_NAMES = { big: "Big assignment", regular: "Regular assignment", small
 const elements = {
   form: document.getElementById("assignment-form"),
   formHeading: document.getElementById("form-heading"),
+  formPanel: document.getElementById("form-panel"),
+  addToggle: document.getElementById("add-toggle"),
   submitButton: document.getElementById("submit-button"),
   cancelEdit: document.getElementById("cancel-edit"),
   courseSuggestions: document.getElementById("course-suggestions"),
@@ -355,6 +357,7 @@ function startAddingOn(dateKey) {
   if (state.editingId) {
     stopEditing();
   }
+  setFormOpen(true);
   elements.form.elements.dueDate.value = dateKey;
   showErrors({});
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -687,10 +690,13 @@ function handleSubmit(event) {
   if (state.editingId) {
     const editedTitle = result.fields.title;
     updateAssignments(updateAssignment(state.assignments, state.editingId, result.fields));
+    setFormOpen(false);
     stopEditing();
     showToast(`Saved changes to "${editedTitle}".`);
   } else {
     updateAssignments([...state.assignments, createAssignment(result.fields)]);
+    // On a phone the form folds back, so the new assignment is visible in the list.
+    setFormOpen(false);
     resetForm();
     showToast(`Added "${result.fields.title}".`);
   }
@@ -699,11 +705,33 @@ function handleSubmit(event) {
 function resetForm() {
   elements.form.reset();
   showErrors({});
-  elements.form.elements.title.focus();
+  focusForm();
+}
+
+/**
+ * Opens or folds the form. This only changes anything on phones, where CSS shows just the
+ * "+ Add assignment" button until the form is open; on wider screens the form is always shown.
+ */
+function setFormOpen(open) {
+  elements.formPanel.classList.toggle("is-open", open);
+  elements.addToggle.setAttribute("aria-expanded", String(open));
+}
+
+/** Puts the cursor in the Assignment box, or on "+ Add assignment" when the form is folded on a phone. */
+function focusForm() {
+  const formShown = elements.form.offsetParent !== null;
+  (formShown ? elements.form.elements.title : elements.addToggle).focus({ preventScroll: true });
+}
+
+function closeForm() {
+  stopEditing();
+  setFormOpen(false);
+  focusForm();
 }
 
 function startEditing(assignment) {
   state.editingId = assignment.id;
+  setFormOpen(true);
   const fields = elements.form.elements;
   fields.title.value = assignment.title;
   fields.course.value = assignment.course;
@@ -974,7 +1002,11 @@ function start() {
   elements.backupFile.addEventListener("change", handleBackupFile);
   elements.tryExamples.addEventListener("click", addExamples);
   elements.removeExamples.addEventListener("click", handleRemoveExamples);
-  elements.cancelEdit.addEventListener("click", stopEditing);
+  elements.cancelEdit.addEventListener("click", closeForm);
+  elements.addToggle.addEventListener("click", () => {
+    setFormOpen(true);
+    focusForm();
+  });
   elements.showSmall.addEventListener("change", render);
   elements.hideDone.addEventListener("change", render);
   elements.courseFilter.addEventListener("change", render);

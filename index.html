@@ -16,8 +16,8 @@
         // Storage can be blocked; the page then follows the computer's setting.
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=c86de48e" />
-    <script type="module" src="src/main.js?v=c86de48e"></script>
+    <link rel="stylesheet" href="styles.css?v=2819d7a4" />
+    <script type="module" src="src/main.js?v=2819d7a4"></script>
   </head>
   <body>
     <header class="page-header">
@@ -37,7 +37,11 @@
     </div>
 
     <main class="layout">
-      <section class="panel form-panel" aria-labelledby="form-heading">
+      <section id="form-panel" class="panel form-panel" aria-labelledby="form-heading">
+        <!-- Shown only on phones, where the form stays folded until needed so the To do list is visible first. -->
+        <button type="button" id="add-toggle" class="button button-primary add-toggle" aria-expanded="false" aria-controls="assignment-form">
+          + Add assignment
+        </button>
         <h2 id="form-heading">Add an assignment</h2>
         <form id="assignment-form" novalidate>
           <div class="field">
