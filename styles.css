@@ -370,7 +370,8 @@ button:focus-visible {
 }
 
 .getting-started[hidden],
-.example-bar[hidden] {
+.example-bar[hidden],
+.filters[hidden] {
   display: none;
 }
 

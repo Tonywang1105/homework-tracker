@@ -16,12 +16,12 @@ import {
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=82eac025";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=82eac025";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=82eac025";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=82eac025";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=82eac025";
-import { loadAssignments, saveAssignments } from "./storage.js?v=82eac025";
+} from "./assignments.js?v=3a4dc152";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=3a4dc152";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3a4dc152";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=3a4dc152";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3a4dc152";
+import { loadAssignments, saveAssignments } from "./storage.js?v=3a4dc152";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -45,6 +45,7 @@ const elements = {
   submitButton: document.getElementById("submit-button"),
   cancelEdit: document.getElementById("cancel-edit"),
   courseSuggestions: document.getElementById("course-suggestions"),
+  filters: document.getElementById("filters"),
   showSmall: document.getElementById("show-small"),
   hideDone: document.getElementById("hide-done"),
   courseFilter: document.getElementById("course-filter"),
@@ -171,6 +172,8 @@ function render() {
   // With no assignments at all, the getting-started box (with the examples button) takes the place of the empty messages.
   const noAssignments = state.assignments.length === 0;
   elements.gettingStarted.hidden = !noAssignments;
+  // Nothing to filter yet, so the filter row would only be clutter next to the getting-started box.
+  elements.filters.hidden = noAssignments;
   elements.exampleBar.hidden = !hasExamples(state.assignments);
   elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
   renderDueSoon(soon, now);

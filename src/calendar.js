@@ -1,7 +1,7 @@
 // Pure logic for the month calendar: which days the grid shows and which assignments fall on each.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { PRIORITIES, sortByDue } from "./assignments.js?v=82eac025";
+import { PRIORITIES, sortByDue } from "./assignments.js?v=3a4dc152";
 
 const DAYS_PER_WEEK = 7;
 
