@@ -8,6 +8,8 @@ const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "notes"];
 const TOAST_DURATION_MS = 6000;
 const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
+// A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
+const MAX_LINES_PER_DAY = 3;
 
 const elements = {
   form: document.getElementById("assignment-form"),
@@ -57,6 +59,8 @@ const state = {
   undoAction: null,
   // The assignment whose details box is open on the calendar, or null.
   detailsId: null,
+  // Calendar days ("YYYY-MM-DD") whose "+N more" link was clicked, so they show every tag.
+  expandedDays: new Set(),
   view: "list",
   // The month the calendar shows, as { year, month } with month 0-11.
   shownMonth: currentMonth(),
@@ -168,12 +172,42 @@ function renderCalendarDay(day) {
   cell.append(number);
 
   if (day.assignments.length > 0) {
+    const expanded = state.expandedDays.has(day.key);
+    const fits = day.assignments.length <= MAX_LINES_PER_DAY;
+    // When they don't all fit, the last line becomes the "+N more" link.
+    const hiddenCount = expanded || fits ? 0 : day.assignments.length - (MAX_LINES_PER_DAY - 1);
     const list = document.createElement("ul");
     list.className = "calendar-items";
-    list.append(...day.assignments.map(renderCalendarItem));
+    list.append(...day.assignments.slice(0, day.assignments.length - hiddenCount).map(renderCalendarItem));
+    if (!fits) {
+      list.append(renderMoreToggle(hiddenCount, dayName));
+    }
     cell.append(list);
   }
   return cell;
+}
+
+/** "+2 more" on a busy day, or "Show less" once it is expanded. */
+function renderMoreToggle(hiddenCount, dayName) {
+  const item = document.createElement("li");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "calendar-more";
+  if (hiddenCount > 0) {
+    // On a phone the day is too narrow for "+3 more", so CSS hides the word "more" there.
+    const moreWord = document.createElement("span");
+    moreWord.className = "more-word";
+    moreWord.textContent = " more";
+    button.append(`+${hiddenCount}`, moreWord);
+  } else {
+    button.textContent = "Show less";
+  }
+  button.setAttribute(
+    "aria-label",
+    hiddenCount > 0 ? `Show ${hiddenCount} more assignments due ${dayName}` : `Show fewer assignments for ${dayName}`,
+  );
+  item.append(button);
+  return item;
 }
 
 function renderCalendarItem(assignment) {
@@ -224,6 +258,17 @@ function renderWeekdayHeadings() {
 }
 
 function handleCalendarClick(event) {
+  const moreToggle = event.target.closest(".calendar-more");
+  if (moreToggle) {
+    const dateKey = moreToggle.closest(".calendar-day").dataset.date;
+    if (!state.expandedDays.delete(dateKey)) {
+      state.expandedDays.add(dateKey);
+    }
+    render();
+    // render() replaced the button, so put keyboard focus on the new one.
+    elements.calendarBody.querySelector(`.calendar-day[data-date="${dateKey}"] .calendar-more`)?.focus();
+    return;
+  }
   const button = event.target.closest(".calendar-item");
   if (button) {
     // Clicking the open tag again closes its box.
@@ -311,6 +356,7 @@ function handleOutsideClick(event) {
 
 function showMonth(month) {
   state.shownMonth = month;
+  state.expandedDays.clear();
   render();
 }
 

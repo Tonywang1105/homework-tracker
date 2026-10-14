@@ -1,9 +1,17 @@
 // Pure logic for the month calendar: which days the grid shows and which assignments fall on each.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { sortByDue } from "./assignments.js";
+import { PRIORITIES, sortByDue } from "./assignments.js";
 
 const DAYS_PER_WEEK = 7;
+
+/**
+ * Order within one day: unfinished big assignments, then unfinished small reminders, then finished
+ * work, each by due time. A busy day shows only its first few, so the important ones come first.
+ */
+function compareWithinDay(a, b) {
+  return Number(a.done) - Number(b.done) || PRIORITIES.indexOf(a.priority) - PRIORITIES.indexOf(b.priority);
+}
 
 /** "YYYY-MM-DD" for a Date, in local time, matching how assignments store dueDate. */
 export function toDateKey(date) {
@@ -22,11 +30,12 @@ export function shiftMonth({ year, month }, offset) {
  * Builds the weeks shown for one month, Sunday first. The grid starts on the Sunday on or before
  * the 1st and ends on the Saturday on or after the last day, so it has 4 to 6 full weeks.
  * Each day is { key, dayOfMonth, inMonth, isToday, assignments }, with that day's assignments
- * sorted by due time (big first on ties).
+ * ordered unfinished big, unfinished small, then finished, each by due time.
  */
 export function buildMonthGrid({ year, month }, assignments, today = new Date()) {
   const byDay = new Map();
-  for (const assignment of sortByDue(assignments)) {
+  // sortByDue first, then a stable sort by group, keeps due-time order inside each group.
+  for (const assignment of sortByDue(assignments).sort(compareWithinDay)) {
     const dayAssignments = byDay.get(assignment.dueDate) ?? [];
     dayAssignments.push(assignment);
     byDay.set(assignment.dueDate, dayAssignments);

@@ -492,7 +492,8 @@ button:focus-visible {
 
 .calendar-day {
   vertical-align: top;
-  height: 92px;
+  /* Tall enough for the day number and three lines of tags, the most a day shows (see MAX_LINES_PER_DAY). */
+  height: 104px;
   padding: 4px;
   border: 1px solid var(--border);
 }
@@ -571,6 +572,25 @@ button:focus-visible {
 .calendar-item.priority-small {
   background: var(--small-soft);
   color: var(--muted);
+}
+
+.calendar-more {
+  display: block;
+  width: 100%;
+  padding: 1px 5px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.calendar-more:hover {
+  text-decoration: underline;
 }
 
 .calendar-item.is-done {
@@ -671,13 +691,24 @@ button:focus-visible {
 
 @media (max-width: 520px) {
   .calendar-day {
-    height: 64px;
+    /* Room for three lines of the smaller phone tags. */
+    height: 90px;
     padding: 2px;
   }
 
-  .calendar-item {
+  .calendar-item,
+  .calendar-more {
     font-size: 0.68rem;
     padding: 1px 3px;
+  }
+
+  .calendar-more {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .more-word {
+    display: none;
   }
 }
 
