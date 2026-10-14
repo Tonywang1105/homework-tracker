@@ -10,10 +10,10 @@ import {
   toDueDate,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js";
-import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js";
-import { loadAssignments, saveAssignments } from "./storage.js";
+} from "./assignments.js?v=a4b4aefb";
+import { buildMonthGrid, calendarTagText, currentMonth, shiftMonth, visibleOnDay } from "./calendar.js?v=a4b4aefb";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=a4b4aefb";
+import { loadAssignments, saveAssignments } from "./storage.js?v=a4b4aefb";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "notes"];
 const TOAST_DURATION_MS = 6000;
