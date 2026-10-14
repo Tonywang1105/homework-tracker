@@ -218,6 +218,33 @@ button:focus-visible {
   color: var(--error);
 }
 
+.import-section {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* Quieter than other links: importing is occasional, so it shouldn't compete with the list. */
+.link-button.import-toggle {
+  color: var(--muted);
+  padding-left: 0;
+}
+
+.import-panel {
+  margin-top: 8px;
+}
+
+.import-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.import-help {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
 /* ----- List ----- */
 
 .list-header {

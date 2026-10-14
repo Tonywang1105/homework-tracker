@@ -2,6 +2,7 @@
 
 import { createAssignment, describeDue, groupAssignments, toDueDate, validateAssignmentInput } from "./assignments.js";
 import { buildMonthGrid, shiftMonth } from "./calendar.js";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js";
 import { loadAssignments, saveAssignments } from "./storage.js";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "notes"];
@@ -10,6 +11,8 @@ const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
+// A semester's Canvas feed is well under 1 MB; anything far bigger is the wrong file.
+const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 
 const elements = {
   form: document.getElementById("assignment-form"),
@@ -40,6 +43,11 @@ const elements = {
   previousMonth: document.getElementById("previous-month"),
   nextMonth: document.getElementById("next-month"),
   thisMonth: document.getElementById("this-month"),
+  importPanel: document.getElementById("import-panel"),
+  importPanelToggle: document.getElementById("canvas-panel-toggle"),
+  importPanelClose: document.getElementById("canvas-panel-close"),
+  canvasImportButton: document.getElementById("canvas-import-button"),
+  canvasFile: document.getElementById("canvas-file"),
   details: document.getElementById("calendar-details"),
   detailsTitle: document.getElementById("details-title"),
   detailsTags: document.getElementById("details-tags"),
@@ -151,7 +159,7 @@ function renderCalendar(assignments, now) {
   const leftThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.some((a) => !a.done));
   elements.calendarEmpty.hidden = leftThisMonth;
   elements.calendarEmpty.textContent =
-    state.assignments.length === 0 ? "No assignments yet. Add your first one with the form." : `Nothing left to do in ${monthName}.`;
+    state.assignments.length === 0 ? "No assignments yet. Add one with the form, or use Import from Canvas below." : `Nothing left to do in ${monthName}.`;
 }
 
 function renderCalendarDay(day) {
@@ -389,7 +397,7 @@ function emptyMessageText(doneCount) {
   if (doneCount > 0) {
     return "All caught up. Nothing left to do.";
   }
-  return "No assignments yet. Add your first one with the form.";
+  return "No assignments yet. Add one with the form, or use Import from Canvas below.";
 }
 
 function renderAssignment(assignment, now) {
@@ -608,6 +616,74 @@ function toggleDone(assignment) {
   }
 }
 
+// ----- Canvas import -----
+
+function setImportPanelOpen(open) {
+  elements.importPanel.hidden = !open;
+  elements.importPanelToggle.setAttribute("aria-expanded", String(open));
+  // Focus first: moving focus after starting a smooth scroll cancels the scroll in Chrome.
+  (open ? elements.canvasImportButton : elements.importPanelToggle).focus({ preventScroll: true });
+  if (open) {
+    // Scroll far enough to show the buttons, which sit below the how-to text.
+    elements.importPanelClose.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+async function handleCanvasFile() {
+  const file = elements.canvasFile.files[0];
+  // Clear the choice so picking the same file again (a re-import) still fires "change".
+  elements.canvasFile.value = "";
+  if (!file) {
+    return;
+  }
+  if (file.size > MAX_IMPORT_BYTES) {
+    showToast(`"${file.name}" is too big to be a Canvas calendar file.`);
+    return;
+  }
+
+  let text;
+  try {
+    text = await file.text();
+  } catch {
+    showToast(`Couldn't read "${file.name}". Try downloading it from Canvas again.`);
+    return;
+  }
+  if (!isIcsCalendar(text)) {
+    showToast(`"${file.name}" isn't a calendar (.ics) file. Use the Calendar Feed link in Canvas Calendar.`);
+    return;
+  }
+  const imported = readCanvasAssignments(text);
+  if (imported.length === 0) {
+    showToast("No Canvas assignments found in that file.");
+    return;
+  }
+
+  const previous = state.assignments;
+  const result = mergeCanvasAssignments(previous, imported);
+  if (result.added === 0 && result.updated === 0) {
+    showToast(importSummary(result));
+    return;
+  }
+  updateAssignments(result.assignments);
+  showToast(importSummary(result), () => updateAssignments(previous));
+}
+
+/** "Imported 3 new, updated 1. Skipped 2 already past due." */
+function importSummary({ added, updated, skippedPast }) {
+  const changes = [];
+  if (added > 0) {
+    changes.push(`imported ${added} new`);
+  }
+  if (updated > 0) {
+    changes.push(`updated ${updated}`);
+  }
+  let summary = changes.length > 0 ? `Canvas: ${changes.join(", ")}.` : "Canvas: already up to date.";
+  if (skippedPast > 0) {
+    summary += ` Skipped ${skippedPast} already past due.`;
+  }
+  return summary;
+}
+
 // ----- Toast (short confirmation message, optionally with Undo) -----
 
 function showToast(message, undoAction = null) {
@@ -645,6 +721,10 @@ function start() {
   }
 
   elements.form.addEventListener("submit", handleSubmit);
+  elements.importPanelToggle.addEventListener("click", () => setImportPanelOpen(elements.importPanel.hidden));
+  elements.importPanelClose.addEventListener("click", () => setImportPanelOpen(false));
+  elements.canvasImportButton.addEventListener("click", () => elements.canvasFile.click());
+  elements.canvasFile.addEventListener("change", handleCanvasFile);
   elements.cancelEdit.addEventListener("click", stopEditing);
   elements.showSmall.addEventListener("change", render);
   elements.todoList.addEventListener("click", handleListClick);

@@ -12,7 +12,6 @@
       <h1>Homework Tracker</h1>
       <p class="tagline">Everything due, soonest first, with your own notes.</p>
     </header>
-
     <div id="storage-error" class="banner banner-error" role="alert" hidden>
       <p id="storage-error-message"></p>
       <button type="button" id="reset-storage" class="button button-danger">Start over with an empty list</button>
@@ -121,6 +120,23 @@
               <button type="button" id="details-edit" class="button">Edit</button>
               <button type="button" id="details-done" class="button button-primary">Mark done</button>
             </div>
+          </div>
+        </div>
+
+        <div class="import-section">
+          <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel">
+            Import from Canvas…
+          </button>
+          <div id="import-panel" class="import-panel" hidden>
+            <p class="import-help">
+              In Canvas, open <strong>Calendar</strong>, click <strong>Calendar Feed</strong>, and open the link to download a
+              <code>.ics</code> file. Choose that file here. Importing again updates due dates and keeps your notes.
+            </p>
+            <div class="import-actions">
+              <button type="button" id="canvas-import-button" class="button button-primary">Choose Canvas file…</button>
+              <button type="button" id="canvas-panel-close" class="button">Close</button>
+            </div>
+            <input type="file" id="canvas-file" accept=".ics,text/calendar" hidden />
           </div>
         </div>
       </section>
