@@ -435,6 +435,42 @@ button:focus-visible {
   color: var(--text);
 }
 
+.daily-limit {
+  display: inline;
+  margin: 0;
+  font-weight: 400;
+}
+
+.daily-limit[hidden] {
+  display: none;
+}
+
+.daily-limit input {
+  width: 3.6em;
+  padding: 1px 4px;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* "start by Mon, 10/19": amber once it's time to start, red when behind. */
+.start-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.start-tag.start-today {
+  color: var(--soon);
+}
+
+.start-tag.start-behind {
+  color: var(--overdue);
+}
+
 .workload[hidden],
 .getting-started[hidden],
 .notice-bar[hidden],

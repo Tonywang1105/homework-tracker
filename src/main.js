@@ -19,9 +19,9 @@ import {
   updateAssignment,
   validateAssignmentInput,
   workload,
-} from "./assignments.js?v=3dce678f";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=3dce678f";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3dce678f";
+} from "./assignments.js?v=f1576760";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=f1576760";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=f1576760";
 import {
   importReminder,
   isIcsCalendar,
@@ -29,12 +29,13 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "./canvas.js?v=3dce678f";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP, parseSavedWidth } from "./layout.js?v=3dce678f";
-import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=3dce678f";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3dce678f";
-import { calendarFile, calendarFileName, upcomingForExport } from "./export.js?v=3dce678f";
-import { loadAssignments, saveAssignments } from "./storage.js?v=3dce678f";
+} from "./canvas.js?v=f1576760";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP, parseSavedWidth } from "./layout.js?v=f1576760";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=f1576760";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=f1576760";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=f1576760";
+import { calendarFile, calendarFileName, upcomingForExport } from "./export.js?v=f1576760";
+import { loadAssignments, saveAssignments } from "./storage.js?v=f1576760";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -45,6 +46,7 @@ const THEME_STORAGE_KEY = "homework-tracker.theme";
 const THEMES = ["system", "light", "dark"];
 // When Canvas was last imported, and until when "Not now" pauses the reminder (ISO times).
 const FORM_WIDTH_KEY = "homework-tracker.formWidth";
+const DAILY_HOURS_KEY = "homework-tracker.dailyHours";
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 const CANVAS_SNOOZE_KEY = "homework-tracker.canvasReminderSnoozedUntil";
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
@@ -74,6 +76,9 @@ const elements = {
   todoCount: document.getElementById("todo-count"),
   emptyMessage: document.getElementById("empty-message"),
   workload: document.getElementById("workload"),
+  workloadText: document.getElementById("workload-text"),
+  dailyLimit: document.getElementById("daily-limit"),
+  dailyHours: document.getElementById("daily-hours"),
   dueSoon: document.getElementById("due-soon"),
   dueSoonCount: document.getElementById("due-soon-count"),
   dueSoonList: document.getElementById("due-soon-list"),
@@ -137,6 +142,9 @@ const state = {
   expandedDays: new Set(),
   // Repeating series whose later items are shown in the to-do list (normally only the next one is).
   expandedSeries: new Set(),
+  // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
+  dailyHours: DEFAULT_DAILY_HOURS,
+  startPlan: new Map(),
   view: "list",
   // The month the calendar shows, as { year, month } with month 0-11.
   shownMonth: currentMonth(),
@@ -195,6 +203,8 @@ function render() {
   // Shared by the Due soon box (calendar) and the tinted rows (list), so both views agree on what is urgent.
   const soon = dueSoon(state.assignments, now);
   const soonIds = new Set(soon.map((a) => a.id));
+  // Planned before anything is drawn, so the list and the details box show the same start dates.
+  state.startPlan = planStarts(state.assignments, now, state.dailyHours);
 
   elements.todoList.replaceChildren(...combineSeries(todo, state.expandedSeries).flatMap((row) => renderTodoRow(row, now, soonIds)));
   elements.todoCount.textContent = todo.length > 0 ? `(${todo.length})` : "";
@@ -411,6 +421,14 @@ function startAddingOn(dateKey) {
   showToast(`New assignment due ${formatDay(dateKey)}. Type a name.`);
 }
 
+/** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
+function startText({ startDate, status, shortHours }) {
+  if (status === "behind") {
+    return `behind: ${formatHours(shortHours)} short`;
+  }
+  return status === "today" ? "start today" : `start by ${formatDay(startDate)}`;
+}
+
 /** "Wed, 10/21" for a "YYYY-MM-DD" date. */
 function formatDay(dateKey) {
   return dayFormatter.format(toDueDate(dateKey, "12:00"));
@@ -610,13 +628,15 @@ function setTheme(theme) {
 function renderWorkload(now) {
   const { count, hours, unestimated, busiest } = workload(state.assignments, now);
   elements.workload.hidden = count === 0;
+  // The daily limit only matters once something has an estimate to plan.
+  elements.dailyLimit.hidden = state.startPlan.size === 0;
   if (count === 0) {
     return;
   }
   const heading = document.createElement("strong");
   heading.textContent = "Next 7 days: ";
   if (hours === 0) {
-    elements.workload.replaceChildren(heading, `${countAssignments(count)} · add "Time needed" to see how much work that is.`);
+    elements.workloadText.replaceChildren(heading, `${countAssignments(count)} · add "Time needed" to see how much work that is.`);
     return;
   }
   const parts = [`${formatHours(hours)} of work`];
@@ -626,7 +646,20 @@ function renderWorkload(now) {
   if (unestimated > 0) {
     parts.push(`${unestimated} without an estimate`);
   }
-  elements.workload.replaceChildren(heading, parts.join(" · "));
+  elements.workloadText.replaceChildren(heading, parts.join(" · "));
+}
+
+function handleDailyHoursChange() {
+  const hours = parseDailyHours(elements.dailyHours.value);
+  if (hours === null) {
+    showToast("Plan for between 0.5 and 16 hours a day.");
+    elements.dailyHours.value = state.dailyHours;
+    return;
+  }
+  state.dailyHours = hours;
+  saveChoice(DAILY_HOURS_KEY, String(hours));
+  render();
+  showToast(`Start dates now plan for ${hours} h of homework a day.`);
 }
 
 // ----- Due soon -----
@@ -767,6 +800,10 @@ function renderTags(assignment) {
   }
   if (assignment.hours) {
     tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
+  }
+  const start = state.startPlan.get(assignment.id);
+  if (start) {
+    tags.push(makeTag(startText(start), `start-tag start-${start.status}`));
   }
   tags.push(makeTag(PRIORITY_LABELS[assignment.priority], `priority-tag priority-tag-${assignment.priority}`));
   return tags;
@@ -1314,6 +1351,10 @@ function start() {
     elements.layout.style.setProperty("--form-width", `${savedWidth}px`);
     elements.columnResizer.setAttribute("aria-valuenow", String(savedWidth));
   }
+
+  state.dailyHours = parseDailyHours(loadText(DAILY_HOURS_KEY)) ?? DEFAULT_DAILY_HOURS;
+  elements.dailyHours.value = state.dailyHours;
+  elements.dailyHours.addEventListener("change", handleDailyHoursChange);
 
   state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
   applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
