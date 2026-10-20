@@ -16,8 +16,8 @@
         // Storage can be blocked; the page then follows the computer's setting.
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=b639ce8e" />
-    <script type="module" src="src/main.js?v=b639ce8e"></script>
+    <link rel="stylesheet" href="styles.css?v=3f4c9c6f" />
+    <script type="module" src="src/main.js?v=3f4c9c6f"></script>
   </head>
   <body>
     <header class="page-header">
@@ -101,6 +101,12 @@
             <p class="field-error" id="type-error"></p>
           </div>
 
+          <div class="field">
+            <label for="hours">Time needed <span class="optional">hours, optional</span></label>
+            <input id="hours" name="hours" type="number" min="0.25" max="40" step="0.25" inputmode="decimal" placeholder="e.g. 2" />
+            <p class="field-error" id="hours-error"></p>
+          </div>
+
           <!-- Only when adding: one entry can become a weekly or every-other-week series. -->
           <div id="repeat-fields" class="field-row">
             <div class="field">
@@ -169,6 +175,8 @@
           <span>You're looking at example assignments.</span>
           <button type="button" id="remove-examples" class="link-button">Remove them</button>
         </div>
+
+        <p id="workload" class="workload" hidden></p>
 
         <section id="due-soon" class="due-soon" aria-labelledby="due-soon-heading" hidden>
           <h3 id="due-soon-heading" class="due-soon-heading">Due soon <span id="due-soon-count" class="count"></span></h3>

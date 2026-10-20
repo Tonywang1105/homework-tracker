@@ -164,6 +164,7 @@ legend {
 }
 
 input[type="text"],
+input[type="number"],
 input[type="date"],
 input[type="time"],
 .field select,
@@ -369,6 +370,17 @@ button:focus-visible {
   max-width: 32em;
 }
 
+.workload {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.workload strong {
+  color: var(--text);
+}
+
+.workload[hidden],
 .getting-started[hidden],
 .example-bar[hidden],
 .filters[hidden],
@@ -579,6 +591,13 @@ button:focus-visible {
   color: var(--big);
 }
 
+.hours-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .priority-tag-regular {
   border: 1px solid var(--border);
   color: var(--text);
@@ -783,6 +802,14 @@ button:focus-visible {
   border: 0;
   border-radius: 999px;
   cursor: pointer;
+}
+
+/* The day's estimated hours of unfinished work, next to its date, so heavy days stand out. */
+.day-hours {
+  margin-left: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
 }
 
 .calendar-day.is-today .day-number {

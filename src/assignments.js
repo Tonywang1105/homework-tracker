@@ -34,6 +34,10 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^\d{2}:\d{2}$/;
 const MAX_TITLE_LENGTH = 200;
 const MAX_NOTES_LENGTH = 5000;
+// Time estimates, in hours: from a quarter hour up to a week of full-time work.
+const MIN_HOURS = 0.25;
+const MAX_HOURS = 40;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Checks raw form input and turns it into clean assignment fields.
@@ -47,6 +51,9 @@ export function validateAssignmentInput(input) {
   const priority = input.priority ?? "big";
   const notes = (input.notes ?? "").trim();
   const chosenType = input.type ?? AUTO_TYPE;
+  // The estimate is optional: empty means "no estimate", stored as null.
+  const hoursText = String(input.hours ?? "").trim();
+  const hours = hoursText === "" ? null : Number(hoursText);
   const errors = {};
 
   if (title === "") {
@@ -69,13 +76,16 @@ export function validateAssignmentInput(input) {
   if (chosenType !== AUTO_TYPE && chosenType !== "" && !TYPES.includes(chosenType)) {
     errors.type = "Choose a type from the list.";
   }
+  if (hours !== null && !(hours >= MIN_HOURS && hours <= MAX_HOURS)) {
+    errors.hours = `Enter hours between ${MIN_HOURS} and ${MAX_HOURS}, or leave it empty.`;
+  }
 
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
   // "Guess from title" is saved as the guess, so renaming the assignment later doesn't change its type.
   const type = chosenType === AUTO_TYPE ? guessType(title) : chosenType;
-  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type } };
+  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours } };
 }
 
 /** Builds a new assignment from validated fields. */
@@ -135,6 +145,43 @@ export function filterAssignments(assignments, { course = "", hideSmall = false,
 export function dueSoon(assignments, now = new Date(), hours = 24) {
   const cutoff = now.getTime() + hours * 60 * 60 * 1000;
   return sortByDue(assignments.filter((a) => !a.done && toDueDate(a.dueDate, a.dueTime).getTime() <= cutoff));
+}
+
+/** "~3 h", "~1.5 h", or "~30 min" for under an hour. */
+export function formatHours(hours) {
+  return hours < 1 ? `~${Math.round(hours * 60)} min` : `~${Math.round(hours * 10) / 10} h`;
+}
+
+/** Total estimated hours of the unfinished assignments given (those without an estimate count as 0). */
+export function totalHours(assignments) {
+  return assignments.reduce((sum, a) => sum + (!a.done && a.hours ? a.hours : 0), 0);
+}
+
+/**
+ * The workload for the next `days` days: unfinished assignments that are overdue or due by then.
+ * Returns { count, hours, unestimated, busiest }, where busiest is { dueDate, hours } for the day
+ * with the most estimated hours (null if nothing has an estimate). Every assignment counts,
+ * whatever the filters, like the Due soon reminder.
+ */
+export function workload(assignments, now = new Date(), days = 7) {
+  const cutoff = now.getTime() + days * DAY_MS;
+  const upcoming = assignments.filter((a) => !a.done && toDueDate(a.dueDate, a.dueTime).getTime() <= cutoff);
+  const hoursByDay = new Map();
+  for (const a of upcoming.filter((a) => a.hours)) {
+    hoursByDay.set(a.dueDate, (hoursByDay.get(a.dueDate) ?? 0) + a.hours);
+  }
+  let busiest = null;
+  for (const [dueDate, hours] of [...hoursByDay].sort(([a], [b]) => a.localeCompare(b))) {
+    if (!busiest || hours > busiest.hours) {
+      busiest = { dueDate, hours };
+    }
+  }
+  return {
+    count: upcoming.length,
+    hours: totalHours(upcoming),
+    unestimated: upcoming.filter((a) => !a.hours).length,
+    busiest,
+  };
 }
 
 /** Every course name used in the list, sorted, without blanks or repeats. */

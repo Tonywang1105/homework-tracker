@@ -7,24 +7,27 @@ import {
   createAssignment,
   describeDue,
   dueSoon,
+  formatHours,
   filterAssignments,
   groupAssignments,
   PRIORITY_LABELS,
   removeAssignment,
   toDueDate,
+  totalHours,
   TYPE_LABELS,
   TYPES,
   updateAssignment,
   validateAssignmentInput,
-} from "./assignments.js?v=b639ce8e";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=b639ce8e";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=b639ce8e";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=b639ce8e";
-import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=b639ce8e";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=b639ce8e";
-import { loadAssignments, saveAssignments } from "./storage.js?v=b639ce8e";
+  workload,
+} from "./assignments.js?v=3f4c9c6f";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=3f4c9c6f";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3f4c9c6f";
+import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=3f4c9c6f";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=3f4c9c6f";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3f4c9c6f";
+import { loadAssignments, saveAssignments } from "./storage.js?v=3f4c9c6f";
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "repeat", "untilDate", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
 const VIEW_STORAGE_KEY = "homework-tracker.view";
 const VIEWS = ["list", "calendar"];
@@ -55,6 +58,7 @@ const elements = {
   todoList: document.getElementById("todo-list"),
   todoCount: document.getElementById("todo-count"),
   emptyMessage: document.getElementById("empty-message"),
+  workload: document.getElementById("workload"),
   dueSoon: document.getElementById("due-soon"),
   dueSoonCount: document.getElementById("due-soon-count"),
   dueSoonList: document.getElementById("due-soon-list"),
@@ -182,6 +186,7 @@ function render() {
   elements.exampleBar.hidden = !hasExamples(state.assignments);
   elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
   renderDueSoon(soon, now);
+  renderWorkload(now);
   elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -239,6 +244,14 @@ function renderCalendarDay(day) {
   number.setAttribute("aria-label", `Add an assignment due ${dayName}${day.isToday ? " (today)" : ""}`);
   cell.title = `Add an assignment due ${dayName}`;
   cell.append(number);
+  const dayHours = totalHours(day.assignments);
+  if (dayHours > 0) {
+    const hoursLabel = document.createElement("span");
+    hoursLabel.className = "day-hours";
+    hoursLabel.textContent = dayHours < 1 ? `${Math.round(dayHours * 60)}m` : `${Math.round(dayHours * 10) / 10}h`;
+    hoursLabel.title = `About ${formatHours(dayHours).slice(1)} of unfinished work due`;
+    cell.append(hoursLabel);
+  }
 
   if (day.assignments.length > 0) {
     const { shown, hiddenCount, hasToggle } = visibleOnDay(day.assignments, {
@@ -498,6 +511,31 @@ function setTheme(theme) {
   saveChoice(THEME_STORAGE_KEY, theme);
 }
 
+// ----- Workload -----
+
+/** "Next 7 days: ~11 h of work · busiest: Thu, 10/22 (~4 h) · 3 without an estimate" */
+function renderWorkload(now) {
+  const { count, hours, unestimated, busiest } = workload(state.assignments, now);
+  elements.workload.hidden = count === 0;
+  if (count === 0) {
+    return;
+  }
+  const heading = document.createElement("strong");
+  heading.textContent = "Next 7 days: ";
+  if (hours === 0) {
+    elements.workload.replaceChildren(heading, `${countAssignments(count)} · add "Time needed" to see how much work that is.`);
+    return;
+  }
+  const parts = [`${formatHours(hours)} of work`];
+  if (busiest) {
+    parts.push(`busiest: ${formatDay(busiest.dueDate)} (${formatHours(busiest.hours)})`);
+  }
+  if (unestimated > 0) {
+    parts.push(`${unestimated} without an estimate`);
+  }
+  elements.workload.replaceChildren(heading, parts.join(" · "));
+}
+
 // ----- Due soon -----
 
 /** The reminder box on the calendar: everything unfinished that is overdue or due within a day, whatever the filters. */
@@ -634,6 +672,9 @@ function renderTags(assignment) {
   if (type) {
     tags.push(makeTag(TYPE_LABELS[type], `type-tag type-${type}`));
   }
+  if (assignment.hours) {
+    tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
+  }
   tags.push(makeTag(PRIORITY_LABELS[assignment.priority], `priority-tag priority-tag-${assignment.priority}`));
   return tags;
 }
@@ -701,7 +742,7 @@ function makeOption(value, text) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "repeat", "untilDate", "notes"];
+  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
   return Object.fromEntries(names.map((name) => [name, data.get(name) ?? ""]));
 }
 
@@ -806,6 +847,7 @@ function startEditing(assignment) {
   // Assignments saved before types existed have none stored, so the form offers the guess again.
   fields.type.value = assignment.type ?? AUTO_TYPE;
   fields.notes.value = assignment.notes;
+  fields.hours.value = assignment.hours ?? "";
   showErrors({});
   elements.repeatFields.hidden = true;
   elements.formHeading.textContent = "Edit assignment";
