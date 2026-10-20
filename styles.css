@@ -85,9 +85,45 @@ h2 {
   margin: 0 auto;
   padding: 16px;
   display: grid;
-  gap: 20px;
-  grid-template-columns: minmax(280px, 360px) 1fr;
+  /* Form | drag handle | To do. The form is --form-width wide (set by dragging the handle), but never
+     under 260px, and the To do side always keeps 440px (+20px for the handle). Same limits as src/layout.js. */
+  grid-template-columns: clamp(260px, var(--form-width, 360px), calc(100% - 460px)) 20px minmax(0, 1fr);
   align-items: start;
+}
+
+/* The drag handle between the two columns: a thin line that turns blue when hovered, focused or dragged. */
+.column-resizer {
+  align-self: stretch;
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.column-resizer::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 9px;
+  width: 2px;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.column-resizer:hover::before,
+.column-resizer:focus-visible::before,
+.column-resizer.is-dragging::before {
+  background: var(--accent);
+}
+
+.column-resizer:focus-visible {
+  outline: none;
+}
+
+/* While dragging, keep the resize cursor everywhere and don't select text by accident. */
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 .add-toggle {
@@ -98,6 +134,12 @@ h2 {
 @media (max-width: 760px) {
   .layout {
     grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Phones stack the form and the list, so there is nothing to resize. */
+  .column-resizer {
+    display: none;
   }
 
   /* On phones the form folds into one "+ Add assignment" button, so the To do list starts near the top. */
@@ -147,6 +189,19 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+/* The form can be dragged narrow; then its side-by-side pairs (Due date | Time, Repeat | Until) stack
+   so each box keeps room for its text. This depends on the form's own width, not the window's. */
+.form-panel {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 
 label,

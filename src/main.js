@@ -19,9 +19,9 @@ import {
   updateAssignment,
   validateAssignmentInput,
   workload,
-} from "./assignments.js?v=8a7c58d0";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=8a7c58d0";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=8a7c58d0";
+} from "./assignments.js?v=0cba7a17";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=0cba7a17";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=0cba7a17";
 import {
   importReminder,
   isIcsCalendar,
@@ -29,10 +29,11 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "./canvas.js?v=8a7c58d0";
-import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=8a7c58d0";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=8a7c58d0";
-import { loadAssignments, saveAssignments } from "./storage.js?v=8a7c58d0";
+} from "./canvas.js?v=0cba7a17";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP, parseSavedWidth } from "./layout.js?v=0cba7a17";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=0cba7a17";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=0cba7a17";
+import { loadAssignments, saveAssignments } from "./storage.js?v=0cba7a17";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -42,6 +43,7 @@ const VIEWS = ["list", "calendar"];
 const THEME_STORAGE_KEY = "homework-tracker.theme";
 const THEMES = ["system", "light", "dark"];
 // When Canvas was last imported, and until when "Not now" pauses the reminder (ISO times).
+const FORM_WIDTH_KEY = "homework-tracker.formWidth";
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 const CANVAS_SNOOZE_KEY = "homework-tracker.canvasReminderSnoozedUntil";
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
@@ -55,6 +57,8 @@ const elements = {
   form: document.getElementById("assignment-form"),
   formHeading: document.getElementById("form-heading"),
   formPanel: document.getElementById("form-panel"),
+  layout: document.querySelector(".layout"),
+  columnResizer: document.getElementById("column-resizer"),
   repeatFields: document.getElementById("repeat-fields"),
   untilField: document.getElementById("until-field"),
   addToggle: document.getElementById("add-toggle"),
@@ -484,6 +488,65 @@ function setView(view) {
   state.view = view;
   saveChoice(VIEW_STORAGE_KEY, view);
   render();
+}
+
+// ----- Resizable columns -----
+
+/** The width the form and the To do list share, not counting the page's padding and the drag handle. */
+function columnsWidth() {
+  const style = getComputedStyle(elements.layout);
+  const padding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+  return elements.layout.clientWidth - padding - elements.columnResizer.offsetWidth;
+}
+
+function setFormWidth(requested) {
+  const width = clampFormWidth(requested, columnsWidth());
+  elements.layout.style.setProperty("--form-width", `${width}px`);
+  elements.columnResizer.setAttribute("aria-valuenow", String(width));
+  return width;
+}
+
+function resetFormWidth() {
+  elements.layout.style.removeProperty("--form-width");
+  elements.columnResizer.setAttribute("aria-valuenow", String(DEFAULT_FORM_WIDTH));
+  removeChoice(FORM_WIDTH_KEY);
+}
+
+function startResizing(event) {
+  if (event.button !== 0) {
+    return;
+  }
+  event.preventDefault();
+  const resizer = elements.columnResizer;
+  resizer.setPointerCapture(event.pointerId);
+  resizer.classList.add("is-dragging");
+  document.body.classList.add("is-resizing");
+  const formLeft = elements.formPanel.getBoundingClientRect().left;
+  let width = elements.formPanel.offsetWidth;
+
+  const move = (moveEvent) => {
+    width = setFormWidth(moveEvent.clientX - formLeft);
+  };
+  const stop = () => {
+    resizer.removeEventListener("pointermove", move);
+    resizer.classList.remove("is-dragging");
+    document.body.classList.remove("is-resizing");
+    saveChoice(FORM_WIDTH_KEY, String(width));
+  };
+  resizer.addEventListener("pointermove", move);
+  resizer.addEventListener("pointerup", stop, { once: true });
+  resizer.addEventListener("pointercancel", stop, { once: true });
+}
+
+function handleResizerKey(event) {
+  const steps = { ArrowLeft: -KEYBOARD_STEP, ArrowRight: KEYBOARD_STEP };
+  if (event.key in steps) {
+    event.preventDefault();
+    saveChoice(FORM_WIDTH_KEY, String(setFormWidth(elements.formPanel.offsetWidth + steps[event.key])));
+  } else if (event.key === "Enter") {
+    event.preventDefault();
+    resetFormWidth();
+  }
 }
 
 // ----- Remembered choices (view and theme) -----
@@ -1222,6 +1285,16 @@ function start() {
     updateAssignments([]);
     showToast("Started over with an empty list.");
   });
+
+  elements.columnResizer.addEventListener("pointerdown", startResizing);
+  elements.columnResizer.addEventListener("dblclick", resetFormWidth);
+  elements.columnResizer.addEventListener("keydown", handleResizerKey);
+  const savedWidth = parseSavedWidth(loadText(FORM_WIDTH_KEY));
+  if (savedWidth !== null) {
+    // CSS keeps it within the limits even if the window is now smaller than when it was saved.
+    elements.layout.style.setProperty("--form-width", `${savedWidth}px`);
+    elements.columnResizer.setAttribute("aria-valuenow", String(savedWidth));
+  }
 
   state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
   applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
