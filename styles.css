@@ -382,14 +382,15 @@ button:focus-visible {
 
 .workload[hidden],
 .getting-started[hidden],
-.example-bar[hidden],
+.notice-bar[hidden],
 .filters[hidden],
 .field[hidden],
 .field-row[hidden] {
   display: none;
 }
 
-.example-bar {
+/* A slim message above the list: the example assignments, or a reminder to import Canvas again. */
+.notice-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;

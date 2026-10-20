@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=3f4c9c6f";
-import { toDateKey } from "./calendar.js?v=3f4c9c6f";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=8a7c58d0";
+import { toDateKey } from "./calendar.js?v=8a7c58d0";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
@@ -147,4 +147,40 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
     updated: updates.size,
     skippedPast,
   };
+}
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Remind once the last import is this old; "Not now" waits this long before reminding again.
+export const IMPORT_REMINDER_DAYS = 7;
+export const IMPORT_SNOOZE_DAYS = 3;
+
+/**
+ * When Canvas was last imported, in milliseconds, or null if never. Uses the saved time when there
+ * is one; before import times were saved, it falls back to when the Canvas assignments were added.
+ */
+export function lastImportTime(assignments, savedTime) {
+  const saved = Date.parse(savedTime ?? "");
+  if (!Number.isNaN(saved)) {
+    return saved;
+  }
+  const added = assignments.filter((a) => a.canvasUid).map((a) => Date.parse(a.createdAt)).filter((time) => !Number.isNaN(time));
+  return added.length > 0 ? Math.max(...added) : null;
+}
+
+/**
+ * Whether to remind about importing Canvas again: { daysAgo } if the last import is older than
+ * IMPORT_REMINDER_DAYS and the reminder isn't snoozed, otherwise null (also when Canvas was never used).
+ */
+export function importReminder(lastImport, snoozedUntil, now = new Date()) {
+  if (lastImport === null) {
+    return null;
+  }
+  const daysAgo = Math.floor((now.getTime() - lastImport) / DAY_MS);
+  const snoozed = !Number.isNaN(Date.parse(snoozedUntil ?? "")) && now.getTime() < Date.parse(snoozedUntil);
+  return daysAgo > IMPORT_REMINDER_DAYS && !snoozed ? { daysAgo } : null;
+}
+
+/** The "Not now" time: IMPORT_SNOOZE_DAYS from now, as an ISO string for storage. */
+export function snoozeUntil(now = new Date()) {
+  return new Date(now.getTime() + IMPORT_SNOOZE_DAYS * DAY_MS).toISOString();
 }

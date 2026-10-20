@@ -19,13 +19,20 @@ import {
   updateAssignment,
   validateAssignmentInput,
   workload,
-} from "./assignments.js?v=3f4c9c6f";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=3f4c9c6f";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3f4c9c6f";
-import { isIcsCalendar, mergeCanvasAssignments, readCanvasAssignments } from "./canvas.js?v=3f4c9c6f";
-import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=3f4c9c6f";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3f4c9c6f";
-import { loadAssignments, saveAssignments } from "./storage.js?v=3f4c9c6f";
+} from "./assignments.js?v=8a7c58d0";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=8a7c58d0";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=8a7c58d0";
+import {
+  importReminder,
+  isIcsCalendar,
+  lastImportTime,
+  mergeCanvasAssignments,
+  readCanvasAssignments,
+  snoozeUntil,
+} from "./canvas.js?v=8a7c58d0";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=8a7c58d0";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=8a7c58d0";
+import { loadAssignments, saveAssignments } from "./storage.js?v=8a7c58d0";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -34,6 +41,9 @@ const VIEWS = ["list", "calendar"];
 // Also read by the small script at the top of index.html, which applies the theme before the page is drawn.
 const THEME_STORAGE_KEY = "homework-tracker.theme";
 const THEMES = ["system", "light", "dark"];
+// When Canvas was last imported, and until when "Not now" pauses the reminder (ISO times).
+const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
+const CANVAS_SNOOZE_KEY = "homework-tracker.canvasReminderSnoozedUntil";
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
 // A semester's Canvas feed or a backup is well under 1 MB; anything far bigger is the wrong file.
@@ -65,6 +75,10 @@ const elements = {
   gettingStarted: document.getElementById("getting-started"),
   tryExamples: document.getElementById("try-examples"),
   exampleBar: document.getElementById("example-bar"),
+  canvasReminder: document.getElementById("canvas-reminder"),
+  canvasReminderText: document.getElementById("canvas-reminder-text"),
+  canvasReminderImport: document.getElementById("canvas-reminder-import"),
+  canvasReminderSnooze: document.getElementById("canvas-reminder-snooze"),
   removeExamples: document.getElementById("remove-examples"),
   doneSection: document.getElementById("done-section"),
   doneList: document.getElementById("done-list"),
@@ -187,6 +201,7 @@ function render() {
   elements.emptyMessage.hidden = todo.length > 0 || noAssignments;
   renderDueSoon(soon, now);
   renderWorkload(now);
+  renderCanvasReminder(now);
   elements.emptyMessage.textContent = emptyMessageText(filters);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -482,14 +497,27 @@ function saveChoice(key, value) {
   }
 }
 
+/** A saved value, or null if there is none or storage is blocked. */
+function loadText(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function removeChoice(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Nothing to do: blocked storage has nothing saved to remove.
+  }
+}
+
 /** The saved choice if it is one of `allowed`, otherwise `fallback`. */
 function loadChoice(key, allowed, fallback) {
-  try {
-    const saved = localStorage.getItem(key);
-    return allowed.includes(saved) ? saved : fallback;
-  } catch {
-    return fallback;
-  }
+  const saved = loadText(key);
+  return allowed.includes(saved) ? saved : fallback;
 }
 
 // ----- Color theme -----
@@ -932,6 +960,7 @@ const panels = [
   firstButton: document.getElementById(firstButtonId),
   close: document.getElementById(closeId),
 }));
+const canvasPanel = panels.find((panel) => panel.panel.id === "import-panel");
 
 function setPanelOpen(chosen, open) {
   for (const panel of panels) {
@@ -988,12 +1017,33 @@ async function handleCanvasFile() {
 
   const previous = state.assignments;
   const result = mergeCanvasAssignments(previous, imported);
+  // Even "already up to date" counts as a fresh import: the deadlines were checked.
+  saveChoice(CANVAS_IMPORTED_KEY, new Date().toISOString());
+  removeChoice(CANVAS_SNOOZE_KEY);
   if (result.added === 0 && result.updated === 0) {
+    render();
     showToast(importSummary(result));
     return;
   }
   updateAssignments(result.assignments);
   showToast(importSummary(result), () => updateAssignments(previous));
+}
+
+// ----- Reminder to import Canvas again -----
+
+function renderCanvasReminder(now) {
+  const lastImport = lastImportTime(state.assignments, loadText(CANVAS_IMPORTED_KEY));
+  const reminder = importReminder(lastImport, loadText(CANVAS_SNOOZE_KEY), now);
+  elements.canvasReminder.hidden = reminder === null;
+  if (reminder) {
+    elements.canvasReminderText.textContent = `Your Canvas import is ${reminder.daysAgo} days old. New or changed deadlines won't show until you import again.`;
+  }
+}
+
+function snoozeCanvasReminder() {
+  saveChoice(CANVAS_SNOOZE_KEY, snoozeUntil());
+  render();
+  showToast("OK, I'll remind you again in 3 days.");
 }
 
 /** "Imported 3 new, updated 1. Skipped 2 already past due." */
@@ -1121,6 +1171,8 @@ function start() {
   elements.backupRestoreButton.addEventListener("click", () => elements.backupFile.click());
   elements.backupFile.addEventListener("change", handleBackupFile);
   elements.tryExamples.addEventListener("click", addExamples);
+  elements.canvasReminderImport.addEventListener("click", () => setPanelOpen(canvasPanel, true));
+  elements.canvasReminderSnooze.addEventListener("click", snoozeCanvasReminder);
   elements.removeExamples.addEventListener("click", handleRemoveExamples);
   elements.cancelEdit.addEventListener("click", closeForm);
   elements.addToggle.addEventListener("click", () => {

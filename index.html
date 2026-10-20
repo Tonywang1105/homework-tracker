@@ -16,8 +16,8 @@
         // Storage can be blocked; the page then follows the computer's setting.
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=3f4c9c6f" />
-    <script type="module" src="src/main.js?v=3f4c9c6f"></script>
+    <link rel="stylesheet" href="styles.css?v=8a7c58d0" />
+    <script type="module" src="src/main.js?v=8a7c58d0"></script>
   </head>
   <body>
     <header class="page-header">
@@ -171,7 +171,12 @@
           <p>No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.</p>
           <button type="button" id="try-examples" class="button button-primary">Try with example assignments</button>
         </div>
-        <div id="example-bar" class="example-bar" hidden>
+        <div id="canvas-reminder" class="notice-bar" hidden>
+          <span id="canvas-reminder-text"></span>
+          <button type="button" id="canvas-reminder-import" class="link-button">Import again</button>
+          <button type="button" id="canvas-reminder-snooze" class="link-button">Not now</button>
+        </div>
+        <div id="example-bar" class="notice-bar" hidden>
           <span>You're looking at example assignments.</span>
           <button type="button" id="remove-examples" class="link-button">Remove them</button>
         </div>
