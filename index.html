@@ -16,8 +16,8 @@
         // Storage can be blocked; the page then follows the computer's setting.
       }
     </script>
-    <link rel="stylesheet" href="styles.css?v=0cba7a17" />
-    <script type="module" src="src/main.js?v=0cba7a17"></script>
+    <link rel="stylesheet" href="styles.css?v=3dce678f" />
+    <script type="module" src="src/main.js?v=3dce678f"></script>
   </head>
   <body>
     <header class="page-header">
@@ -247,6 +247,9 @@
             <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel">
               Backup &amp; restore…
             </button>
+            <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel">
+              Export to calendar…
+            </button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
             <p class="import-help">
@@ -271,6 +274,18 @@
               <button type="button" id="backup-panel-close" class="button">Close</button>
             </div>
             <input type="file" id="backup-file" accept=".json,application/json" hidden />
+          </div>
+          <div id="export-panel" class="import-panel" hidden>
+            <p class="import-help">
+              Download your upcoming, unfinished assignments as a calendar file and open it on your phone or computer to add them
+              to <strong>Apple Calendar</strong> or <strong>Google Calendar</strong>, with a reminder a day before big assignments and
+              an hour before the rest. This is a snapshot: after adding or changing assignments, export again. For Google Calendar,
+              importing into a separate "Homework" calendar makes it easy to clear before re-importing.
+            </p>
+            <div class="import-actions">
+              <button type="button" id="export-download-button" class="button button-primary">Download calendar file</button>
+              <button type="button" id="export-panel-close" class="button">Close</button>
+            </div>
           </div>
         </div>
       </section>

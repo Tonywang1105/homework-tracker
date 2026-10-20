@@ -19,9 +19,9 @@ import {
   updateAssignment,
   validateAssignmentInput,
   workload,
-} from "./assignments.js?v=0cba7a17";
-import { backupFileName, createBackup, readBackup } from "./backup.js?v=0cba7a17";
-import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=0cba7a17";
+} from "./assignments.js?v=3dce678f";
+import { backupFileName, createBackup, readBackup } from "./backup.js?v=3dce678f";
+import { buildMonthGrid, calendarTagText, currentMonth, isPastWeek, shiftMonth, visibleOnDay } from "./calendar.js?v=3dce678f";
 import {
   importReminder,
   isIcsCalendar,
@@ -29,11 +29,12 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "./canvas.js?v=0cba7a17";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP, parseSavedWidth } from "./layout.js?v=0cba7a17";
-import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=0cba7a17";
-import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=0cba7a17";
-import { loadAssignments, saveAssignments } from "./storage.js?v=0cba7a17";
+} from "./canvas.js?v=3dce678f";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP, parseSavedWidth } from "./layout.js?v=3dce678f";
+import { combineSeries, createSeries, validateRepeat } from "./repeat.js?v=3dce678f";
+import { exampleAssignments, hasExamples, removeExamples } from "./examples.js?v=3dce678f";
+import { calendarFile, calendarFileName, upcomingForExport } from "./export.js?v=3dce678f";
+import { loadAssignments, saveAssignments } from "./storage.js?v=3dce678f";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 const TOAST_DURATION_MS = 6000;
@@ -110,6 +111,7 @@ const elements = {
   backupDownloadButton: document.getElementById("backup-download-button"),
   backupRestoreButton: document.getElementById("backup-restore-button"),
   backupFile: document.getElementById("backup-file"),
+  exportDownloadButton: document.getElementById("export-download-button"),
   details: document.getElementById("calendar-details"),
   detailsTitle: document.getElementById("details-title"),
   detailsTags: document.getElementById("details-tags"),
@@ -1017,6 +1019,7 @@ function toggleDone(assignment) {
 const panels = [
   { toggleId: "canvas-panel-toggle", panelId: "import-panel", firstButtonId: "canvas-import-button", closeId: "canvas-panel-close" },
   { toggleId: "backup-panel-toggle", panelId: "backup-panel", firstButtonId: "backup-download-button", closeId: "backup-panel-close" },
+  { toggleId: "export-panel-toggle", panelId: "export-panel", firstButtonId: "export-download-button", closeId: "export-panel-close" },
 ].map(({ toggleId, panelId, firstButtonId, closeId }) => ({
   toggle: document.getElementById(toggleId),
   panel: document.getElementById(panelId),
@@ -1132,20 +1135,35 @@ function countAssignments(count) {
   return `${count} assignment${count === 1 ? "" : "s"}`;
 }
 
+/** Hands the browser a file to download, made from text in memory. */
+function downloadFile(fileName, contents, type) {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([contents], { type }));
+  link.download = fileName;
+  link.click();
+  // Give the browser a moment to start the download before freeing the file's memory.
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
 function handleBackupDownload() {
   if (state.assignments.length === 0) {
     showToast("Nothing to back up yet.");
     return;
   }
   const fileName = backupFileName();
-  const contents = JSON.stringify(createBackup(state.assignments), null, 2);
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(new Blob([contents], { type: "application/json" }));
-  link.download = fileName;
-  link.click();
-  // Give the browser a moment to start the download before freeing the file's memory.
-  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  downloadFile(fileName, JSON.stringify(createBackup(state.assignments), null, 2), "application/json");
   showToast(`Backed up ${countAssignments(state.assignments.length)} to ${fileName}.`);
+}
+
+function handleCalendarExport() {
+  const upcoming = upcomingForExport(state.assignments);
+  if (upcoming.length === 0) {
+    showToast("Nothing upcoming to export: every assignment is finished or past due.");
+    return;
+  }
+  const fileName = calendarFileName();
+  downloadFile(fileName, calendarFile(state.assignments), "text/calendar");
+  showToast(`Exported ${countAssignments(upcoming.length)} to ${fileName}. Open it to add them to your calendar.`);
 }
 
 async function handleBackupFile() {
@@ -1231,6 +1249,7 @@ function start() {
   elements.canvasImportButton.addEventListener("click", () => elements.canvasFile.click());
   elements.canvasFile.addEventListener("change", handleCanvasFile);
   elements.backupDownloadButton.addEventListener("click", handleBackupDownload);
+  elements.exportDownloadButton.addEventListener("click", handleCalendarExport);
   elements.backupRestoreButton.addEventListener("click", () => elements.backupFile.click());
   elements.backupFile.addEventListener("change", handleBackupFile);
   elements.tryExamples.addEventListener("click", addExamples);
