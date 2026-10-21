@@ -9,12 +9,12 @@ import {
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=668a7853";
-import { render } from "../main.js?v=668a7853";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag } from "./dom.js?v=668a7853";
-import { startEditing, stopEditing } from "./form.js?v=668a7853";
-import { findAssignment, state, updateAssignments } from "./store.js?v=668a7853";
-import { showToast } from "./toast.js?v=668a7853";
+} from "../assignments.js?v=b626d73a";
+import { render } from "../main.js?v=b626d73a";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag } from "./dom.js?v=b626d73a";
+import { startEditing, stopEditing } from "./form.js?v=b626d73a";
+import { findAssignment, state, updateAssignments } from "./store.js?v=b626d73a";
+import { showToast } from "./toast.js?v=b626d73a";
 
 /** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
 function startText({ startDate, status, shortHours }) {

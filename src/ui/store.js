@@ -1,10 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=668a7853";
-import { render } from "../main.js?v=668a7853";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=668a7853";
-import { saveAssignments } from "../storage.js?v=668a7853";
-import { showToast } from "./toast.js?v=668a7853";
+import { currentMonth } from "../calendar.js?v=b626d73a";
+import { render } from "../main.js?v=b626d73a";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=b626d73a";
+import { saveAssignments } from "../storage.js?v=b626d73a";
+import { syncAssignments } from "./account.js?v=b626d73a";
+import { showToast } from "./toast.js?v=b626d73a";
 
 export const state = {
   assignments: [],
@@ -36,6 +37,7 @@ function persist() {
   if (!saveAssignments(localStorage, state.assignments)) {
     showToast("Couldn't save. Your browser blocked storage, so changes will be lost on reload.");
   }
+  syncAssignments(state.assignments);
 }
 
 export function findAssignment(id) {

@@ -17,14 +17,14 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/form.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/list.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/calendar.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/types.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/panels.css?v=668a7853" />
-    <link rel="stylesheet" href="styles/messages.css?v=668a7853" />
-    <script type="module" src="src/main.js?v=668a7853"></script>
+    <link rel="stylesheet" href="styles/base.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/form.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/list.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/calendar.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/types.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/panels.css?v=b626d73a" />
+    <link rel="stylesheet" href="styles/messages.css?v=b626d73a" />
+    <script type="module" src="src/main.js?v=b626d73a"></script>
   </head>
   <body>
     <header class="page-header">
@@ -32,10 +32,19 @@
         <h1>Homework Tracker</h1>
         <p class="tagline">Everything due, soonest first, with your own notes.</p>
       </div>
-      <div class="segmented theme-switch" role="group" aria-label="Color theme">
-        <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
-        <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
-        <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+      <div class="header-controls">
+        <div class="account">
+          <span id="account-status" class="account-status" role="status" hidden></span>
+          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone">
+            Sign in to sync
+          </button>
+          <button type="button" id="sign-out" class="button account-button" hidden>Sign out</button>
+        </div>
+        <div class="segmented theme-switch" role="group" aria-label="Color theme">
+          <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
+          <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
+          <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+        </div>
       </div>
     </header>
     <div id="storage-error" class="banner banner-error" role="alert" hidden>

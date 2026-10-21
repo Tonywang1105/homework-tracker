@@ -1,12 +1,13 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=668a7853";
-import { currentMonth, shiftMonth } from "./calendar.js?v=668a7853";
-import { hasExamples } from "./examples.js?v=668a7853";
-import { parseSavedWidth } from "./layout.js?v=668a7853";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=668a7853";
-import { combineSeries } from "./repeat.js?v=668a7853";
-import { loadAssignments } from "./storage.js?v=668a7853";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=b626d73a";
+import { currentMonth, shiftMonth } from "./calendar.js?v=b626d73a";
+import { hasExamples } from "./examples.js?v=b626d73a";
+import { parseSavedWidth } from "./layout.js?v=b626d73a";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=b626d73a";
+import { combineSeries } from "./repeat.js?v=b626d73a";
+import { loadAssignments } from "./storage.js?v=b626d73a";
+import { startAccount } from "./ui/account.js?v=b626d73a";
 import {
   handleCalendarClick,
   handleDueSoonClick,
@@ -18,8 +19,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=668a7853";
-import { elements } from "./ui/dom.js?v=668a7853";
+} from "./ui/calendarView.js?v=b626d73a";
+import { elements } from "./ui/dom.js?v=b626d73a";
 import {
   closeForm,
   focusForm,
@@ -28,7 +29,7 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=668a7853";
+} from "./ui/form.js?v=b626d73a";
 import {
   emptyMessageText,
   handleListClick,
@@ -37,7 +38,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=668a7853";
+} from "./ui/list.js?v=b626d73a";
 import {
   addExamples,
   canvasPanel,
@@ -50,7 +51,7 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=668a7853";
+} from "./ui/panels.js?v=b626d73a";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -66,9 +67,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=668a7853";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=668a7853";
-import { handleUndo, showToast } from "./ui/toast.js?v=668a7853";
+} from "./ui/settings.js?v=b626d73a";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=b626d73a";
+import { handleUndo, showToast } from "./ui/toast.js?v=b626d73a";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -221,6 +222,7 @@ function start() {
   // Refresh the "due in …" text every minute so it stays accurate if the tab stays open.
   setInterval(render, 60 * 1000);
   render();
+  startAccount();
 }
 
 start();

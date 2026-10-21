@@ -1,8 +1,8 @@
 // Exporting upcoming assignments as an .ics calendar file, to open in Apple or Google Calendar for
 // real phone reminders. No DOM, so it can be unit-tested with Node.
 
-import { assignmentType, formatHours, PRIORITY_LABELS, toDueDate, TYPE_LABELS } from "./assignments.js?v=668a7853";
-import { toDateKey } from "./calendar.js?v=668a7853";
+import { assignmentType, formatHours, PRIORITY_LABELS, toDueDate, TYPE_LABELS } from "./assignments.js?v=b626d73a";
+import { toDateKey } from "./calendar.js?v=b626d73a";
 
 // Each event is a short block ending at the due time, so it shows at the right spot in a day view.
 const EVENT_MINUTES = 15;
