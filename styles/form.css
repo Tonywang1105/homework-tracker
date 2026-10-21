@@ -1,0 +1,114 @@
+/* The Add / Edit assignment form. */
+
+.add-toggle {
+  display: none;
+  width: 100%;
+}
+
+.form-panel h2 {
+  margin-bottom: 14px;
+}
+
+.field {
+  margin: 0 0 14px;
+  min-width: 0;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* The form can be dragged narrow; then its side-by-side pairs (Due date | Time, Repeat | Until) stack
+   so each box keeps room for its text. This depends on the form's own width, not the window's. */
+.form-panel {
+  container-type: inline-size;
+}
+
+@container (max-width: 300px) {
+  .field-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+label,
+legend {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.optional {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+textarea {
+  resize: vertical;
+}
+
+[aria-invalid] {
+  border-color: var(--error);
+}
+
+.field-error {
+  margin: 4px 0 0;
+  color: var(--error);
+  font-size: 0.85rem;
+}
+
+.field-error:empty {
+  display: none;
+}
+
+.priority-picker {
+  border: 0;
+  padding: 0;
+}
+
+.priority-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.priority-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.date-field {
+  position: relative;
+}
+
+/* While the date box is empty (the required field is :invalid) and not being typed in, hide the
+   browser's own placeholder text and show the English .date-placeholder in the same spot. */
+.date-field input:invalid:not(:focus)::-webkit-datetime-edit {
+  color: transparent;
+}
+
+.date-placeholder {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.date-field input:valid ~ .date-placeholder,
+.date-field input:focus ~ .date-placeholder {
+  display: none;
+}

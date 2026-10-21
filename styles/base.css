@@ -1,0 +1,278 @@
+/* Colors (light and dark), the page and its two columns with the drag handle, panels, buttons and switches. */
+
+:root {
+  /* Each color is written as light-dark(light version, dark version). Which one is used follows
+     color-scheme: the computer's setting by default, or the Light/Dark choice in the header. */
+  color-scheme: light dark;
+  --bg: light-dark(#f6f4ef, #17191c);
+  --surface: light-dark(#ffffff, #212429);
+  --text: light-dark(#1f2328, #e8e6e1);
+  --muted: light-dark(#5f6670, #a3a8b0);
+  --border: light-dark(#dedad1, #363a41);
+  --accent: light-dark(#2f5bd3, #7c9bf0);
+  --accent-text: light-dark(#ffffff, #10131a);
+  --big: light-dark(#b4462a, #f0866a);
+  --big-soft: light-dark(#fbe9e3, #3a2621);
+  --small-soft: light-dark(#eceae4, #2b2e33);
+  --overdue: light-dark(#b42318, #ff8a7a);
+  --soon: light-dark(#9a5b00, #e8b04f);
+  --later: light-dark(#4d6a4f, #9cc39e);
+  --error: light-dark(#b42318, #ff8a7a);
+  --error-soft: light-dark(#fdecea, #3a2222);
+  --soon-soft: light-dark(#fdf3e1, #352b1a);
+  --shadow: 0 1px 2px light-dark(rgb(0 0 0 / 0.06), transparent);
+  --radius: 10px;
+  /* Assignment types. Kept clear of --big (red-orange), so a type never looks like "big". */
+  --type-exam: light-dark(#7b3fc4, #b48af0);
+  --type-quiz: light-dark(#0aa5c8, #5fd3ee);
+  --type-mp: light-dark(#2b6cd6, #7aa7f5);
+  --type-lab: light-dark(#2f8a4e, #6cc98a);
+  --type-homework: light-dark(#c08400, #e8b84f);
+  --type-reading: light-dark(#c23d85, #ee88bf);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+h1,
+h2 {
+  margin: 0;
+  line-height: 1.2;
+}
+
+.page-header {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-switch .segmented-button {
+  padding: 5px 12px;
+  font-size: 0.85rem;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+  display: grid;
+  /* Form | drag handle | To do. The form is --form-width wide (set by dragging the handle), but never
+     under 260px, and the To do side always keeps 440px (+20px for the handle). Same limits as src/layout.js. */
+  grid-template-columns: clamp(260px, var(--form-width, 360px), calc(100% - 460px)) 20px minmax(0, 1fr);
+  align-items: start;
+}
+
+/* The drag handle between the two columns: a thin line that turns blue when hovered, focused or dragged. */
+.column-resizer {
+  align-self: stretch;
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.column-resizer::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 9px;
+  width: 2px;
+  border-radius: 1px;
+  background: transparent;
+}
+
+.column-resizer:hover::before,
+.column-resizer:focus-visible::before,
+.column-resizer.is-dragging::before {
+  background: var(--accent);
+}
+
+.column-resizer:focus-visible {
+  outline: none;
+}
+
+/* While dragging, keep the resize cursor everywhere and don't select text by accident. */
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  /* Phones stack the form and the list, so there is nothing to resize. */
+  .column-resizer {
+    display: none;
+  }
+
+  /* On phones the form folds into one "+ Add assignment" button, so the To do list starts near the top. */
+  .form-panel:not(.is-open) {
+    padding: 12px;
+  }
+
+  .form-panel:not(.is-open) .add-toggle {
+    display: block;
+  }
+
+  .form-panel:not(.is-open) h2,
+  .form-panel:not(.is-open) form {
+    display: none;
+  }
+
+  /* While the form is open on a phone, Cancel folds it again, even when adding rather than editing. */
+  .form-panel.is-open #cancel-edit[hidden] {
+    display: inline-block;
+  }
+}
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+}
+
+.panel h2 {
+  font-size: 1.15rem;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+.field select,
+textarea {
+  width: 100%;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 10px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.button {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+
+.button-danger {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+/* Quieter than other links: importing is occasional, so it shouldn't compete with the list. */
+.link-button.import-toggle {
+  color: var(--muted);
+  padding-left: 0;
+}
+
+.count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+  margin: 0;
+  cursor: pointer;
+}
+
+.link-button {
+  font: inherit;
+  font-size: 0.85rem;
+  background: none;
+  border: 0;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: var(--small-soft);
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segmented-button {
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border: 0;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.segmented-button + .segmented-button {
+  border-left: 1px solid var(--border);
+}
+
+.segmented-button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--accent-text);
+}

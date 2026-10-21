@@ -1,0 +1,373 @@
+/* The month calendar, its details box, and the Due soon chips. */
+
+.due-soon {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--soon);
+  border-radius: 8px;
+}
+
+.due-soon[hidden] {
+  display: none;
+}
+
+.due-soon-heading {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+}
+
+.due-soon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* One chip per assignment, so the box stays short and the calendar's current week stays in view. */
+.due-soon-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* The whole chip takes its urgency's color: red when overdue, amber when due soon. (In the old single
+   stylesheet this came from the list's .urgency-* rules winning only because they came later in the file.) */
+.due-soon-chip.urgency-overdue {
+  color: var(--overdue);
+}
+
+.due-soon-chip.urgency-soon {
+  color: var(--soon);
+}
+
+.due-soon-chip:hover {
+  background: var(--small-soft);
+}
+
+.due-soon-chip.is-selected {
+  outline: 2px solid var(--accent);
+}
+
+.due-soon-title {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.due-soon-when {
+  flex: none;
+  font-size: 0.8rem;
+}
+
+.due-soon-chip.urgency-overdue .due-soon-when {
+  color: var(--overdue);
+}
+
+.due-soon-chip.urgency-soon .due-soon-when {
+  color: var(--soon);
+}
+
+.calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.calendar-month {
+  margin: 0;
+  font-size: 1.05rem;
+  min-width: 9em;
+  text-align: center;
+}
+
+.calendar-arrow {
+  padding: 4px 12px;
+  font-size: 1.2rem;
+  line-height: 1.2;
+}
+
+.calendar-nav #this-month {
+  margin-left: auto;
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.calendar {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.calendar th {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 4px 0;
+}
+
+.calendar abbr {
+  text-decoration: none;
+}
+
+.calendar-day {
+  vertical-align: top;
+  /* Tall enough for the day number and three lines of tags, the most a day shows (see MAX_LINES_PER_DAY). */
+  height: 104px;
+  padding: 4px;
+  border: 1px solid var(--border);
+}
+
+.calendar-day.outside-month {
+  background: var(--bg);
+}
+
+/* Weeks already over are slimmer, so this week stays near the top; a day with items still grows to fit them. */
+.past-week .calendar-day {
+  height: 52px;
+}
+
+.calendar-day {
+  cursor: pointer;
+}
+
+.calendar-day:hover {
+  background: var(--small-soft);
+}
+
+.calendar-day.outside-month .day-number {
+  color: var(--muted);
+  opacity: 0.6;
+}
+
+.day-number {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: center;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+/* The day's estimated hours of unfinished work, next to its date, so heavy days stand out. */
+.day-hours {
+  margin-left: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.calendar-day.is-today .day-number {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.calendar-items {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: grid;
+  /* minmax(0, 1fr) lets the column shrink below a long title's width, so the title is cut off with … instead of spilling into the next day. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+}
+
+.calendar-item {
+  width: 100%;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  text-align: left;
+  padding: 2px 5px;
+  border: 0;
+  border-radius: 4px;
+  /* Tags are short (a course name), but a long one is cut off with … rather than spilling into the next day. */
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.calendar-item.priority-big {
+  font-weight: 700;
+  background: var(--big-soft);
+  color: var(--big);
+  border-left: 3px solid var(--big);
+}
+
+.calendar-item.priority-regular {
+  font-weight: 400;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+}
+
+.calendar-item.priority-small {
+  background: var(--small-soft);
+  color: var(--muted);
+}
+
+.calendar-more {
+  display: block;
+  width: 100%;
+  padding: 1px 5px;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  color: var(--accent);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.calendar-more:hover {
+  text-decoration: underline;
+}
+
+.calendar-item.is-done {
+  background: transparent;
+  color: var(--muted);
+  font-weight: 400;
+  text-decoration: line-through;
+  border-left: 3px solid var(--border);
+  opacity: 0.75;
+}
+
+.calendar-item.is-selected {
+  outline: 2px solid var(--accent);
+}
+
+#calendar-view {
+  position: relative;
+}
+
+.calendar-details {
+  position: absolute;
+  z-index: 5;
+  width: 280px;
+  max-width: 100%;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.18);
+  display: grid;
+  /* minmax(0, 1fr) keeps long content inside the box's width instead of stretching past it. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+/* The box has room to show a long course name in full, so let it wrap. */
+.calendar-details .course-tag {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  border-radius: 10px;
+}
+
+.calendar-details[hidden] {
+  display: none;
+}
+
+.calendar-details:focus {
+  outline: none;
+}
+
+.details-title {
+  margin: 0;
+  padding-right: 28px;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.details-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  font: inherit;
+  font-size: 1.3rem;
+  line-height: 1;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.details-close:hover {
+  background: var(--small-soft);
+}
+
+.calendar-details .notes {
+  margin: 0;
+  max-height: 10em;
+  overflow-y: auto;
+}
+
+.calendar-details .notes.is-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.details-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.details-actions .button {
+  padding: 6px 14px;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 520px) {
+  .calendar-day {
+    /* Room for three lines of the smaller phone tags. */
+    height: 90px;
+    padding: 2px;
+  }
+
+  .calendar-item,
+  .calendar-more {
+    font-size: 0.68rem;
+    padding: 1px 3px;
+  }
+
+  .calendar-more {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .more-word {
+    display: none;
+  }
+}
+
+.type-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}

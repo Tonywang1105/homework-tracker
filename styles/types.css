@@ -1,0 +1,55 @@
+/* Assignment types: their colors, dots, labels and the color key. */
+
+.type-exam { --type-color: var(--type-exam); }
+
+.type-quiz { --type-color: var(--type-quiz); }
+
+.type-mp { --type-color: var(--type-mp); }
+
+.type-lab { --type-color: var(--type-lab); }
+
+.type-homework { --type-color: var(--type-homework); }
+
+.type-reading { --type-color: var(--type-reading); }
+
+/* The colored dot: on calendar tags, in "Exam"-style labels, and in the legend. */
+.type-dot,
+.type-tag::before,
+.type-legend li::before {
+  content: "";
+  display: inline-block;
+  flex: none;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--type-color);
+}
+
+.type-dot {
+  margin-right: 4px;
+  vertical-align: 1px;
+}
+
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.type-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}

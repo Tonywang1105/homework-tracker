@@ -1,0 +1,29 @@
+/* The panels under the To do list: Canvas import, backup and restore, calendar export. */
+
+.import-section {
+  margin-top: 16px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.import-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+}
+
+.import-panel {
+  margin-top: 8px;
+}
+
+.import-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.import-help {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}

@@ -1,12 +1,12 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=32c9527b";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=32c9527b";
-import { render } from "../main.js?v=32c9527b";
-import { parseDailyHours } from "../plan.js?v=32c9527b";
-import { countAssignments, elements, formatDay } from "./dom.js?v=32c9527b";
-import { removeChoice, saveChoice, state } from "./store.js?v=32c9527b";
-import { showToast } from "./toast.js?v=32c9527b";
+import { formatHours, workload } from "../assignments.js?v=668a7853";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=668a7853";
+import { render } from "../main.js?v=668a7853";
+import { parseDailyHours } from "../plan.js?v=668a7853";
+import { countAssignments, elements, formatDay } from "./dom.js?v=668a7853";
+import { removeChoice, saveChoice, state } from "./store.js?v=668a7853";
+import { showToast } from "./toast.js?v=668a7853";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 

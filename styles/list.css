@@ -1,0 +1,314 @@
+/* The To do panel: filters, notices, the workload line, and the to-do and completed lists. */
+
+.list-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin-bottom: 12px;
+  font-size: 0.92rem;
+}
+
+.filter-course {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.filter-course select {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  max-width: 14em;
+}
+
+.getting-started {
+  padding: 20px 0 8px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.getting-started p {
+  margin: 0 auto 12px;
+  max-width: 32em;
+}
+
+.workload {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.workload strong {
+  color: var(--text);
+}
+
+.daily-limit {
+  display: inline;
+  margin: 0;
+  font-weight: 400;
+}
+
+.daily-limit[hidden] {
+  display: none;
+}
+
+.daily-limit input {
+  width: 3.6em;
+  padding: 1px 4px;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+/* "start by Mon, 10/19": amber once it's time to start, red when behind. */
+.start-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.start-tag.start-today {
+  color: var(--soon);
+}
+
+.start-tag.start-behind {
+  color: var(--overdue);
+}
+
+.workload[hidden],
+.getting-started[hidden],
+.notice-bar[hidden],
+.filters[hidden],
+.field[hidden],
+.field-row[hidden] {
+  display: none;
+}
+
+/* A slim message above the list: the example assignments, or a reminder to import Canvas again. */
+.notice-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin-bottom: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--small-soft);
+  font-size: 0.9rem;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 24px 0;
+  text-align: center;
+  margin: 0;
+}
+
+.assignment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.assignment {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+  border-left: 4px solid transparent;
+}
+
+.assignment:first-child {
+  border-top: 0;
+}
+
+.assignment.priority-big {
+  border-left-color: var(--big);
+}
+
+/* Regular: visible but quieter than big, so big work still stands out. */
+.assignment.priority-regular {
+  border-left-color: var(--muted);
+}
+
+.assignment.priority-small {
+  padding-top: 9px;
+  padding-bottom: 9px;
+  font-size: 0.92rem;
+}
+
+/* Unfinished work that is overdue or due within a day: the same items as the calendar's Due soon box. */
+.assignment.is-due-soon {
+  background: var(--soon-soft);
+}
+
+.assignment.is-overdue {
+  background: var(--error-soft);
+}
+
+/* Later items of an expanded repeating series sit indented under the series' next item. */
+.assignment.in-series {
+  padding-left: 32px;
+}
+
+.series-toggle {
+  padding: 0 12px 8px 46px;
+  margin-top: -6px;
+}
+
+.series-toggle .link-button {
+  padding: 2px 0;
+}
+
+.assignment.is-editing {
+  background: var(--small-soft);
+}
+
+.done-checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 2px 0 0;
+  cursor: pointer;
+}
+
+.assignment-body {
+  min-width: 0;
+}
+
+.title-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 8px;
+}
+
+.assignment-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.priority-big .assignment-title {
+  font-size: 1.05rem;
+}
+
+.course-tag,
+.priority-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.course-tag {
+  border: 1px solid var(--border);
+  color: var(--muted);
+  /* A very long course name is cut off with … instead of pushing the list wider than the screen. */
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.priority-tag-big {
+  background: var(--big-soft);
+  color: var(--big);
+}
+
+.hours-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.priority-tag-regular {
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.priority-tag-small {
+  background: var(--small-soft);
+  color: var(--muted);
+}
+
+.due-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin-top: 2px;
+}
+
+.relative-due {
+  font-weight: 600;
+}
+
+.urgency-overdue {
+  color: var(--overdue);
+}
+
+.urgency-soon {
+  color: var(--soon);
+}
+
+.urgency-later {
+  color: var(--later);
+}
+
+.notes {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: var(--bg);
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+}
+
+.item-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.action-delete {
+  color: var(--muted);
+}
+
+.is-done .assignment-title {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.done-section {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.done-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 4px 0;
+}

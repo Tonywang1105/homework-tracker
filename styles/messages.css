@@ -1,0 +1,50 @@
+/* Messages: the error banner and the short confirmation at the bottom (with Undo). */
+
+.banner {
+  max-width: 1068px;
+  margin: 8px auto 0;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+}
+
+.banner-error {
+  background: var(--error-soft);
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.banner p {
+  margin: 0 0 8px;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  max-width: calc(100% - 32px);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 16px;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.2);
+}
+
+.toast[hidden],
+.banner[hidden] {
+  display: none;
+}
+
+.toast-undo {
+  font: inherit;
+  font-weight: 700;
+  background: none;
+  border: 0;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 2px;
+}
