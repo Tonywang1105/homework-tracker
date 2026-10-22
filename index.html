@@ -4,6 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Homework Tracker</title>
+    <!-- Installing on a phone's home screen: name, icon, full screen and the color of the phone's top bar. -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Homework" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#f6f4ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17191c" media="(prefers-color-scheme: dark)" />
     <script>
       // Apply a saved Light/Dark choice before the page is drawn, so it never flashes the other theme.
       // Kept tiny and inline on purpose; main.js handles the switch itself.
@@ -17,14 +25,14 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/form.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/list.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/calendar.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/types.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/panels.css?v=b626d73a" />
-    <link rel="stylesheet" href="styles/messages.css?v=b626d73a" />
-    <script type="module" src="src/main.js?v=b626d73a"></script>
+    <link rel="stylesheet" href="styles/base.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/form.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/list.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/calendar.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/types.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/panels.css?v=f57322c3" />
+    <link rel="stylesheet" href="styles/messages.css?v=f57322c3" />
+    <script type="module" src="src/main.js?v=f57322c3"></script>
   </head>
   <body>
     <header class="page-header">
