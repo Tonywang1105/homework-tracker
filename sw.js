@@ -35,6 +35,7 @@ const APP_FILES = [
   "src/export.js",
   "src/firebase-config.js",
   "src/layout.js",
+  "src/links.js",
   "src/main.js",
   "src/plan.js",
   "src/repeat.js",

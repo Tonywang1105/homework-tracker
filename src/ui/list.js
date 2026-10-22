@@ -9,12 +9,12 @@ import {
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=f57322c3";
-import { render } from "../main.js?v=f57322c3";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag } from "./dom.js?v=f57322c3";
-import { startEditing, stopEditing } from "./form.js?v=f57322c3";
-import { findAssignment, state, updateAssignments } from "./store.js?v=f57322c3";
-import { showToast } from "./toast.js?v=f57322c3";
+} from "../assignments.js?v=26370143";
+import { render } from "../main.js?v=26370143";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=26370143";
+import { startEditing, stopEditing } from "./form.js?v=26370143";
+import { findAssignment, state, updateAssignments } from "./store.js?v=26370143";
+import { showToast } from "./toast.js?v=26370143";
 
 /** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
 function startText({ startDate, status, shortHours }) {
@@ -90,8 +90,7 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   if (assignment.notes) {
     const notes = document.createElement("p");
     notes.className = "notes";
-    // textContent (not innerHTML) so anything typed in a note is shown as text, never run as HTML.
-    notes.textContent = assignment.notes;
+    showNote(notes, assignment.notes);
     body.append(notes);
   }
 

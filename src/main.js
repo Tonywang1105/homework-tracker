@@ -1,13 +1,13 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=f57322c3";
-import { currentMonth, shiftMonth } from "./calendar.js?v=f57322c3";
-import { hasExamples } from "./examples.js?v=f57322c3";
-import { parseSavedWidth } from "./layout.js?v=f57322c3";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=f57322c3";
-import { combineSeries } from "./repeat.js?v=f57322c3";
-import { loadAssignments } from "./storage.js?v=f57322c3";
-import { startAccount } from "./ui/account.js?v=f57322c3";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=26370143";
+import { currentMonth, shiftMonth } from "./calendar.js?v=26370143";
+import { hasExamples } from "./examples.js?v=26370143";
+import { parseSavedWidth } from "./layout.js?v=26370143";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=26370143";
+import { combineSeries } from "./repeat.js?v=26370143";
+import { loadAssignments } from "./storage.js?v=26370143";
+import { startAccount } from "./ui/account.js?v=26370143";
 import {
   handleCalendarClick,
   handleDueSoonClick,
@@ -19,8 +19,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=f57322c3";
-import { elements } from "./ui/dom.js?v=f57322c3";
+} from "./ui/calendarView.js?v=26370143";
+import { elements } from "./ui/dom.js?v=26370143";
 import {
   closeForm,
   focusForm,
@@ -29,7 +29,7 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=f57322c3";
+} from "./ui/form.js?v=26370143";
 import {
   emptyMessageText,
   handleListClick,
@@ -38,7 +38,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=f57322c3";
+} from "./ui/list.js?v=26370143";
 import {
   addExamples,
   canvasPanel,
@@ -51,7 +51,7 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=f57322c3";
+} from "./ui/panels.js?v=26370143";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -67,9 +67,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=f57322c3";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=f57322c3";
-import { handleUndo, showToast } from "./ui/toast.js?v=f57322c3";
+} from "./ui/settings.js?v=26370143";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=26370143";
+import { handleUndo, showToast } from "./ui/toast.js?v=26370143";
 
 export function render() {
   const courses = courseNames(state.assignments);

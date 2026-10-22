@@ -285,6 +285,18 @@
   font-size: 0.9rem;
 }
 
+/* Links in notes (in the list and the calendar's details box), underlined so they don't rely on color alone. */
+.notes a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.notes a:hover {
+  text-decoration-thickness: 2px;
+}
+
 .item-actions {
   display: flex;
   flex-direction: column;

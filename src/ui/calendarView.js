@@ -1,12 +1,12 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=f57322c3";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=f57322c3";
-import { render } from "../main.js?v=f57322c3";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, timeFormatter } from "./dom.js?v=f57322c3";
-import { startAddingOn } from "./form.js?v=f57322c3";
-import { renderDueParts, renderTags } from "./list.js?v=f57322c3";
-import { findAssignment, state } from "./store.js?v=f57322c3";
+import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=26370143";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=26370143";
+import { render } from "../main.js?v=26370143";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=26370143";
+import { startAddingOn } from "./form.js?v=26370143";
+import { renderDueParts, renderTags } from "./list.js?v=26370143";
+import { findAssignment, state } from "./store.js?v=26370143";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -213,7 +213,7 @@ export function renderDetails(now) {
   elements.detailsTags.replaceChildren(...renderTags(assignment));
   elements.detailsDue.replaceChildren(...renderDueParts(assignment, now));
   // textContent (not innerHTML) so anything typed in a note is shown as text, never run as HTML.
-  elements.detailsNotes.textContent = assignment.notes || "No notes.";
+  showNote(elements.detailsNotes, assignment.notes || "No notes.");
   elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
   elements.detailsDone.textContent = assignment.done ? "Mark not done" : "Mark done";
   elements.details.hidden = false;

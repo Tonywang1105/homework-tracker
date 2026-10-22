@@ -1,8 +1,8 @@
 // Repeating assignments: one form entry becomes a series of separate weekly or every-other-week
 // assignments. No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment } from "./assignments.js?v=f57322c3";
-import { toDateKey } from "./calendar.js?v=f57322c3";
+import { createAssignment } from "./assignments.js?v=26370143";
+import { toDateKey } from "./calendar.js?v=26370143";
 
 // The Repeat choices in the form, as days between copies. "" means the assignment doesn't repeat.
 export const REPEAT_DAYS = { "": 0, weekly: 7, biweekly: 14 };

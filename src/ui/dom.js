@@ -1,7 +1,8 @@
-// Page elements and small helpers for building the page: buttons, tags, dates, downloads.
+// Page elements and small helpers for building the page: buttons, tags, notes, dates, downloads.
 
-import { dueSoon, toDueDate, workload } from "../assignments.js?v=f57322c3";
-import { removeExamples } from "../examples.js?v=f57322c3";
+import { dueSoon, toDueDate, workload } from "../assignments.js?v=26370143";
+import { removeExamples } from "../examples.js?v=26370143";
+import { splitLinks } from "../links.js?v=26370143";
 
 export const elements = {
   form: document.getElementById("assignment-form"),
@@ -97,6 +98,28 @@ const dayFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short", mo
 /** "Wed, 10/21" for a "YYYY-MM-DD" date. */
 export function formatDay(dateKey) {
   return dayFormatter.format(toDueDate(dateKey, "12:00"));
+}
+
+/**
+ * Puts a note into `element`, with its web links clickable. Text is added as text and each link as a real link
+ * element (never as HTML), so nothing typed in a note can run as code. Links open in a new tab, keeping the app open.
+ */
+export function showNote(element, note) {
+  element.replaceChildren(
+    ...splitLinks(note).map((part) => {
+      if (!part.url) {
+        return part.text;
+      }
+      const link = document.createElement("a");
+      link.href = part.url;
+      link.textContent = part.label;
+      link.title = part.url;
+      link.target = "_blank";
+      // The opened page can't reach back into the app, and isn't told which page linked to it.
+      link.rel = "noopener noreferrer";
+      return link;
+    }),
+  );
 }
 
 export function makeTag(text, className) {
