@@ -292,10 +292,6 @@
   display: none;
 }
 
-.calendar-details:focus {
-  outline: none;
-}
-
 .details-title {
   margin: 0;
   padding-right: 28px;

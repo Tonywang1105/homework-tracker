@@ -11,12 +11,12 @@ import {
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=64954876";
-import { render } from "../main.js?v=64954876";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=64954876";
-import { startEditing, stopEditing } from "./form.js?v=64954876";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=64954876";
-import { showToast } from "./toast.js?v=64954876";
+} from "../assignments.js?v=d1468b95";
+import { render } from "../main.js?v=d1468b95";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=d1468b95";
+import { startEditing, stopEditing } from "./form.js?v=d1468b95";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=d1468b95";
+import { showToast } from "./toast.js?v=d1468b95";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -226,10 +226,13 @@ export function handleListClick(event) {
   if (!assignment) {
     return;
   }
+  const list = item.closest("ul");
+  const position = [...list.querySelectorAll("li[data-id]")].indexOf(item);
 
   switch (control.dataset.action) {
     case "toggle-done":
       toggleDone(assignment);
+      focusRowAt(list, position, "toggle-done");
       break;
     case "edit":
       startEditing(assignment);
@@ -241,9 +244,20 @@ export function handleListClick(event) {
       }
       updateAssignments(removeAssignment(previous, assignment.id));
       showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous));
+      focusRowAt(list, position, "delete");
       break;
     }
   }
+}
+
+/**
+ * After Mark done or Delete the rows are redrawn and the row is gone from this list, so keyboard focus moves to
+ * the same control on the row that took its place (the next one, or the last), or to the heading if none is left.
+ */
+function focusRowAt(list, position, action) {
+  const rows = [...list.querySelectorAll("li[data-id]")];
+  const row = rows[Math.min(position, rows.length - 1)];
+  (row?.querySelector(`[data-action="${action}"]`) ?? elements.listHeading).focus();
 }
 
 /** Marks an assignment done (with Undo) or, if it is already done, back to not done. */

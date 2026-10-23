@@ -25,17 +25,19 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=64954876" />
-    <link rel="stylesheet" href="styles/form.css?v=64954876" />
-    <link rel="stylesheet" href="styles/list.css?v=64954876" />
-    <link rel="stylesheet" href="styles/calendar.css?v=64954876" />
-    <link rel="stylesheet" href="styles/agenda.css?v=64954876" />
-    <link rel="stylesheet" href="styles/types.css?v=64954876" />
-    <link rel="stylesheet" href="styles/panels.css?v=64954876" />
-    <link rel="stylesheet" href="styles/messages.css?v=64954876" />
-    <script type="module" src="src/main.js?v=64954876"></script>
+    <link rel="stylesheet" href="styles/base.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/form.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/list.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/calendar.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/agenda.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/types.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/panels.css?v=d1468b95" />
+    <link rel="stylesheet" href="styles/messages.css?v=d1468b95" />
+    <script type="module" src="src/main.js?v=d1468b95"></script>
   </head>
   <body>
+    <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
+    <a class="skip-link" href="#list-heading">Skip to To do list</a>
     <header class="page-header">
       <div>
         <h1>Homework Tracker</h1>
@@ -180,7 +182,7 @@
 
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="list-header">
-          <h2 id="list-heading">To do <span id="todo-count" class="count"></span></h2>
+          <h2 id="list-heading" tabindex="-1">To do <span id="todo-count" class="count"></span></h2>
           <div class="segmented" role="group" aria-label="View">
             <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true">List</button>
             <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false">Calendar</button>
