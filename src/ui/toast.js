@@ -1,7 +1,7 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=26370143";
-import { state } from "./store.js?v=26370143";
+import { elements } from "./dom.js?v=3fc4391b";
+import { state } from "./store.js?v=3fc4391b";
 
 const TOAST_DURATION_MS = 6000;
 

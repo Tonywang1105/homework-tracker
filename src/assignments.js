@@ -130,12 +130,29 @@ export function groupAssignments(assignments) {
 
 /**
  * The assignments that pass the list's filters, used by both the list and the calendar so they agree.
- * course: only that course ("" for all); hideSmall: hide small reminders; hideDone: hide finished work.
+ * course: only that course ("" for all); hideSmall: hide small reminders; hideDone: hide finished work;
+ * search: words that must all appear in the title, course or notes (the list only). While searching,
+ * finished work that matches is shown even if hideDone is set, since finding old work is what search is for.
  */
-export function filterAssignments(assignments, { course = "", hideSmall = false, hideDone = false } = {}) {
+export function filterAssignments(assignments, { course = "", hideSmall = false, hideDone = false, search = "" } = {}) {
+  const words = searchWords(search);
+  const searching = words.length > 0;
   return assignments.filter(
-    (a) => (course === "" || a.course === course) && (!hideSmall || a.priority !== "small") && (!hideDone || !a.done),
+    (a) =>
+      (course === "" || a.course === course) &&
+      (!hideSmall || a.priority !== "small") &&
+      (searching || !hideDone || !a.done) &&
+      words.every((word) => searchableText(a).includes(word)),
   );
+}
+
+/** The separate words of a search, in lowercase, so "MP  Slides" looks for "mp" and "slides". */
+export function searchWords(search) {
+  return search.toLowerCase().split(/\s+/).filter((word) => word !== "");
+}
+
+function searchableText(assignment) {
+  return `${assignment.title} ${assignment.course ?? ""} ${assignment.notes ?? ""}`.toLowerCase();
 }
 
 /**

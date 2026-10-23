@@ -25,14 +25,14 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=26370143" />
-    <link rel="stylesheet" href="styles/form.css?v=26370143" />
-    <link rel="stylesheet" href="styles/list.css?v=26370143" />
-    <link rel="stylesheet" href="styles/calendar.css?v=26370143" />
-    <link rel="stylesheet" href="styles/types.css?v=26370143" />
-    <link rel="stylesheet" href="styles/panels.css?v=26370143" />
-    <link rel="stylesheet" href="styles/messages.css?v=26370143" />
-    <script type="module" src="src/main.js?v=26370143"></script>
+    <link rel="stylesheet" href="styles/base.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/form.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/list.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/calendar.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/types.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/panels.css?v=3fc4391b" />
+    <link rel="stylesheet" href="styles/messages.css?v=3fc4391b" />
+    <script type="module" src="src/main.js?v=3fc4391b"></script>
   </head>
   <body>
     <header class="page-header">
@@ -187,6 +187,11 @@
         </div>
 
         <div id="filters" class="filters" role="group" aria-label="Filters">
+          <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->
+          <label id="search-field" class="filter-search">
+            Search
+            <input type="search" id="search" placeholder="Title, course or notes" autocomplete="off" />
+          </label>
           <label class="filter-course">
             Course
             <select id="course-filter">

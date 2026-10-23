@@ -6,15 +6,16 @@ import {
   formatHours,
   PRIORITY_LABELS,
   removeAssignment,
+  searchWords,
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=26370143";
-import { render } from "../main.js?v=26370143";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=26370143";
-import { startEditing, stopEditing } from "./form.js?v=26370143";
-import { findAssignment, state, updateAssignments } from "./store.js?v=26370143";
-import { showToast } from "./toast.js?v=26370143";
+} from "../assignments.js?v=3fc4391b";
+import { render } from "../main.js?v=3fc4391b";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=3fc4391b";
+import { startEditing, stopEditing } from "./form.js?v=3fc4391b";
+import { findAssignment, state, updateAssignments } from "./store.js?v=3fc4391b";
+import { showToast } from "./toast.js?v=3fc4391b";
 
 /** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
 function startText({ startDate, status, shortHours }) {
@@ -24,8 +25,27 @@ function startText({ startDate, status, shortHours }) {
   return status === "today" ? "start today" : `start by ${formatDay(startDate)}`;
 }
 
+/** Typing in the search box: while searching, Completed is opened so finished matches show; clearing it restores it. */
+export function handleSearchInput() {
+  const searching = searchWords(elements.search.value).length > 0;
+  if (searching && state.doneOpenBeforeSearch === null) {
+    state.doneOpenBeforeSearch = elements.doneSection.open;
+    elements.doneSection.open = true;
+  } else if (!searching && state.doneOpenBeforeSearch !== null) {
+    elements.doneSection.open = state.doneOpenBeforeSearch;
+    state.doneOpenBeforeSearch = null;
+  }
+  render();
+}
+
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
-export function emptyMessageText({ course, hideSmall }) {
+export function emptyMessageText({ course, hideSmall, search }, finishedMatches) {
+  if (searchWords(search).length > 0) {
+    const searched = `“${search.trim()}”`;
+    return finishedMatches > 0
+      ? `Nothing left to do matches ${searched}. Finished work that matches is below.`
+      : `Nothing matches ${searched}.${course ? ` Only ${course} is searched.` : ""}${hideSmall ? " Small reminders are hidden." : ""}`;
+  }
   if (!state.assignments.some((a) => !a.done)) {
     return "All caught up. Nothing left to do.";
   }

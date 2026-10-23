@@ -1,13 +1,13 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=26370143";
-import { currentMonth, shiftMonth } from "./calendar.js?v=26370143";
-import { hasExamples } from "./examples.js?v=26370143";
-import { parseSavedWidth } from "./layout.js?v=26370143";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=26370143";
-import { combineSeries } from "./repeat.js?v=26370143";
-import { loadAssignments } from "./storage.js?v=26370143";
-import { startAccount } from "./ui/account.js?v=26370143";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=3fc4391b";
+import { currentMonth, shiftMonth } from "./calendar.js?v=3fc4391b";
+import { hasExamples } from "./examples.js?v=3fc4391b";
+import { parseSavedWidth } from "./layout.js?v=3fc4391b";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=3fc4391b";
+import { combineSeries } from "./repeat.js?v=3fc4391b";
+import { loadAssignments } from "./storage.js?v=3fc4391b";
+import { startAccount } from "./ui/account.js?v=3fc4391b";
 import {
   handleCalendarClick,
   handleDueSoonClick,
@@ -19,8 +19,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=26370143";
-import { elements } from "./ui/dom.js?v=26370143";
+} from "./ui/calendarView.js?v=3fc4391b";
+import { elements } from "./ui/dom.js?v=3fc4391b";
 import {
   closeForm,
   focusForm,
@@ -29,16 +29,17 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=26370143";
+} from "./ui/form.js?v=3fc4391b";
 import {
   emptyMessageText,
   handleListClick,
+  handleSearchInput,
   renderAssignment,
   renderCourseFilter,
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=26370143";
+} from "./ui/list.js?v=3fc4391b";
 import {
   addExamples,
   canvasPanel,
@@ -51,7 +52,7 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=26370143";
+} from "./ui/panels.js?v=3fc4391b";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -67,9 +68,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=26370143";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=26370143";
-import { handleUndo, showToast } from "./ui/toast.js?v=26370143";
+} from "./ui/settings.js?v=3fc4391b";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=3fc4391b";
+import { handleUndo, showToast } from "./ui/toast.js?v=3fc4391b";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -81,9 +82,10 @@ export function render() {
     hideSmall: !elements.showSmall.checked,
     hideDone: elements.hideDone.checked,
   };
-  // The list and the calendar both draw from this, so they always agree.
+  // The calendar draws from this; the list uses the same filters plus the search box.
   const visible = filterAssignments(state.assignments, filters);
-  const { todo, done } = groupAssignments(visible);
+  const search = elements.search.value;
+  const { todo, done } = groupAssignments(filterAssignments(state.assignments, { ...filters, search }));
   const now = new Date();
   // Shared by the Due soon box (calendar) and the tinted rows (list), so both views agree on what is urgent.
   const soon = dueSoon(state.assignments, now);
@@ -103,13 +105,14 @@ export function render() {
   renderDueSoon(soon, now);
   renderWorkload(now);
   renderCanvasReminder(now);
-  elements.emptyMessage.textContent = emptyMessageText(filters);
+  elements.emptyMessage.textContent = emptyMessageText({ ...filters, search }, done.length);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
   elements.doneCount.textContent = `(${done.length})`;
   elements.doneSection.hidden = done.length === 0;
 
   elements.listView.hidden = state.view !== "list";
+  elements.searchField.hidden = state.view !== "list";
   elements.calendarView.hidden = state.view !== "calendar";
   for (const button of elements.viewButtons) {
     button.setAttribute("aria-pressed", String(button.dataset.view === state.view));
@@ -158,6 +161,7 @@ function start() {
   elements.showSmall.addEventListener("change", render);
   elements.hideDone.addEventListener("change", render);
   elements.courseFilter.addEventListener("change", render);
+  elements.search.addEventListener("input", handleSearchInput);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
   elements.dueSoonList.addEventListener("click", handleDueSoonClick);
