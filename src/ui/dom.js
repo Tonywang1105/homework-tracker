@@ -1,8 +1,8 @@
 // Page elements and small helpers for building the page: buttons, tags, notes, dates, downloads.
 
-import { dueSoon, toDueDate, workload } from "../assignments.js?v=1641df29";
-import { removeExamples } from "../examples.js?v=1641df29";
-import { splitLinks } from "../links.js?v=1641df29";
+import { dueSoon, toDueDate, workload } from "../assignments.js?v=64954876";
+import { removeExamples } from "../examples.js?v=64954876";
+import { splitLinks } from "../links.js?v=64954876";
 
 export const elements = {
   form: document.getElementById("assignment-form"),
@@ -57,6 +57,10 @@ export const elements = {
   accountStatus: document.getElementById("account-status"),
   listView: document.getElementById("list-view"),
   calendarView: document.getElementById("calendar-view"),
+  agendaView: document.getElementById("agenda-view"),
+  agendaList: document.getElementById("agenda-list"),
+  agendaLater: document.getElementById("agenda-later"),
+  views: document.getElementById("views"),
   calendarMonth: document.getElementById("calendar-month"),
   calendarWeekdays: document.getElementById("calendar-weekdays"),
   typeLegend: document.getElementById("type-legend"),

@@ -1,12 +1,12 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=1641df29";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=1641df29";
-import { render } from "../main.js?v=1641df29";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=1641df29";
-import { startAddingOn } from "./form.js?v=1641df29";
-import { renderDueParts, renderTags } from "./list.js?v=1641df29";
-import { findAssignment, state } from "./store.js?v=1641df29";
+import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=64954876";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=64954876";
+import { render } from "../main.js?v=64954876";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=64954876";
+import { startAddingOn } from "./form.js?v=64954876";
+import { renderDueParts, renderTags } from "./list.js?v=64954876";
+import { findAssignment, state } from "./store.js?v=64954876";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -164,7 +164,7 @@ export function handleCalendarClick(event) {
     elements.calendarBody.querySelector(`.calendar-day[data-date="${dateKey}"] .calendar-more`)?.focus();
     return;
   }
-  const button = event.target.closest(".calendar-item");
+  const button = event.target.closest(".calendar-item, .agenda-item");
   if (button) {
     // Clicking the open tag again closes its box.
     toggleDetails(button.dataset.id === state.detailsId && !state.detailsFromChip ? null : button.dataset.id);
@@ -195,8 +195,10 @@ function dueSoonChip(assignmentId) {
   return elements.dueSoonList.querySelector(`.due-soon-chip[data-id="${CSS.escape(assignmentId)}"]`);
 }
 
+/** The calendar tag or Agenda row for this assignment, whichever view is showing. */
 function calendarItemButton(assignmentId) {
-  return elements.calendarBody.querySelector(`.calendar-item[data-id="${CSS.escape(assignmentId)}"]`);
+  const view = state.view === "agenda" ? elements.agendaList : elements.calendarBody;
+  return view.querySelector(`.calendar-item[data-id="${CSS.escape(assignmentId)}"], .agenda-item[data-id="${CSS.escape(assignmentId)}"]`);
 }
 
 export function renderDetails(now) {
@@ -212,7 +214,6 @@ export function renderDetails(now) {
   elements.detailsTitle.textContent = assignment.title;
   elements.detailsTags.replaceChildren(...renderTags(assignment));
   elements.detailsDue.replaceChildren(...renderDueParts(assignment, now));
-  // textContent (not innerHTML) so anything typed in a note is shown as text, never run as HTML.
   showNote(elements.detailsNotes, assignment.notes || "No notes.");
   elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
   elements.detailsDone.textContent = assignment.done ? "Mark not done" : "Mark done";
@@ -220,9 +221,9 @@ export function renderDetails(now) {
   positionDetails(button);
 }
 
-/** Places the box just below the tag, kept inside the calendar's width. */
+/** Places the box just below the tag or row, kept inside the views' width. */
 function positionDetails(button) {
-  const container = elements.calendarView.getBoundingClientRect();
+  const container = elements.views.getBoundingClientRect();
   const tag = button.getBoundingClientRect();
   const boxWidth = elements.details.offsetWidth;
   const left = Math.min(Math.max(0, tag.left - container.left), container.width - boxWidth);
@@ -231,7 +232,7 @@ function positionDetails(button) {
 }
 
 export function handleOutsideClick(event) {
-  const onOpener = event.target.closest(".calendar-item, .due-soon-chip");
+  const onOpener = event.target.closest(".calendar-item, .agenda-item, .due-soon-chip");
   if (state.detailsId && !elements.details.contains(event.target) && !onOpener) {
     toggleDetails(null);
   }

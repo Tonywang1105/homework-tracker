@@ -25,14 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/form.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/list.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/calendar.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/types.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/panels.css?v=1641df29" />
-    <link rel="stylesheet" href="styles/messages.css?v=1641df29" />
-    <script type="module" src="src/main.js?v=1641df29"></script>
+    <link rel="stylesheet" href="styles/base.css?v=64954876" />
+    <link rel="stylesheet" href="styles/form.css?v=64954876" />
+    <link rel="stylesheet" href="styles/list.css?v=64954876" />
+    <link rel="stylesheet" href="styles/calendar.css?v=64954876" />
+    <link rel="stylesheet" href="styles/agenda.css?v=64954876" />
+    <link rel="stylesheet" href="styles/types.css?v=64954876" />
+    <link rel="stylesheet" href="styles/panels.css?v=64954876" />
+    <link rel="stylesheet" href="styles/messages.css?v=64954876" />
+    <script type="module" src="src/main.js?v=64954876"></script>
   </head>
   <body>
     <header class="page-header">
@@ -183,6 +184,7 @@
           <div class="segmented" role="group" aria-label="View">
             <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true">List</button>
             <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false">Calendar</button>
+            <button type="button" class="segmented-button view-button" data-view="agenda" aria-pressed="false">Agenda</button>
           </div>
         </div>
 
@@ -237,31 +239,39 @@
           <ul id="due-soon-list" class="due-soon-list"></ul>
         </section>
 
-        <div id="list-view">
-          <p id="empty-message" class="empty" hidden></p>
-          <ul id="todo-list" class="assignment-list"></ul>
+        <!-- The three views. The details box is shared by Calendar and Agenda, so it sits beside them. -->
+        <div id="views" class="views">
+          <div id="list-view">
+            <p id="empty-message" class="empty" hidden></p>
+            <ul id="todo-list" class="assignment-list"></ul>
 
-          <details id="done-section" class="done-section" hidden>
-            <summary>Completed <span id="done-count" class="count"></span></summary>
-            <ul id="done-list" class="assignment-list"></ul>
-          </details>
-        </div>
-
-        <div id="calendar-view" hidden>
-          <div class="calendar-nav">
-            <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month">‹</button>
-            <h3 id="calendar-month" class="calendar-month" aria-live="polite"></h3>
-            <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month">›</button>
-            <button type="button" id="this-month" class="button">Today</button>
+            <details id="done-section" class="done-section" hidden>
+              <summary>Completed <span id="done-count" class="count"></span></summary>
+              <ul id="done-list" class="assignment-list"></ul>
+            </details>
           </div>
-          <table class="calendar">
-            <thead>
-              <tr id="calendar-weekdays"></tr>
-            </thead>
-            <tbody id="calendar-body"></tbody>
-          </table>
-          <ul id="type-legend" class="type-legend" aria-label="Type colors"></ul>
-          <p id="calendar-empty" class="empty" hidden></p>
+
+          <div id="calendar-view" hidden>
+            <div class="calendar-nav">
+              <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month">‹</button>
+              <h3 id="calendar-month" class="calendar-month" aria-live="polite"></h3>
+              <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month">›</button>
+              <button type="button" id="this-month" class="button">Today</button>
+            </div>
+            <table class="calendar">
+              <thead>
+                <tr id="calendar-weekdays"></tr>
+              </thead>
+              <tbody id="calendar-body"></tbody>
+            </table>
+            <ul id="type-legend" class="type-legend" aria-label="Type colors"></ul>
+            <p id="calendar-empty" class="empty" hidden></p>
+          </div>
+
+          <div id="agenda-view" hidden>
+            <ol id="agenda-list" class="agenda" aria-label="Due in the next two weeks"></ol>
+            <p id="agenda-later" class="agenda-later" hidden></p>
+          </div>
 
           <div id="calendar-details" class="calendar-details" role="dialog" aria-labelledby="details-title" tabindex="-1" hidden>
             <button type="button" id="details-close" class="details-close" aria-label="Close details">×</button>

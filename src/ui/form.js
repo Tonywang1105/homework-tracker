@@ -1,11 +1,11 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=1641df29";
-import { render } from "../main.js?v=1641df29";
-import { createSeries, validateRepeat } from "../repeat.js?v=1641df29";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=1641df29";
-import { state, updateAssignments } from "./store.js?v=1641df29";
-import { showToast } from "./toast.js?v=1641df29";
+import { AUTO_TYPE, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=64954876";
+import { render } from "../main.js?v=64954876";
+import { createSeries, validateRepeat } from "../repeat.js?v=64954876";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=64954876";
+import { state, updateAssignments } from "./store.js?v=64954876";
+import { showToast } from "./toast.js?v=64954876";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
 

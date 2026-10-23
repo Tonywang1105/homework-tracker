@@ -1,0 +1,129 @@
+/* The Agenda view: the next two weeks day by day, with overdue work first. */
+
+.agenda {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.agenda-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.agenda-heading h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.agenda-hours,
+.agenda-nothing {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Free days are a single slim line, so the busy ones stand out. */
+.agenda-day.is-empty .agenda-heading {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.agenda-day.is-empty h3 {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.agenda-day.is-overdue h3 {
+  color: var(--overdue);
+}
+
+.agenda-items {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+/* Each row is a button that opens the details box, edged like the calendar's tags: big, regular or small. */
+.agenda-item {
+  width: 100%;
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: baseline;
+  gap: 2px 12px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.agenda-item:hover {
+  background: var(--bg);
+}
+
+.agenda-item.priority-big {
+  border-left-color: var(--big);
+  background: var(--big-soft);
+}
+
+.agenda-item.priority-big .agenda-title {
+  font-weight: 700;
+}
+
+.agenda-item.priority-small {
+  border-left-color: var(--border);
+  background: var(--small-soft);
+}
+
+.agenda-item.is-done {
+  background: transparent;
+  border-left-color: var(--border);
+  opacity: 0.7;
+}
+
+.agenda-item.is-done .agenda-title {
+  font-weight: 400;
+  text-decoration: line-through;
+}
+
+.agenda-item.is-selected {
+  outline: 2px solid var(--accent);
+}
+
+/* A fixed minimum width lines the titles up; overdue rows put their date and time on two lines. */
+.agenda-time {
+  grid-row: span 2;
+  min-width: 4.6em;
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: pre;
+}
+
+.agenda-title {
+  overflow-wrap: anywhere;
+}
+
+.agenda-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  font-size: 0.85rem;
+}
+
+.agenda-later {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}

@@ -1,8 +1,8 @@
 // "When to start": using time estimates, the latest day to start each assignment so that no day needs
 // more than a daily limit of homework. No DOM, so it can be unit-tested with Node.
 
-import { toDueDate } from "./assignments.js?v=1641df29";
-import { toDateKey } from "./calendar.js?v=1641df29";
+import { toDueDate } from "./assignments.js?v=64954876";
+import { toDateKey } from "./calendar.js?v=64954876";
 
 export const DEFAULT_DAILY_HOURS = 3;
 export const MIN_DAILY_HOURS = 0.5;

@@ -1,7 +1,7 @@
 // Pure logic for the month calendar: which days the grid shows and which assignments fall on each.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { PRIORITIES, sortByDue } from "./assignments.js?v=1641df29";
+import { PRIORITIES, sortByDue } from "./assignments.js?v=64954876";
 
 const DAYS_PER_WEEK = 7;
 
@@ -95,4 +95,28 @@ export function isPastWeek(week, today = new Date()) {
   const todayKey = toDateKey(today);
   // "YYYY-MM-DD" keys sort the same way as the dates they name.
   return week.every((day) => day.key < todayKey);
+}
+
+/**
+ * The Agenda view: unfinished work from before today, then each of the next `days` days (today first)
+ * with what's due that day, soonest first, and how many unfinished assignments are due after that.
+ * Returns { overdue, days: [{ key, isToday, isTomorrow, assignments }], laterCount }.
+ */
+export function buildAgenda(assignments, now = new Date(), days = 14) {
+  const keys = Array.from({ length: days }, (_, offset) =>
+    toDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset)),
+  );
+  const [todayKey] = keys;
+  const lastKey = keys.at(-1);
+  const sorted = sortByDue(assignments);
+  return {
+    overdue: sorted.filter((a) => !a.done && a.dueDate < todayKey),
+    days: keys.map((key, offset) => ({
+      key,
+      isToday: offset === 0,
+      isTomorrow: offset === 1,
+      assignments: sorted.filter((a) => a.dueDate === key),
+    })),
+    laterCount: sorted.filter((a) => !a.done && a.dueDate > lastKey).length,
+  };
 }
