@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=3fc4391b";
-import { render } from "../main.js?v=3fc4391b";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=3fc4391b";
-import { saveAssignments } from "../storage.js?v=3fc4391b";
-import { syncAssignments } from "./account.js?v=3fc4391b";
-import { showToast } from "./toast.js?v=3fc4391b";
+import { currentMonth } from "../calendar.js?v=1641df29";
+import { render } from "../main.js?v=1641df29";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=1641df29";
+import { saveAssignments } from "../storage.js?v=1641df29";
+import { syncAssignments } from "./account.js?v=1641df29";
+import { showToast } from "./toast.js?v=1641df29";
 
 export const state = {
   assignments: [],
@@ -22,6 +22,8 @@ export const state = {
   expandedDays: new Set(),
   // Repeating series whose later items are shown in the to-do list (normally only the next one is).
   expandedSeries: new Set(),
+  // The course chosen in the Course filter ("" for all), kept here because the dropdown is rebuilt on every render.
+  courseFilter: "",
   // Whether Completed was open before a search opened it, so clearing the search puts it back; null when not searching.
   doneOpenBeforeSearch: null,
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).

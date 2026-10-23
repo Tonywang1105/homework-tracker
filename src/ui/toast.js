@@ -1,9 +1,13 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=3fc4391b";
-import { state } from "./store.js?v=3fc4391b";
+import { elements } from "./dom.js?v=1641df29";
+import { state } from "./store.js?v=1641df29";
 
-const TOAST_DURATION_MS = 6000;
+// A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
+// enough to read, and one with Undo stays long enough to use it.
+const MIN_DURATION_MS = 3000;
+const MS_PER_CHARACTER = 60;
+const MAX_DURATION_MS = 8000;
 
 export function showToast(message, undoAction = null) {
   clearTimeout(state.toastTimer);
@@ -11,10 +15,18 @@ export function showToast(message, undoAction = null) {
   elements.toastMessage.textContent = message;
   elements.toastUndo.hidden = undoAction === null;
   elements.toast.hidden = false;
-  state.toastTimer = setTimeout(hideToast, TOAST_DURATION_MS);
+  state.toastTimer = setTimeout(hideToast, toastDuration(message, undoAction !== null));
 }
 
-function hideToast() {
+/** How long a message stays, in milliseconds. */
+export function toastDuration(message, hasUndo) {
+  if (hasUndo) {
+    return MAX_DURATION_MS;
+  }
+  return Math.min(MAX_DURATION_MS, Math.max(MIN_DURATION_MS, message.length * MS_PER_CHARACTER));
+}
+
+export function hideToast() {
   elements.toast.hidden = true;
   state.undoAction = null;
 }

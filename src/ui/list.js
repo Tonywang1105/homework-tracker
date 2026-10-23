@@ -4,18 +4,21 @@ import {
   assignmentType,
   describeDue,
   formatHours,
+  parseSavedFilters,
   PRIORITY_LABELS,
   removeAssignment,
   searchWords,
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=3fc4391b";
-import { render } from "../main.js?v=3fc4391b";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=3fc4391b";
-import { startEditing, stopEditing } from "./form.js?v=3fc4391b";
-import { findAssignment, state, updateAssignments } from "./store.js?v=3fc4391b";
-import { showToast } from "./toast.js?v=3fc4391b";
+} from "../assignments.js?v=1641df29";
+import { render } from "../main.js?v=1641df29";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=1641df29";
+import { startEditing, stopEditing } from "./form.js?v=1641df29";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=1641df29";
+import { showToast } from "./toast.js?v=1641df29";
+
+const FILTERS_KEY = "homework-tracker.filters";
 
 /** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
 function startText({ startDate, status, shortHours }) {
@@ -172,9 +175,34 @@ export function renderCourseSuggestions(courses) {
 
 /** The Course filter lists every course; if the chosen one is gone (its last assignment deleted), it goes back to All. */
 export function renderCourseFilter(courses) {
-  const chosen = courses.includes(elements.courseFilter.value) ? elements.courseFilter.value : "";
+  if (state.courseFilter !== "" && !courses.includes(state.courseFilter) && state.assignments.length > 0) {
+    // That course has no assignments any more, so go back to All courses. (An empty list may just be
+    // waiting for sync, so the choice is kept until there is a list to check it against.)
+    state.courseFilter = "";
+    saveFilters();
+  }
   elements.courseFilter.replaceChildren(makeOption("", "All courses"), ...courses.map((course) => makeOption(course, course)));
-  elements.courseFilter.value = chosen;
+  elements.courseFilter.value = courses.includes(state.courseFilter) ? state.courseFilter : "";
+}
+
+/** Sets the filters to the ones saved in this browser, before the first render. */
+export function applySavedFilters() {
+  const saved = parseSavedFilters(loadText(FILTERS_KEY));
+  state.courseFilter = saved.course;
+  elements.showSmall.checked = saved.showSmall;
+  elements.hideDone.checked = saved.hideDone;
+}
+
+/** A filter changed: remember it in this browser (not synced, so each device keeps its own) and redraw. */
+export function handleFilterChange() {
+  state.courseFilter = elements.courseFilter.value;
+  saveFilters();
+  render();
+}
+
+function saveFilters() {
+  const filters = { course: state.courseFilter, showSmall: elements.showSmall.checked, hideDone: elements.hideDone.checked };
+  saveChoice(FILTERS_KEY, JSON.stringify(filters));
 }
 
 export function handleListClick(event) {

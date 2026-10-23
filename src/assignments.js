@@ -146,6 +146,24 @@ export function filterAssignments(assignments, { course = "", hideSmall = false,
   );
 }
 
+/**
+ * The filters saved in this browser (as JSON), or the usual ones if nothing is saved or it can't be read:
+ * { course: "" for all courses, showSmall: true, hideDone: false }.
+ */
+export function parseSavedFilters(text) {
+  const defaults = { course: "", showSmall: true, hideDone: false };
+  try {
+    const saved = JSON.parse(text ?? "null");
+    return {
+      course: typeof saved?.course === "string" ? saved.course : defaults.course,
+      showSmall: typeof saved?.showSmall === "boolean" ? saved.showSmall : defaults.showSmall,
+      hideDone: typeof saved?.hideDone === "boolean" ? saved.hideDone : defaults.hideDone,
+    };
+  } catch {
+    return defaults;
+  }
+}
+
 /** The separate words of a search, in lowercase, so "MP  Slides" looks for "mp" and "slides". */
 export function searchWords(search) {
   return search.toLowerCase().split(/\s+/).filter((word) => word !== "");

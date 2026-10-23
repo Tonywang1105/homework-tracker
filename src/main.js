@@ -1,13 +1,13 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=3fc4391b";
-import { currentMonth, shiftMonth } from "./calendar.js?v=3fc4391b";
-import { hasExamples } from "./examples.js?v=3fc4391b";
-import { parseSavedWidth } from "./layout.js?v=3fc4391b";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=3fc4391b";
-import { combineSeries } from "./repeat.js?v=3fc4391b";
-import { loadAssignments } from "./storage.js?v=3fc4391b";
-import { startAccount } from "./ui/account.js?v=3fc4391b";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=1641df29";
+import { currentMonth, shiftMonth } from "./calendar.js?v=1641df29";
+import { hasExamples } from "./examples.js?v=1641df29";
+import { parseSavedWidth } from "./layout.js?v=1641df29";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=1641df29";
+import { combineSeries } from "./repeat.js?v=1641df29";
+import { loadAssignments } from "./storage.js?v=1641df29";
+import { startAccount } from "./ui/account.js?v=1641df29";
 import {
   handleCalendarClick,
   handleDueSoonClick,
@@ -19,8 +19,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=3fc4391b";
-import { elements } from "./ui/dom.js?v=3fc4391b";
+} from "./ui/calendarView.js?v=1641df29";
+import { elements } from "./ui/dom.js?v=1641df29";
 import {
   closeForm,
   focusForm,
@@ -29,9 +29,11 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=3fc4391b";
+} from "./ui/form.js?v=1641df29";
 import {
+  applySavedFilters,
   emptyMessageText,
+  handleFilterChange,
   handleListClick,
   handleSearchInput,
   renderAssignment,
@@ -39,7 +41,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=3fc4391b";
+} from "./ui/list.js?v=1641df29";
 import {
   addExamples,
   canvasPanel,
@@ -52,7 +54,7 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=3fc4391b";
+} from "./ui/panels.js?v=1641df29";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -68,9 +70,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=3fc4391b";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=3fc4391b";
-import { handleUndo, showToast } from "./ui/toast.js?v=3fc4391b";
+} from "./ui/settings.js?v=1641df29";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=1641df29";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=1641df29";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -158,14 +160,15 @@ function start() {
     setFormOpen(true);
     focusForm();
   });
-  elements.showSmall.addEventListener("change", render);
-  elements.hideDone.addEventListener("change", render);
-  elements.courseFilter.addEventListener("change", render);
+  elements.showSmall.addEventListener("change", handleFilterChange);
+  elements.hideDone.addEventListener("change", handleFilterChange);
+  elements.courseFilter.addEventListener("change", handleFilterChange);
   elements.search.addEventListener("input", handleSearchInput);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
   elements.dueSoonList.addEventListener("click", handleDueSoonClick);
   elements.toastUndo.addEventListener("click", handleUndo);
+  elements.toastClose.addEventListener("click", hideToast);
   elements.calendarBody.addEventListener("click", handleCalendarClick);
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
   elements.detailsEdit.addEventListener("click", () => {
@@ -218,6 +221,7 @@ function start() {
   elements.dailyHours.addEventListener("change", handleDailyHoursChange);
 
   state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
+  applySavedFilters();
   applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
   renderWeekdayHeadings();
   renderTypeLegend();

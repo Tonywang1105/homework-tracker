@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=3fc4391b";
-import { toDateKey } from "./calendar.js?v=3fc4391b";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=1641df29";
+import { toDateKey } from "./calendar.js?v=1641df29";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
@@ -76,13 +76,22 @@ export function toLocalDue(dtstart) {
   return { dueDate: toDateKey(due), dueTime };
 }
 
-/** "MP1: Checkpoint [CS 124 AL1 Fall 2026]" becomes { title: "MP1: Checkpoint", course: "CS 124 AL1 Fall 2026" }. */
+/** "MP1: Checkpoint [CS 124 AL1 Fall 2026]" becomes { title: "MP1: Checkpoint", course: "CS 124" }. */
 export function splitCourse(summary) {
   const match = /^(.*?)\s*\[([^\]]+)\]\s*$/.exec(summary);
   if (!match || match[1] === "") {
     return { title: summary.trim(), course: "" };
   }
-  return { title: match[1], course: match[2].trim() };
+  return { title: match[1], course: shortCourseName(match[2].trim()) };
+}
+
+/**
+ * The course without Canvas's section and term: "CHEM 102 AL1 Fall 2026" becomes "CHEM 102".
+ * A name that doesn't start with a subject and a course number is kept as it is.
+ */
+export function shortCourseName(name) {
+  const match = /^([A-Za-z]{2,5})[\s-]*(\d{3}[A-Za-z]?)(?=\s|$)/.exec(name.trim());
+  return match ? `${match[1].toUpperCase()} ${match[2].toUpperCase()}` : name.trim();
 }
 
 /** The Canvas assignments in an .ics file, as [{ canvasUid, title, course, dueDate, dueTime }]. */
@@ -109,7 +118,8 @@ export function isIcsCalendar(text) {
 
 /**
  * Merges Canvas assignments into the list. Canvas decides the title and due date; the student's
- * course name, notes, big/small and done stay as they set them. New assignments that are already
+ * course name, notes, big/small and done stay as they set them. The one exception: a course still named
+ * the long Canvas way ("CHEM 102 AL1 Fall 2026", from an import before names were shortened) is shortened. New assignments that are already
  * past due are skipped, so a first import doesn't fill the list with old overdue work.
  * Returns { assignments, added, updated, skippedPast }.
  */
@@ -122,9 +132,11 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
   for (const item of imported) {
     const current = byUid.get(item.canvasUid);
     if (current) {
-      const changed = current.title !== item.title || current.dueDate !== item.dueDate || current.dueTime !== item.dueTime;
+      const course = current.course !== item.course && shortCourseName(current.course) === item.course ? item.course : current.course;
+      const changed =
+        current.title !== item.title || current.dueDate !== item.dueDate || current.dueTime !== item.dueTime || current.course !== course;
       if (changed) {
-        updates.set(current.id, { ...current, title: item.title, dueDate: item.dueDate, dueTime: item.dueTime });
+        updates.set(current.id, { ...current, title: item.title, course, dueDate: item.dueDate, dueTime: item.dueTime });
       }
       continue;
     }

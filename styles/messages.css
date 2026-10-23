@@ -38,6 +38,26 @@
   display: none;
 }
 
+.toast-close {
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  background: none;
+  border: 0;
+  color: inherit;
+  opacity: 0.75;
+  cursor: pointer;
+  /* Big enough to tap on a phone, while the message stays slim. */
+  min-width: 32px;
+  min-height: 32px;
+  margin: -6px -8px -6px -6px;
+}
+
+.toast-close:hover,
+.toast-close:focus-visible {
+  opacity: 1;
+}
+
 .toast-undo {
   font: inherit;
   font-weight: 700;

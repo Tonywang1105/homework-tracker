@@ -1,8 +1,8 @@
 // Page elements and small helpers for building the page: buttons, tags, notes, dates, downloads.
 
-import { dueSoon, toDueDate, workload } from "../assignments.js?v=3fc4391b";
-import { removeExamples } from "../examples.js?v=3fc4391b";
-import { splitLinks } from "../links.js?v=3fc4391b";
+import { dueSoon, toDueDate, workload } from "../assignments.js?v=1641df29";
+import { removeExamples } from "../examples.js?v=1641df29";
+import { splitLinks } from "../links.js?v=1641df29";
 
 export const elements = {
   form: document.getElementById("assignment-form"),
@@ -49,6 +49,7 @@ export const elements = {
   toast: document.getElementById("toast"),
   toastMessage: document.getElementById("toast-message"),
   toastUndo: document.getElementById("toast-undo"),
+  toastClose: document.getElementById("toast-close"),
   viewButtons: document.querySelectorAll(".view-button"),
   themeButtons: document.querySelectorAll(".theme-button"),
   signIn: document.getElementById("sign-in"),
