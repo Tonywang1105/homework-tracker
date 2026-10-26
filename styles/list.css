@@ -226,6 +226,13 @@
   white-space: nowrap;
 }
 
+/* Solid red, unlike every other tag, so overdue work stands out when skimming. */
+.overdue-tag {
+  background: var(--overdue);
+  color: var(--surface);
+  font-weight: 700;
+}
+
 .course-tag {
   border: 1px solid var(--border);
   color: var(--muted);

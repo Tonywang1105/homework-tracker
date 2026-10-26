@@ -2,9 +2,9 @@
 // No DOM, so it can be unit-tested with Node. styles.css applies the same limits with clamp().
 
 export const DEFAULT_FORM_WIDTH = 360;
-export const MIN_FORM_WIDTH = 260;
+const MIN_FORM_WIDTH = 260;
 // The To do side keeps at least this much room, so the calendar stays usable.
-export const MIN_LIST_WIDTH = 440;
+const MIN_LIST_WIDTH = 440;
 // How far one arrow-key press moves the divider.
 export const KEYBOARD_STEP = 20;
 

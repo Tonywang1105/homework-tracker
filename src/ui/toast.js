@@ -1,7 +1,7 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=d1468b95";
-import { state } from "./store.js?v=d1468b95";
+import { elements } from "./dom.js?v=8fdd39f5";
+import { state } from "./store.js?v=8fdd39f5";
 
 // A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
 // enough to read, and one with Undo stays long enough to use it.
@@ -19,7 +19,7 @@ export function showToast(message, undoAction = null) {
 }
 
 /** How long a message stays, in milliseconds. */
-export function toastDuration(message, hasUndo) {
+function toastDuration(message, hasUndo) {
   if (hasUndo) {
     return MAX_DURATION_MS;
   }

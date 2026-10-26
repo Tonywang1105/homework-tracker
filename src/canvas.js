@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=d1468b95";
-import { toDateKey } from "./calendar.js?v=d1468b95";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=8fdd39f5";
+import { toDateKey } from "./calendar.js?v=8fdd39f5";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
@@ -163,8 +163,8 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Remind once the last import is this old; "Not now" waits this long before reminding again.
-export const IMPORT_REMINDER_DAYS = 7;
-export const IMPORT_SNOOZE_DAYS = 3;
+const IMPORT_REMINDER_DAYS = 7;
+const IMPORT_SNOOZE_DAYS = 3;
 
 /**
  * When Canvas was last imported, in milliseconds, or null if never. Uses the saved time when there

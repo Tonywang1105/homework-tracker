@@ -1,12 +1,12 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=d1468b95";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=d1468b95";
-import { render } from "../main.js?v=d1468b95";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=d1468b95";
-import { startAddingOn } from "./form.js?v=d1468b95";
-import { renderDueParts, renderTags } from "./list.js?v=d1468b95";
-import { findAssignment, state } from "./store.js?v=d1468b95";
+import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=8fdd39f5";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=8fdd39f5";
+import { render } from "../main.js?v=8fdd39f5";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=8fdd39f5";
+import { startAddingOn } from "./form.js?v=8fdd39f5";
+import { renderDueParts, renderTags } from "./list.js?v=8fdd39f5";
+import { findAssignment, state } from "./store.js?v=8fdd39f5";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -98,6 +98,8 @@ function renderCalendarItem(assignment) {
   const item = document.createElement("li");
   const button = makeButton(`calendar-item priority-${assignment.priority}`, calendarTagText(assignment));
   button.classList.toggle("is-done", assignment.done);
+  const overdue = !assignment.done && describeDue(assignment).urgency === "overdue";
+  button.classList.toggle("is-overdue", overdue);
   button.classList.toggle("is-selected", assignment.id === state.detailsId);
   button.dataset.id = assignment.id;
   button.setAttribute("aria-haspopup", "dialog");
@@ -115,7 +117,7 @@ function renderCalendarItem(assignment) {
   }
   // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
   button.title = `${assignment.title}${course}, ${typeName}due ${dueTime}`;
-  const status = assignment.done ? ", done" : "";
+  const status = assignment.done ? ", done" : overdue ? ", overdue" : "";
   button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${typeName}${size}, due ${dueTime}${status}`);
 
   item.append(button);

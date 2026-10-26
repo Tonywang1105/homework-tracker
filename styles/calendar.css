@@ -256,6 +256,17 @@
   opacity: 0.75;
 }
 
+/* An overdue tag turns red and starts with "!", since there is no room for a label on the calendar. */
+.calendar-item.is-overdue {
+  color: var(--overdue);
+  border-left-color: var(--overdue);
+}
+
+.calendar-item.is-overdue::before {
+  content: "! ";
+  font-weight: 700;
+}
+
 .calendar-item.is-selected {
   outline: 2px solid var(--accent);
 }

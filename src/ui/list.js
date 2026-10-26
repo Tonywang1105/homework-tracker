@@ -11,12 +11,12 @@ import {
   toDueDate,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=d1468b95";
-import { render } from "../main.js?v=d1468b95";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=d1468b95";
-import { startEditing, stopEditing } from "./form.js?v=d1468b95";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=d1468b95";
-import { showToast } from "./toast.js?v=d1468b95";
+} from "../assignments.js?v=8fdd39f5";
+import { render } from "../main.js?v=8fdd39f5";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=8fdd39f5";
+import { startEditing, stopEditing } from "./form.js?v=8fdd39f5";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=8fdd39f5";
+import { showToast } from "./toast.js?v=8fdd39f5";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -128,6 +128,10 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 /** The course tag, the type tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
 export function renderTags(assignment) {
   const tags = [];
+  // Unfinished work whose deadline has passed is labelled, in words as well as color, wherever its tags appear.
+  if (!assignment.done && describeDue(assignment).urgency === "overdue") {
+    tags.push(makeTag("Overdue", "overdue-tag"));
+  }
   if (assignment.course) {
     tags.push(makeTag(assignment.course, "course-tag"));
   }
