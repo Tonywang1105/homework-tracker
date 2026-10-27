@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/form.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/list.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/calendar.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/agenda.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/types.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/panels.css?v=840f75e6" />
-    <link rel="stylesheet" href="styles/messages.css?v=840f75e6" />
-    <script type="module" src="src/main.js?v=840f75e6"></script>
+    <link rel="stylesheet" href="styles/base.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/form.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/list.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/calendar.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/agenda.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/types.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/panels.css?v=d1337206" />
+    <link rel="stylesheet" href="styles/messages.css?v=d1337206" />
+    <script type="module" src="src/main.js?v=d1337206"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -95,8 +95,9 @@
               <p class="field-error" id="dueDate-error"></p>
             </div>
             <div class="field">
-              <label for="dueTime">Time <span class="optional">default 11:59 PM</span></label>
-              <input id="dueTime" name="dueTime" type="time" />
+              <label for="dueTime">Time</label>
+              <!-- Starts at 11:59 PM; after adding, it keeps the time just used (see handleSubmit). -->
+              <input id="dueTime" name="dueTime" type="time" value="23:59" />
               <p class="field-error" id="dueTime-error"></p>
             </div>
           </div>

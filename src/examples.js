@@ -1,8 +1,8 @@
 // Example assignments, so someone trying the app (a classmate giving feedback) can see every
 // feature without entering their own homework. No DOM, so it can be unit-tested with Node.
 
-import { createAssignment, validateAssignmentInput } from "./assignments.js?v=840f75e6";
-import { toDateKey } from "./calendar.js?v=840f75e6";
+import { createAssignment, validateAssignmentInput } from "./assignments.js?v=d1337206";
+import { toDateKey } from "./calendar.js?v=d1337206";
 
 // Due dates are days from today, so the examples always look current. Together they show every
 // size and type, notes, one overdue and one finished assignment, and a busy day ("+N more").

@@ -1,9 +1,9 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day).
 
-import { formatHours } from "../assignments.js?v=840f75e6";
-import { weekReview } from "../review.js?v=840f75e6";
-import { formatDay } from "./dom.js?v=840f75e6";
-import { state } from "./store.js?v=840f75e6";
+import { formatHours } from "../assignments.js?v=d1337206";
+import { weekReview } from "../review.js?v=d1337206";
+import { formatDay } from "./dom.js?v=d1337206";
+import { state } from "./store.js?v=d1337206";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
 

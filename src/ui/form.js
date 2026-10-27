@@ -1,11 +1,11 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=840f75e6";
-import { render } from "../main.js?v=840f75e6";
-import { createSeries, validateRepeat } from "../repeat.js?v=840f75e6";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=840f75e6";
-import { findAssignment, state, updateAssignments } from "./store.js?v=840f75e6";
-import { showToast } from "./toast.js?v=840f75e6";
+import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=d1337206";
+import { render } from "../main.js?v=d1337206";
+import { createSeries, validateRepeat } from "../repeat.js?v=d1337206";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=d1337206";
+import { findAssignment, state, updateAssignments } from "./store.js?v=d1337206";
+import { showToast } from "./toast.js?v=d1337206";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -70,6 +70,8 @@ export function handleSubmit(event) {
   } else {
     const previous = state.assignments;
     const added = createSeries(result.fields, repeat.dates);
+    // Clearing the form restores each field's default, so the next assignment starts with the time just used.
+    elements.form.elements.dueTime.defaultValue = result.fields.dueTime;
     updateAssignments([...previous, ...added]);
     // On a phone the form folds back, so the new assignment is visible in the list.
     setFormOpen(false);
