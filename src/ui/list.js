@@ -13,12 +13,12 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=d1337206";
-import { render } from "../main.js?v=d1337206";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=d1337206";
-import { startEditing, stopEditing } from "./form.js?v=d1337206";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=d1337206";
-import { showToast } from "./toast.js?v=d1337206";
+} from "../assignments.js?v=8fe9dbad";
+import { render } from "../main.js?v=8fe9dbad";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=8fe9dbad";
+import { startEditing, stopEditing } from "./form.js?v=8fe9dbad";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=8fe9dbad";
+import { showToast } from "./toast.js?v=8fe9dbad";
 
 const FILTERS_KEY = "homework-tracker.filters";
 

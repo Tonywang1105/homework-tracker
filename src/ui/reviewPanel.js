@@ -1,11 +1,18 @@
-// The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day).
+// The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
+// and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=d1337206";
-import { weekReview } from "../review.js?v=d1337206";
-import { formatDay } from "./dom.js?v=d1337206";
-import { state } from "./store.js?v=d1337206";
+import { formatHours } from "../assignments.js?v=8fe9dbad";
+import { todaySummary, weekReview } from "../review.js?v=8fe9dbad";
+import { formatDay, makeButton } from "./dom.js?v=8fe9dbad";
+import { panels, setPanelOpen } from "./panels.js?v=8fe9dbad";
+import { setView } from "./settings.js?v=8fe9dbad";
+import { state } from "./store.js?v=8fe9dbad";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
+// Today's assignments named in the summary line before it says "+N more".
+const MAX_NAMED_TODAY = 3;
+const summaryLine = document.getElementById("today-summary");
+const reviewPanel = panels.find((panel) => panel.panel.id === "review-panel");
 
 const reviewElements = {
   panel: document.getElementById("review-panel"),
@@ -80,4 +87,58 @@ function listItem(text, className = "") {
     item.className = className;
   }
   return item;
+}
+
+/**
+ * "Today: 2 due (Quiz 5, Email TA) · 1 overdue · This week: 3 of 8 done · Agenda · Weekly review",
+ * for everything (not just what the filters show), so a first-time user sees today and their progress at once.
+ */
+export function renderTodaySummary(now) {
+  summaryLine.hidden = state.assignments.length === 0;
+  if (summaryLine.hidden) {
+    return;
+  }
+  const { dueToday, overdue, weekDone, weekDue } = todaySummary(state.assignments, now);
+  const parts = [label("Today:"), ` ${todayText(dueToday)}`];
+  if (overdue > 0) {
+    const late = document.createElement("span");
+    late.className = "today-summary-overdue";
+    late.textContent = `${overdue} overdue`;
+    parts.push(" · ", late);
+  }
+  parts.push(" · ", label("This week:"), weekDue === 0 ? " nothing due" : ` ${weekDone} of ${weekDue} done`);
+  parts.push(" · ", summaryLink("Agenda", "agenda"), " · ", summaryLink("Weekly review", "review"));
+  summaryLine.replaceChildren(...parts);
+}
+
+/** The summary line's links: Agenda switches view; Weekly review opens that panel (which scrolls to it). */
+export function handleTodaySummaryClick(event) {
+  const link = event.target.closest("[data-summary-link]")?.dataset.summaryLink;
+  if (link === "agenda") {
+    setView("agenda");
+  } else if (link === "review") {
+    setPanelOpen(reviewPanel, true);
+    renderReview(new Date());
+  }
+}
+
+function todayText(dueToday) {
+  if (dueToday.length === 0) {
+    return "nothing due";
+  }
+  const names = dueToday.slice(0, MAX_NAMED_TODAY).map((a) => a.title);
+  const more = dueToday.length > MAX_NAMED_TODAY ? `, +${dueToday.length - MAX_NAMED_TODAY} more` : "";
+  return `${dueToday.length} due (${names.join(", ")}${more})`;
+}
+
+function summaryLink(text, target) {
+  const link = makeButton("link-button", text);
+  link.dataset.summaryLink = target;
+  return link;
+}
+
+function label(text) {
+  const strong = document.createElement("strong");
+  strong.textContent = text;
+  return strong;
 }

@@ -1,7 +1,7 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=d1337206";
-import { toDateKey } from "./calendar.js?v=d1337206";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=8fe9dbad";
+import { toDateKey } from "./calendar.js?v=8fe9dbad";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).
@@ -73,4 +73,21 @@ function busiestDay(assignments) {
     }
   }
   return busiest;
+}
+
+/**
+ * The summary line above the list: unfinished work still due later today, how much unfinished work is
+ * past its deadline, and this week's done-out-of-due (the same numbers as the weekly review).
+ * Returns { dueToday: [assignment], overdue, weekDone, weekDue }.
+ */
+export function todaySummary(assignments, now = new Date()) {
+  const todayKey = toDateKey(now);
+  const unfinished = assignments.filter((a) => !a.done);
+  const { thisWeek } = weekReview(assignments, now);
+  return {
+    dueToday: sortByDue(unfinished.filter((a) => a.dueDate === todayKey && toDueDate(a.dueDate, a.dueTime) >= now)),
+    overdue: unfinished.filter((a) => toDueDate(a.dueDate, a.dueTime) < now).length,
+    weekDone: thisWeek.done,
+    weekDue: thisWeek.due,
+  };
 }
