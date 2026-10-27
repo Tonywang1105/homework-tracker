@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/form.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/list.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/calendar.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/agenda.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/types.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/panels.css?v=25f33822" />
-    <link rel="stylesheet" href="styles/messages.css?v=25f33822" />
-    <script type="module" src="src/main.js?v=25f33822"></script>
+    <link rel="stylesheet" href="styles/base.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/form.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/list.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/calendar.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/agenda.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/types.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/panels.css?v=9a1a4671" />
+    <link rel="stylesheet" href="styles/messages.css?v=9a1a4671" />
+    <script type="module" src="src/main.js?v=9a1a4671"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -153,6 +153,12 @@
               </div>
               <p class="field-error" id="untilDate-error"></p>
             </div>
+          </div>
+
+          <div class="field">
+            <label for="steps">Steps <span class="optional">optional, one per line</span></label>
+            <textarea id="steps" name="steps" rows="3" placeholder="e.g. Checkpoint 1 (then Checkpoint 2 on the next line)"></textarea>
+            <p class="field-error" id="steps-error"></p>
           </div>
 
           <div class="field">
@@ -298,6 +304,7 @@
             <h3 id="details-title" class="details-title"></h3>
             <div id="details-tags" class="title-line"></div>
             <div id="details-due" class="due-line"></div>
+            <ul id="details-steps" class="steps" aria-label="Steps" hidden></ul>
             <p id="details-notes" class="notes"></p>
             <div class="details-actions">
               <button type="button" id="details-edit" class="button">Edit</button>

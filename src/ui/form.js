@@ -1,13 +1,13 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=25f33822";
-import { render } from "../main.js?v=25f33822";
-import { createSeries, validateRepeat } from "../repeat.js?v=25f33822";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=25f33822";
-import { state, updateAssignments } from "./store.js?v=25f33822";
-import { showToast } from "./toast.js?v=25f33822";
+import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=9a1a4671";
+import { render } from "../main.js?v=9a1a4671";
+import { createSeries, validateRepeat } from "../repeat.js?v=9a1a4671";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=9a1a4671";
+import { findAssignment, state, updateAssignments } from "./store.js?v=9a1a4671";
+import { showToast } from "./toast.js?v=9a1a4671";
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
 
 export function renderTypeOptions() {
   elements.form.elements.type.append(...TYPES.map((type) => makeOption(type, TYPE_LABELS[type])));
@@ -28,7 +28,7 @@ export function startAddingOn(dateKey) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "notes"];
+  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
   return Object.fromEntries(names.map((name) => [name, data.get(name) ?? ""]));
 }
 
@@ -61,7 +61,9 @@ export function handleSubmit(event) {
 
   if (state.editingId) {
     const editedTitle = result.fields.title;
-    updateAssignments(updateAssignment(state.assignments, state.editingId, result.fields));
+    // Steps that are still there keep their ticks; the form only shows their text.
+    const steps = keepStepTicks(findAssignment(state.editingId)?.steps, result.fields.steps);
+    updateAssignments(updateAssignment(state.assignments, state.editingId, { ...result.fields, steps }));
     setFormOpen(false);
     stopEditing();
     showToast(`Saved changes to "${editedTitle}".`);
@@ -134,6 +136,7 @@ export function startEditing(assignment) {
   fields.type.value = assignment.type ?? AUTO_TYPE;
   fields.notes.value = assignment.notes;
   fields.hours.value = assignment.hours ?? "";
+  fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
   showErrors({});
   elements.repeatFields.hidden = true;
   elements.formHeading.textContent = "Edit assignment";

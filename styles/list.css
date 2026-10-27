@@ -262,6 +262,49 @@
   white-space: nowrap;
 }
 
+/* "1 of 3 steps", turning green once every step is ticked. */
+.steps-tag {
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.steps-tag-done {
+  border-color: var(--later);
+  color: var(--later);
+}
+
+/* An assignment's steps: a compact checklist under its due line (and in the details box). */
+.steps {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+
+.steps label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 3px 0;
+  font-weight: 400;
+  cursor: pointer;
+}
+
+.steps input {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  margin: 0;
+}
+
+.steps li.is-done span {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
 /* Solid red, unlike every other tag, so overdue work stands out when skimming. */
 .overdue-tag {
   background: var(--overdue);

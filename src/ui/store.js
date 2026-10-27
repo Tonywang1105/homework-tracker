@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=25f33822";
-import { render } from "../main.js?v=25f33822";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=25f33822";
-import { saveAssignments } from "../storage.js?v=25f33822";
-import { syncAssignments } from "./account.js?v=25f33822";
-import { showToast } from "./toast.js?v=25f33822";
+import { currentMonth } from "../calendar.js?v=9a1a4671";
+import { render } from "../main.js?v=9a1a4671";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=9a1a4671";
+import { saveAssignments } from "../storage.js?v=9a1a4671";
+import { syncAssignments } from "./account.js?v=9a1a4671";
+import { showToast } from "./toast.js?v=9a1a4671";
 
 export const state = {
   assignments: [],

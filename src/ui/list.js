@@ -8,15 +8,17 @@ import {
   PRIORITY_LABELS,
   removeAssignment,
   searchWords,
+  stepProgress,
   toDueDate,
+  toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=25f33822";
-import { render } from "../main.js?v=25f33822";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=25f33822";
-import { startEditing, stopEditing } from "./form.js?v=25f33822";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=25f33822";
-import { showToast } from "./toast.js?v=25f33822";
+} from "../assignments.js?v=9a1a4671";
+import { render } from "../main.js?v=9a1a4671";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=9a1a4671";
+import { startEditing, stopEditing } from "./form.js?v=9a1a4671";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=9a1a4671";
+import { showToast } from "./toast.js?v=9a1a4671";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -110,6 +112,9 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   dueLine.append(...renderDueParts(assignment, now));
 
   body.append(titleLine, dueLine);
+  if (stepProgress(assignment)) {
+    body.append(renderSteps(assignment));
+  }
   if (assignment.notes) {
     const notes = document.createElement("p");
     notes.className = "notes";
@@ -142,12 +147,56 @@ export function renderTags(assignment) {
   if (assignment.hours) {
     tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
   }
+  const progress = stepProgress(assignment);
+  if (progress) {
+    const allDone = progress.done === progress.total;
+    tags.push(makeTag(`${progress.done} of ${progress.total} steps`, `steps-tag${allDone ? " steps-tag-done" : ""}`));
+  }
   const start = state.startPlan.get(assignment.id);
   if (start) {
     tags.push(makeTag(startText(start), `start-tag start-${start.status}`));
   }
   tags.push(makeTag(PRIORITY_LABELS[assignment.priority], `priority-tag priority-tag-${assignment.priority}`));
   return tags;
+}
+
+/**
+ * An assignment's steps as checkboxes, used in its list row and in the details box. Each checkbox has
+ * data-step (its position), so one click handler can tell which step was ticked.
+ */
+export function renderSteps(assignment, list = document.createElement("ul")) {
+  list.className = "steps";
+  list.replaceChildren(
+    ...assignment.steps.map((step, index) => {
+      const item = document.createElement("li");
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = step.done;
+      checkbox.dataset.action = "toggle-step";
+      checkbox.dataset.step = String(index);
+      const text = document.createElement("span");
+      text.textContent = step.text;
+      label.append(checkbox, text);
+      item.classList.toggle("is-done", step.done);
+      item.append(label);
+      return item;
+    }),
+  );
+  return list;
+}
+
+/**
+ * Ticks or unticks a step. Ticking the last one asks whether the whole assignment is done, rather than
+ * marking it done, since there may still be checking or submitting left.
+ */
+export function toggleAssignmentStep(assignment, index) {
+  updateAssignments(toggleStep(state.assignments, assignment.id, index));
+  const updated = findAssignment(assignment.id);
+  const progress = stepProgress(updated);
+  if (!updated.done && progress.done === progress.total) {
+    showToast(`All steps done. Mark "${updated.title}" done?`, () => toggleDone(updated), "Mark done");
+  }
 }
 
 /** The due date and time, plus "due in 3 days" style text for unfinished work. */
@@ -234,6 +283,13 @@ export function handleListClick(event) {
   const position = [...list.querySelectorAll("li[data-id]")].indexOf(item);
 
   switch (control.dataset.action) {
+    case "toggle-step": {
+      const index = Number(control.dataset.step);
+      toggleAssignmentStep(assignment, index);
+      // The row was redrawn, so put focus back on the same step's new checkbox.
+      list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] [data-step="${index}"]`)?.focus();
+      break;
+    }
     case "toggle-done":
       toggleDone(assignment);
       focusRowAt(list, position, "toggle-done");

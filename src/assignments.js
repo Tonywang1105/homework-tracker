@@ -34,6 +34,9 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_PATTERN = /^\d{2}:\d{2}$/;
 const MAX_TITLE_LENGTH = 200;
 const MAX_NOTES_LENGTH = 5000;
+// Steps inside an assignment, like an MP's checkpoints: enough for real work, short enough to stay a checklist.
+const MAX_STEPS = 20;
+const MAX_STEP_LENGTH = 200;
 // Time estimates, in hours: from a quarter hour up to a week of full-time work.
 const MIN_HOURS = 0.25;
 const MAX_HOURS = 40;
@@ -54,6 +57,7 @@ export function validateAssignmentInput(input) {
   // The estimate is optional: empty means "no estimate", stored as null.
   const hoursText = String(input.hours ?? "").trim();
   const hours = hoursText === "" ? null : Number(hoursText);
+  const steps = readSteps(input.steps);
   const errors = {};
 
   if (title === "") {
@@ -79,13 +83,61 @@ export function validateAssignmentInput(input) {
   if (hours !== null && !(hours >= MIN_HOURS && hours <= MAX_HOURS)) {
     errors.hours = `Enter hours between ${MIN_HOURS} and ${MAX_HOURS}, or leave it empty.`;
   }
+  if (steps.length > MAX_STEPS) {
+    errors.steps = `Keep it to ${MAX_STEPS} steps or fewer.`;
+  } else if (steps.some((step) => step.text.length > MAX_STEP_LENGTH)) {
+    errors.steps = `Keep each step under ${MAX_STEP_LENGTH} characters.`;
+  }
 
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors };
   }
   // "Guess from title" is saved as the guess, so renaming the assignment later doesn't change its type.
   const type = chosenType === AUTO_TYPE ? guessType(title) : chosenType;
-  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours } };
+  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours, steps } };
+}
+
+/**
+ * Steps as [{ text, done }], from the form's text (one step per line, all unticked) or from a saved list.
+ * Blank lines are dropped.
+ */
+function readSteps(steps) {
+  let list = [];
+  if (typeof steps === "string") {
+    list = steps.split("\n").map((line) => ({ text: line.trim(), done: false }));
+  } else if (Array.isArray(steps)) {
+    list = steps.map((step) => ({ text: String(step?.text ?? "").trim(), done: step?.done === true }));
+  }
+  return list.filter((step) => step.text !== "");
+}
+
+/**
+ * After editing the steps, keeps the ticks of the ones that are still there: a step whose text is unchanged
+ * stays ticked, while new or reworded steps start unticked.
+ */
+export function keepStepTicks(previousSteps = [], steps) {
+  const ticked = previousSteps.filter((step) => step.done).map((step) => step.text);
+  return steps.map((step) => {
+    const index = ticked.indexOf(step.text);
+    if (index === -1) {
+      return step;
+    }
+    ticked.splice(index, 1);
+    return { ...step, done: true };
+  });
+}
+
+/** A new list where step `index` of the assignment with this id is ticked or unticked. */
+export function toggleStep(assignments, id, index) {
+  return assignments.map((a) =>
+    a.id === id ? { ...a, steps: a.steps.map((step, i) => (i === index ? { ...step, done: !step.done } : step)) } : a,
+  );
+}
+
+/** { done, total } for an assignment's steps, or null if it has none. */
+export function stepProgress(assignment) {
+  const steps = assignment.steps ?? [];
+  return steps.length === 0 ? null : { done: steps.filter((step) => step.done).length, total: steps.length };
 }
 
 /** Builds a new assignment from validated fields. */

@@ -1,7 +1,7 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=25f33822";
-import { state } from "./store.js?v=25f33822";
+import { elements } from "./dom.js?v=9a1a4671";
+import { state } from "./store.js?v=9a1a4671";
 
 // A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
 // enough to read, and one with Undo stays long enough to use it.
@@ -9,10 +9,12 @@ const MIN_DURATION_MS = 3000;
 const MS_PER_CHARACTER = 60;
 const MAX_DURATION_MS = 8000;
 
-export function showToast(message, undoAction = null) {
+/** Shows a message, optionally with a button (labelled Undo unless `actionLabel` says otherwise) that runs `undoAction`. */
+export function showToast(message, undoAction = null, actionLabel = "Undo") {
   clearTimeout(state.toastTimer);
   state.undoAction = undoAction;
   elements.toastMessage.textContent = message;
+  elements.toastUndo.textContent = actionLabel;
   elements.toastUndo.hidden = undoAction === null;
   elements.toast.hidden = false;
   state.toastTimer = setTimeout(hideToast, toastDuration(message, undoAction !== null));
@@ -37,6 +39,6 @@ export function handleUndo() {
   if (undo) {
     undo();
   }
-  // The Undo button is now hidden, so give keyboard focus a place in the list instead of losing it.
+  // The button is now hidden, so give keyboard focus a place in the list instead of losing it.
   elements.listHeading.focus({ preventScroll: true });
 }

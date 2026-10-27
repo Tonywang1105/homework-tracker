@@ -1,12 +1,12 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=25f33822";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=25f33822";
-import { render } from "../main.js?v=25f33822";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=25f33822";
-import { startAddingOn } from "./form.js?v=25f33822";
-import { renderDueParts, renderTags } from "./list.js?v=25f33822";
-import { findAssignment, state } from "./store.js?v=25f33822";
+import { assignmentType, describeDue, formatHours, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=9a1a4671";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=9a1a4671";
+import { render } from "../main.js?v=9a1a4671";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=9a1a4671";
+import { startAddingOn } from "./form.js?v=9a1a4671";
+import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=9a1a4671";
+import { findAssignment, state } from "./store.js?v=9a1a4671";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -216,6 +216,10 @@ export function renderDetails(now) {
   elements.detailsTitle.textContent = assignment.title;
   elements.detailsTags.replaceChildren(...renderTags(assignment));
   elements.detailsDue.replaceChildren(...renderDueParts(assignment, now));
+  elements.detailsSteps.hidden = !stepProgress(assignment);
+  if (stepProgress(assignment)) {
+    renderSteps(assignment, elements.detailsSteps);
+  }
   showNote(elements.detailsNotes, assignment.notes || "No notes.");
   elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
   elements.detailsDone.textContent = assignment.done ? "Mark not done" : "Mark done";
@@ -233,7 +237,24 @@ function positionDetails(button) {
   elements.details.style.top = `${tag.bottom - container.top + 4}px`;
 }
 
+/** Ticking a step in the details box; the box stays open, so focus goes back to the same step. */
+export function handleDetailsStepClick(event) {
+  const checkbox = event.target.closest('[data-action="toggle-step"]');
+  const assignment = findAssignment(state.detailsId);
+  if (!checkbox || !assignment) {
+    return;
+  }
+  const index = Number(checkbox.dataset.step);
+  toggleAssignmentStep(assignment, index);
+  elements.detailsSteps.querySelector(`[data-step="${index}"]`)?.focus();
+}
+
 export function handleOutsideClick(event) {
+  // A click that redrew what was clicked (like ticking a step in the box) leaves its target off the page;
+  // it happened inside, so it mustn't close the box.
+  if (!event.target.isConnected) {
+    return;
+  }
   const onOpener = event.target.closest(".calendar-item, .agenda-item, .due-soon-chip");
   if (state.detailsId && !elements.details.contains(event.target) && !onOpener) {
     toggleDetails(null);

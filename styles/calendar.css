@@ -330,6 +330,14 @@
   background: var(--small-soft);
 }
 
+.calendar-details .steps {
+  margin: 0;
+}
+
+.calendar-details .steps[hidden] {
+  display: none;
+}
+
 .calendar-details .notes {
   margin: 0;
   max-height: 10em;

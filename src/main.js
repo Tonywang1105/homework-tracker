@@ -1,16 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=25f33822";
-import { currentMonth, shiftMonth } from "./calendar.js?v=25f33822";
-import { hasExamples } from "./examples.js?v=25f33822";
-import { parseSavedWidth } from "./layout.js?v=25f33822";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=25f33822";
-import { combineSeries } from "./repeat.js?v=25f33822";
-import { loadAssignments } from "./storage.js?v=25f33822";
-import { startAccount } from "./ui/account.js?v=25f33822";
-import { renderAgenda } from "./ui/agendaView.js?v=25f33822";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=9a1a4671";
+import { currentMonth, shiftMonth } from "./calendar.js?v=9a1a4671";
+import { hasExamples } from "./examples.js?v=9a1a4671";
+import { parseSavedWidth } from "./layout.js?v=9a1a4671";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=9a1a4671";
+import { combineSeries } from "./repeat.js?v=9a1a4671";
+import { loadAssignments } from "./storage.js?v=9a1a4671";
+import { startAccount } from "./ui/account.js?v=9a1a4671";
+import { renderAgenda } from "./ui/agendaView.js?v=9a1a4671";
 import {
   handleCalendarClick,
+  handleDetailsStepClick,
   handleDueSoonClick,
   handleOutsideClick,
   renderCalendar,
@@ -20,8 +21,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=25f33822";
-import { elements } from "./ui/dom.js?v=25f33822";
+} from "./ui/calendarView.js?v=9a1a4671";
+import { elements } from "./ui/dom.js?v=9a1a4671";
 import {
   closeForm,
   focusForm,
@@ -30,7 +31,7 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=25f33822";
+} from "./ui/form.js?v=9a1a4671";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -42,7 +43,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=25f33822";
+} from "./ui/list.js?v=9a1a4671";
 import {
   addExamples,
   canvasPanel,
@@ -55,8 +56,8 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=25f33822";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=25f33822";
+} from "./ui/panels.js?v=9a1a4671";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=9a1a4671";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -72,9 +73,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=25f33822";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=25f33822";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=25f33822";
+} from "./ui/settings.js?v=9a1a4671";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=9a1a4671";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=9a1a4671";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -177,6 +178,7 @@ function start() {
   elements.toastClose.addEventListener("click", hideToast);
   elements.calendarBody.addEventListener("click", handleCalendarClick);
   elements.agendaList.addEventListener("click", handleCalendarClick);
+  elements.detailsSteps.addEventListener("click", handleDetailsStepClick);
   elements.quickAdd.addEventListener("submit", handleQuickAddSubmit);
   elements.quickAddText.addEventListener("input", handleQuickAddInput);
   handleQuickAddInput();
