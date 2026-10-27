@@ -2,18 +2,22 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { firebaseConfig } from "../firebase-config.js?v=8fe9dbad";
-import { render } from "../main.js?v=8fe9dbad";
-import { saveAssignments } from "../storage.js?v=8fe9dbad";
-import { listChanges, mergeLists, toRemote } from "../sync.js?v=8fe9dbad";
-import { elements } from "./dom.js?v=8fe9dbad";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=8fe9dbad";
-import { showToast } from "./toast.js?v=8fe9dbad";
+import { firebaseConfig } from "../firebase-config.js?v=777adc27";
+import { render } from "../main.js?v=777adc27";
+import { saveAssignments } from "../storage.js?v=777adc27";
+import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=777adc27";
+import { elements } from "./dom.js?v=777adc27";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=777adc27";
+import { showToast } from "./toast.js?v=777adc27";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
 // Later starts trust the account, so something deleted on the phone doesn't come back from the laptop's copy.
 const SYNCED_ACCOUNT_KEY = "homework-tracker.syncedAccount";
+// The account's list as this device last saw it confirmed by Firebase, with whose account it was, as
+// { userId, assignments }. Kept after signing out, so signing back in can tell "deleted on the phone"
+// apart from "added here while signed out" (see mergeWithLastSynced).
+const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
 // Firestore takes at most 500 writes at once.
 const MAX_WRITES_PER_BATCH = 400;
 
@@ -121,10 +125,14 @@ async function handleUser(user) {
   const assignmentsRef = dbApi.collection(db, "users", user.uid, "assignments");
 
   if (loadText(SYNCED_ACCOUNT_KEY) !== user.uid) {
-    // First sign-in on this device: add this device's list to whatever the account already has.
-    const snapshot = await dbApi.getDocs(assignmentsRef);
+    // Signing in on this device: combine its list with the account's. From the server, not the offline
+    // copy, since an out-of-date account list would make deletions look like additions.
+    const snapshot = await dbApi.getDocsFromServer(assignmentsRef);
     const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
-    const { assignments, addedCount } = mergeLists(state.assignments, remote);
+    const lastSynced = loadLastSynced(user.uid);
+    const { assignments, addedCount } = lastSynced
+      ? mergeWithLastSynced(state.assignments, remote, lastSynced)
+      : mergeLists(state.assignments, remote);
     const { saves, deletes } = listChanges(remote, assignments);
     await writeChanges(user.uid, saves, deletes);
     state.assignments = assignments;
@@ -151,6 +159,10 @@ function showRemoteList(user, snapshot) {
   sync.remoteList = remote;
   state.assignments = remote;
   saveAssignments(localStorage, remote);
+  // Only a list Firebase has confirmed counts as "the account as last seen", not one with uploads pending.
+  if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) {
+    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
+  }
   const status = snapshot.metadata.hasPendingWrites
     ? "Saving…"
     : snapshot.metadata.fromCache
@@ -158,6 +170,16 @@ function showRemoteList(user, snapshot) {
       : "Synced";
   showAccount({ status, email: user.email, signedIn: true });
   render();
+}
+
+/** The account's list as last seen on this device, if it was this account's; null otherwise. */
+function loadLastSynced(userId) {
+  try {
+    const saved = JSON.parse(loadText(LAST_SYNCED_KEY) ?? "null");
+    return saved?.userId === userId && Array.isArray(saved.assignments) ? saved.assignments : null;
+  } catch {
+    return null;
+  }
 }
 
 async function writeChanges(userId, saves, deletes) {

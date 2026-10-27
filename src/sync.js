@@ -29,6 +29,43 @@ export function mergeLists(local, remote) {
   return { assignments: [...remote, ...added], addedCount: added.length };
 }
 
+/**
+ * The list after signing back in to an account this device has synced with before. `lastSynced` is the
+ * account's list as this device last saw it, so each difference can be told apart:
+ * - deleted on another device (in lastSynced, gone from the account) stays deleted;
+ * - added here while signed out (in neither) is added;
+ * - changed or deleted only here (the account still matches lastSynced) goes to the account;
+ * - changed on both keeps the account's copy.
+ * Returns { assignments, addedCount }, like mergeLists.
+ */
+export function mergeWithLastSynced(local, remote, lastSynced) {
+  const localById = new Map(local.map((a) => [a.id, a]));
+  const lastById = new Map(lastSynced.map((a) => [a.id, a]));
+  const remoteIds = new Set(remote.map((a) => a.id));
+  const remoteCanvasUids = new Set(remote.filter((a) => a.canvasUid).map((a) => a.canvasUid));
+
+  const kept = [];
+  for (const theirs of remote) {
+    const mine = localById.get(theirs.id);
+    const before = lastById.get(theirs.id);
+    const unchangedElsewhere = before && sameAssignment(theirs, before);
+    if (!mine) {
+      // Gone here: deleted here while signed out, unless the account changed it since (then it's kept).
+      if (!unchangedElsewhere) {
+        kept.push(theirs);
+      }
+    } else if (unchangedElsewhere && !sameAssignment(mine, before)) {
+      kept.push(mine);
+    } else {
+      kept.push(theirs);
+    }
+  }
+  const added = local.filter(
+    (a) => !remoteIds.has(a.id) && !lastById.has(a.id) && !(a.canvasUid && remoteCanvasUids.has(a.canvasUid)),
+  );
+  return { assignments: [...kept, ...added], addedCount: added.length };
+}
+
 /** What to send to the account to turn `previous` into `next`: assignments to save, and ids to delete. */
 export function listChanges(previous, next) {
   const previousById = new Map(previous.map((a) => [a.id, a]));
