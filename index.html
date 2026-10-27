@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/form.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/list.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/calendar.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/agenda.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/types.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/panels.css?v=9a1a4671" />
-    <link rel="stylesheet" href="styles/messages.css?v=9a1a4671" />
-    <script type="module" src="src/main.js?v=9a1a4671"></script>
+    <link rel="stylesheet" href="styles/base.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/form.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/list.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/calendar.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/agenda.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/types.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/panels.css?v=f2a236bc" />
+    <link rel="stylesheet" href="styles/messages.css?v=f2a236bc" />
+    <script type="module" src="src/main.js?v=f2a236bc"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -72,7 +72,7 @@
         <h2 id="form-heading">Add an assignment</h2>
         <form id="assignment-form" novalidate>
           <div class="field">
-            <label for="title">Assignment</label>
+            <label for="title">Assignment <span class="required" aria-hidden="true">required</span></label>
             <input id="title" name="title" type="text" placeholder="e.g. MP2: Checkpoint 1" autocomplete="off" required />
             <p class="field-error" id="title-error"></p>
           </div>
@@ -85,7 +85,7 @@
 
           <div class="field-row">
             <div class="field">
-              <label for="dueDate">Due date</label>
+              <label for="dueDate">Due date <span class="required" aria-hidden="true">required</span></label>
               <div class="date-field">
                 <input id="dueDate" name="dueDate" type="date" required />
                 <!-- The browser draws the empty date box in the computer's language (年/月/日); this English

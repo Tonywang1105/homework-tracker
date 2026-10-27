@@ -47,6 +47,13 @@ legend {
   font-size: 0.8rem;
 }
 
+/* The two fields an assignment can't be added without, marked so a first-time user doesn't have to guess. */
+.required {
+  font-weight: 600;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
 textarea {
   resize: vertical;
 }
