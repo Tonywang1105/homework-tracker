@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/form.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/list.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/calendar.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/agenda.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/types.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/panels.css?v=f2a236bc" />
-    <link rel="stylesheet" href="styles/messages.css?v=f2a236bc" />
-    <script type="module" src="src/main.js?v=f2a236bc"></script>
+    <link rel="stylesheet" href="styles/base.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/form.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/list.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/calendar.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/agenda.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/types.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/panels.css?v=840f75e6" />
+    <link rel="stylesheet" href="styles/messages.css?v=840f75e6" />
+    <script type="module" src="src/main.js?v=840f75e6"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -324,6 +324,9 @@
             <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel">
               Export to calendar…
             </button>
+            <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
+              Weekly review…
+            </button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
             <p class="import-help">
@@ -359,6 +362,21 @@
             <div class="import-actions">
               <button type="button" id="export-download-button" class="button button-primary">Download calendar file</button>
               <button type="button" id="export-panel-close" class="button">Close</button>
+            </div>
+          </div>
+          <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->
+          <div id="review-panel" class="import-panel review-panel" hidden>
+            <h3>This week <span id="review-this-dates" class="review-dates"></span></h3>
+            <p id="review-this-summary"></p>
+            <ul id="review-big" class="review-list" aria-label="Big assignments this week"></ul>
+            <h3>Next week <span id="review-next-dates" class="review-dates"></span></h3>
+            <p id="review-next-summary"></p>
+            <div id="review-start" hidden>
+              <p>Start these this week to stay on track:</p>
+              <ul id="review-start-list" class="review-list"></ul>
+            </div>
+            <div class="import-actions">
+              <button type="button" id="review-panel-close" class="button">Close</button>
             </div>
           </div>
         </div>

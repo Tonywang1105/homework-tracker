@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=f2a236bc";
-import { currentMonth, shiftMonth } from "./calendar.js?v=f2a236bc";
-import { hasExamples } from "./examples.js?v=f2a236bc";
-import { parseSavedWidth } from "./layout.js?v=f2a236bc";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=f2a236bc";
-import { combineSeries } from "./repeat.js?v=f2a236bc";
-import { loadAssignments } from "./storage.js?v=f2a236bc";
-import { startAccount } from "./ui/account.js?v=f2a236bc";
-import { renderAgenda } from "./ui/agendaView.js?v=f2a236bc";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=840f75e6";
+import { currentMonth, shiftMonth } from "./calendar.js?v=840f75e6";
+import { hasExamples } from "./examples.js?v=840f75e6";
+import { parseSavedWidth } from "./layout.js?v=840f75e6";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=840f75e6";
+import { combineSeries } from "./repeat.js?v=840f75e6";
+import { loadAssignments } from "./storage.js?v=840f75e6";
+import { startAccount } from "./ui/account.js?v=840f75e6";
+import { renderAgenda } from "./ui/agendaView.js?v=840f75e6";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,8 +21,8 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=f2a236bc";
-import { elements } from "./ui/dom.js?v=f2a236bc";
+} from "./ui/calendarView.js?v=840f75e6";
+import { elements } from "./ui/dom.js?v=840f75e6";
 import {
   closeForm,
   focusForm,
@@ -31,7 +31,7 @@ import {
   setFormOpen,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=f2a236bc";
+} from "./ui/form.js?v=840f75e6";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -43,7 +43,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=f2a236bc";
+} from "./ui/list.js?v=840f75e6";
 import {
   addExamples,
   canvasPanel,
@@ -56,8 +56,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=f2a236bc";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=f2a236bc";
+} from "./ui/panels.js?v=840f75e6";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=840f75e6";
+import { renderReview } from "./ui/reviewPanel.js?v=840f75e6";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -73,9 +74,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=f2a236bc";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=f2a236bc";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=f2a236bc";
+} from "./ui/settings.js?v=840f75e6";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=840f75e6";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=840f75e6";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -110,6 +111,7 @@ export function render() {
   renderDueSoon(soon, now);
   renderWorkload(now);
   renderCanvasReminder(now);
+  renderReview(now);
   elements.emptyMessage.textContent = emptyMessageText({ ...filters, search }, done.length);
 
   elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
@@ -149,7 +151,11 @@ function start() {
   elements.form.addEventListener("submit", handleSubmit);
   elements.form.elements.repeat.addEventListener("change", updateRepeatFields);
   for (const panel of panels) {
-    panel.toggle.addEventListener("click", () => setPanelOpen(panel, panel.panel.hidden));
+    panel.toggle.addEventListener("click", () => {
+      setPanelOpen(panel, panel.panel.hidden);
+      // The review is only filled in while open, so fill it in now rather than at the next redraw.
+      renderReview(new Date());
+    });
     panel.close.addEventListener("click", () => setPanelOpen(panel, false));
   }
   elements.canvasImportButton.addEventListener("click", () => elements.canvasFile.click());
