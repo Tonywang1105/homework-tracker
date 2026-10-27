@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/form.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/list.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/calendar.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/agenda.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/types.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/panels.css?v=8fdd39f5" />
-    <link rel="stylesheet" href="styles/messages.css?v=8fdd39f5" />
-    <script type="module" src="src/main.js?v=8fdd39f5"></script>
+    <link rel="stylesheet" href="styles/base.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/form.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/list.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/calendar.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/agenda.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/types.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/panels.css?v=25f33822" />
+    <link rel="stylesheet" href="styles/messages.css?v=25f33822" />
+    <script type="module" src="src/main.js?v=25f33822"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -189,6 +189,24 @@
             <button type="button" class="segmented-button view-button" data-view="agenda" aria-pressed="false">Agenda</button>
           </div>
         </div>
+
+        <!-- One line instead of the whole form: the words it recognizes are shown below before adding. -->
+        <form id="quick-add" class="quick-add" novalidate>
+          <label for="quick-add-text" class="quick-add-label">Quick add</label>
+          <div class="quick-add-row">
+            <input
+              type="text"
+              id="quick-add-text"
+              placeholder="e.g. MP4 cs124 fri 11:59pm"
+              autocomplete="off"
+              autocapitalize="off"
+              enterkeyhint="done"
+              aria-describedby="quick-add-preview"
+            />
+            <button type="submit" class="button button-primary">Add</button>
+          </div>
+          <p id="quick-add-preview" class="quick-add-preview" aria-live="polite"></p>
+        </form>
 
         <div id="filters" class="filters" role="group" aria-label="Filters">
           <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->

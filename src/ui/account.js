@@ -2,13 +2,13 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { firebaseConfig } from "../firebase-config.js?v=8fdd39f5";
-import { render } from "../main.js?v=8fdd39f5";
-import { saveAssignments } from "../storage.js?v=8fdd39f5";
-import { listChanges, mergeLists, toRemote } from "../sync.js?v=8fdd39f5";
-import { elements } from "./dom.js?v=8fdd39f5";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=8fdd39f5";
-import { showToast } from "./toast.js?v=8fdd39f5";
+import { firebaseConfig } from "../firebase-config.js?v=25f33822";
+import { render } from "../main.js?v=25f33822";
+import { saveAssignments } from "../storage.js?v=25f33822";
+import { listChanges, mergeLists, toRemote } from "../sync.js?v=25f33822";
+import { elements } from "./dom.js?v=25f33822";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=25f33822";
+import { showToast } from "./toast.js?v=25f33822";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.

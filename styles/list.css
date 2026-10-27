@@ -9,6 +9,42 @@
   margin-bottom: 12px;
 }
 
+/* Quick add: one line above the filters, with what it understood shown underneath. */
+.quick-add {
+  margin-bottom: 14px;
+}
+
+.quick-add-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.quick-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.quick-add-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.quick-add-row .button {
+  padding: 8px 16px;
+}
+
+.quick-add-preview {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.quick-add-preview.is-problem {
+  color: var(--soon);
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;

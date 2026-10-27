@@ -1,12 +1,12 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=8fdd39f5";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=8fdd39f5";
-import { render } from "../main.js?v=8fdd39f5";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=8fdd39f5";
-import { startAddingOn } from "./form.js?v=8fdd39f5";
-import { renderDueParts, renderTags } from "./list.js?v=8fdd39f5";
-import { findAssignment, state } from "./store.js?v=8fdd39f5";
+import { assignmentType, describeDue, formatHours, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=25f33822";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=25f33822";
+import { render } from "../main.js?v=25f33822";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=25f33822";
+import { startAddingOn } from "./form.js?v=25f33822";
+import { renderDueParts, renderTags } from "./list.js?v=25f33822";
+import { findAssignment, state } from "./store.js?v=25f33822";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
