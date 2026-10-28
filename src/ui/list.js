@@ -15,13 +15,13 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=58e8efec";
-import { render } from "../main.js?v=58e8efec";
-import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=58e8efec";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=58e8efec";
-import { startCopying, startEditing, stopEditing } from "./form.js?v=58e8efec";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=58e8efec";
-import { showToast } from "./toast.js?v=58e8efec";
+} from "../assignments.js?v=ee7cd01c";
+import { render } from "../main.js?v=ee7cd01c";
+import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=ee7cd01c";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=ee7cd01c";
+import { startCopying, startEditing, stopEditing } from "./form.js?v=ee7cd01c";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=ee7cd01c";
+import { showToast } from "./toast.js?v=ee7cd01c";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -139,13 +139,20 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   return item;
 }
 
-/** Start, or Stop while this assignment's timer is running. */
-function timerButton(assignment) {
+/** Start, or Stop while this assignment's timer is running (on list rows and in Today's plan). */
+export function timerButton(assignment) {
   const running = Boolean(assignment.timerStartedAt);
   const button = makeActionButton(running ? "Stop" : "Start", running ? "timer-stop" : "timer-start", assignment.title);
   button.classList.add("action-timer");
   button.title = running ? "Stop the timer and add this time to the total" : "Time how long this takes";
   return button;
+}
+
+/** A running timer's "Working… 4:05" tag, which tickTimers keeps ticking. */
+export function makeTimerClock(assignment, now = new Date()) {
+  const clock = makeTag(`Working… ${formatClock(sessionSeconds(assignment, now))}`, "timer-tag");
+  clock.dataset.startedAt = assignment.timerStartedAt;
+  return clock;
 }
 
 /** "Working… 4:05" on a running timer's tag; called every second, so it ticks without redrawing the list. */
@@ -170,9 +177,7 @@ export function renderTags(assignment) {
     tags.push(makeTag(TYPE_LABELS[type], `type-tag type-${type}`));
   }
   if (assignment.timerStartedAt) {
-    const clock = makeTag(`Working… ${formatClock(sessionSeconds(assignment))}`, "timer-tag");
-    clock.dataset.startedAt = assignment.timerStartedAt;
-    tags.push(clock);
+    tags.push(makeTimerClock(assignment));
   }
   // Once time is tracked, its tag shows the estimate too ("spent 40 min of ~3 h"), so the estimate isn't repeated.
   const spent = spentText(assignment);

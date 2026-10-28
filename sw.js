@@ -62,6 +62,7 @@ const APP_FILES = [
   "src/ui/shortcuts.js",
   "src/ui/store.js",
   "src/ui/toast.js",
+  "src/ui/todayPlan.js",
 ];
 
 self.addEventListener("install", (event) => {

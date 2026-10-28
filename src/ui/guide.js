@@ -3,8 +3,8 @@
 // "Show the tour" at the bottom of the list brings it back. Called the guide here so it isn't confused with
 // the tour test in tests/tour.js.
 
-import { elements } from "./dom.js?v=58e8efec";
-import { loadText, saveChoice } from "./store.js?v=58e8efec";
+import { elements } from "./dom.js?v=ee7cd01c";
+import { loadText, saveChoice } from "./store.js?v=ee7cd01c";
 
 const GUIDE_SEEN_KEY = "homework-tracker.guideSeen";
 
