@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/form.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/list.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/calendar.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/agenda.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/types.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/panels.css?v=9d779c18" />
-    <link rel="stylesheet" href="styles/messages.css?v=9d779c18" />
-    <script type="module" src="src/main.js?v=9d779c18"></script>
+    <link rel="stylesheet" href="styles/base.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/form.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/list.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/calendar.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/agenda.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/types.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/panels.css?v=fc15d57f" />
+    <link rel="stylesheet" href="styles/messages.css?v=fc15d57f" />
+    <script type="module" src="src/main.js?v=fc15d57f"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -332,6 +332,7 @@
             <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
               Weekly review…
             </button>
+            <button type="button" id="guide-start" class="link-button import-toggle">Show the tour</button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
             <p class="import-help">
@@ -387,6 +388,18 @@
         </div>
       </section>
     </main>
+
+    <!-- The first-time tour's bubble, placed next to the part of the page it describes (src/ui/guide.js). -->
+    <div id="guide" class="guide" role="dialog" aria-labelledby="guide-title" aria-describedby="guide-text" hidden>
+      <p id="guide-count" class="guide-count"></p>
+      <h2 id="guide-title" class="guide-title"></h2>
+      <p id="guide-text" class="guide-text"></p>
+      <div class="guide-actions">
+        <button type="button" id="guide-skip" class="link-button">Skip tour</button>
+        <button type="button" id="guide-back" class="button">Back</button>
+        <button type="button" id="guide-next" class="button button-primary">Next</button>
+      </div>
+    </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden>
       <span id="toast-message"></span>

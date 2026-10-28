@@ -71,3 +71,51 @@
   cursor: pointer;
   padding: 2px;
 }
+
+/* The first-time tour: a bubble next to the part of the page it describes, which gets a blue ring. */
+.guide {
+  position: absolute;
+  z-index: 30;
+  width: min(320px, calc(100vw - 32px));
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.22);
+}
+
+.guide[hidden] {
+  display: none;
+}
+
+.guide-count {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.guide-title {
+  margin: 2px 0 6px;
+  font-size: 1.05rem;
+}
+
+.guide-text {
+  margin: 0 0 12px;
+  line-height: 1.45;
+}
+
+.guide-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-actions .link-button {
+  margin-right: auto;
+}
+
+.guide-target {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 6px;
+}

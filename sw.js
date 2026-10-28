@@ -49,6 +49,7 @@ const APP_FILES = [
   "src/ui/calendarView.js",
   "src/ui/dom.js",
   "src/ui/form.js",
+  "src/ui/guide.js",
   "src/ui/list.js",
   "src/ui/panels.js",
   "src/ui/quickAdd.js",
