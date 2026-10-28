@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=fc15d57f";
-import { currentMonth, shiftMonth } from "./calendar.js?v=fc15d57f";
-import { hasExamples } from "./examples.js?v=fc15d57f";
-import { parseSavedWidth } from "./layout.js?v=fc15d57f";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=fc15d57f";
-import { combineSeries } from "./repeat.js?v=fc15d57f";
-import { loadAssignments } from "./storage.js?v=fc15d57f";
-import { startAccount } from "./ui/account.js?v=fc15d57f";
-import { renderAgenda } from "./ui/agendaView.js?v=fc15d57f";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=a21bf339";
+import { currentMonth, shiftMonth } from "./calendar.js?v=a21bf339";
+import { hasExamples } from "./examples.js?v=a21bf339";
+import { parseSavedWidth } from "./layout.js?v=a21bf339";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=a21bf339";
+import { combineSeries } from "./repeat.js?v=a21bf339";
+import { loadAssignments } from "./storage.js?v=a21bf339";
+import { startAccount } from "./ui/account.js?v=a21bf339";
+import { renderAgenda } from "./ui/agendaView.js?v=a21bf339";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,8 +21,9 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=fc15d57f";
-import { elements } from "./ui/dom.js?v=fc15d57f";
+} from "./ui/calendarView.js?v=a21bf339";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=a21bf339";
+import { elements } from "./ui/dom.js?v=a21bf339";
 import {
   closeForm,
   focusForm,
@@ -32,8 +33,8 @@ import {
   startCopying,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=fc15d57f";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=fc15d57f";
+} from "./ui/form.js?v=a21bf339";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=a21bf339";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -45,7 +46,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=fc15d57f";
+} from "./ui/list.js?v=a21bf339";
 import {
   addExamples,
   canvasPanel,
@@ -58,9 +59,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=fc15d57f";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=fc15d57f";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=fc15d57f";
+} from "./ui/panels.js?v=a21bf339";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=a21bf339";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=a21bf339";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -76,12 +77,13 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=fc15d57f";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=fc15d57f";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=fc15d57f";
+} from "./ui/settings.js?v=a21bf339";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=a21bf339";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=a21bf339";
 
 export function render() {
   const courses = courseNames(state.assignments);
+  updateCourseColors(courses);
   renderCourseFilter(courses);
   renderCourseSuggestions(courses);
 
@@ -157,8 +159,8 @@ function start() {
   for (const panel of panels) {
     panel.toggle.addEventListener("click", () => {
       setPanelOpen(panel, panel.panel.hidden);
-      // The review is only filled in while open, so fill it in now rather than at the next redraw.
-      renderReview(new Date());
+      // The review and course colors are only filled in while open, so draw them now, not at the next redraw.
+      render();
     });
     panel.close.addEventListener("click", () => setPanelOpen(panel, false));
   }
@@ -190,6 +192,7 @@ function start() {
   elements.agendaList.addEventListener("click", handleCalendarClick);
   elements.detailsSteps.addEventListener("click", handleDetailsStepClick);
   elements.quickAdd.addEventListener("submit", handleQuickAddSubmit);
+  document.getElementById("course-color-list").addEventListener("change", handleCourseColorChange);
   document.getElementById("today-summary").addEventListener("click", handleTodaySummaryClick);
   elements.quickAddText.addEventListener("input", handleQuickAddInput);
   handleQuickAddInput();
@@ -252,6 +255,7 @@ function start() {
 
   state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
   applySavedFilters();
+  loadChosenColors();
   applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
   renderWeekdayHeadings();
   renderTypeLegend();

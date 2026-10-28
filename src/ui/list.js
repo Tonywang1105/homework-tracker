@@ -13,12 +13,12 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=fc15d57f";
-import { render } from "../main.js?v=fc15d57f";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=fc15d57f";
-import { startCopying, startEditing, stopEditing } from "./form.js?v=fc15d57f";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=fc15d57f";
-import { showToast } from "./toast.js?v=fc15d57f";
+} from "../assignments.js?v=a21bf339";
+import { render } from "../main.js?v=a21bf339";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=a21bf339";
+import { startCopying, startEditing, stopEditing } from "./form.js?v=a21bf339";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=a21bf339";
+import { showToast } from "./toast.js?v=a21bf339";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -142,7 +142,7 @@ export function renderTags(assignment) {
     tags.push(makeTag("Overdue", "overdue-tag"));
   }
   if (assignment.course) {
-    tags.push(makeTag(assignment.course, "course-tag"));
+    tags.push(makeTag(assignment.course, `course-tag course-color-${state.courseColors.get(assignment.course) ?? "slate"}`));
   }
   const type = assignmentType(assignment);
   if (type) {

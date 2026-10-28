@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=fc15d57f";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=a21bf339";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,13 +8,13 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=fc15d57f";
-import { exampleAssignments, removeExamples } from "../examples.js?v=fc15d57f";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=fc15d57f";
-import { render } from "../main.js?v=fc15d57f";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=fc15d57f";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=fc15d57f";
-import { showToast } from "./toast.js?v=fc15d57f";
+} from "../canvas.js?v=a21bf339";
+import { exampleAssignments, removeExamples } from "../examples.js?v=a21bf339";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=a21bf339";
+import { render } from "../main.js?v=a21bf339";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=a21bf339";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=a21bf339";
+import { showToast } from "./toast.js?v=a21bf339";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 
@@ -29,6 +29,7 @@ export const panels = [
   { toggleId: "backup-panel-toggle", panelId: "backup-panel", firstButtonId: "backup-download-button", closeId: "backup-panel-close" },
   { toggleId: "export-panel-toggle", panelId: "export-panel", firstButtonId: "export-download-button", closeId: "export-panel-close" },
   { toggleId: "review-panel-toggle", panelId: "review-panel", firstButtonId: "review-panel-close", closeId: "review-panel-close" },
+  { toggleId: "colors-panel-toggle", panelId: "colors-panel", firstButtonId: "colors-panel-close", closeId: "colors-panel-close" },
 ].map(({ toggleId, panelId, firstButtonId, closeId }) => ({
   toggle: document.getElementById(toggleId),
   panel: document.getElementById(panelId),

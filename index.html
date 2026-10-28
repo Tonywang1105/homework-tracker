@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/form.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/list.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/calendar.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/agenda.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/types.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/panels.css?v=fc15d57f" />
-    <link rel="stylesheet" href="styles/messages.css?v=fc15d57f" />
-    <script type="module" src="src/main.js?v=fc15d57f"></script>
+    <link rel="stylesheet" href="styles/base.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/form.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/list.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/calendar.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/agenda.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/types.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/panels.css?v=a21bf339" />
+    <link rel="stylesheet" href="styles/messages.css?v=a21bf339" />
+    <script type="module" src="src/main.js?v=a21bf339"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -332,6 +332,9 @@
             <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
               Weekly review…
             </button>
+            <button type="button" id="colors-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="colors-panel">
+              Course colors…
+            </button>
             <button type="button" id="guide-start" class="link-button import-toggle">Show the tour</button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
@@ -368,6 +371,16 @@
             <div class="import-actions">
               <button type="button" id="export-download-button" class="button button-primary">Download calendar file</button>
               <button type="button" id="export-panel-close" class="button">Close</button>
+            </div>
+          </div>
+          <div id="colors-panel" class="import-panel" hidden>
+            <p class="import-help">
+              Each course's tag has its own color, picked automatically. Choose a different one here; the choice is
+              remembered on this device.
+            </p>
+            <ul id="course-color-list" class="course-color-list"></ul>
+            <div class="import-actions">
+              <button type="button" id="colors-panel-close" class="button">Close</button>
             </div>
           </div>
           <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->

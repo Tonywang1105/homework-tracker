@@ -277,6 +277,21 @@
   white-space: nowrap;
 }
 
+/* Course colors (src/courseColors.js): a pale chip with darker text, in light and dark mode. They avoid
+   the reds and amber that mean big, overdue and due soon. Two classes each, so they beat .course-tag's grey. */
+.course-tag.course-color-blue { background: light-dark(#dfe9f8, #1d2a3f); color: light-dark(#1d4f91, #a9c4f2); }
+.course-tag.course-color-teal { background: light-dark(#d9efee, #173233); color: light-dark(#0f6466, #8fd6d3); }
+.course-tag.course-color-green { background: light-dark(#e1f0dc, #1f2f1d); color: light-dark(#2f6b2f, #a5d69e); }
+.course-tag.course-color-olive { background: light-dark(#efedd2, #2e2d18); color: light-dark(#5c5a12, #d8d48a); }
+.course-tag.course-color-purple { background: light-dark(#ece3f7, #2a2140); color: light-dark(#5b3a99, #c9b2f2); }
+.course-tag.course-color-pink { background: light-dark(#f7e1ed, #3a1f2e); color: light-dark(#9a2f6b, #f0a8cf); }
+.course-tag.course-color-brown { background: light-dark(#f1e7da, #33281d); color: light-dark(#7a4b1e, #e0bf98); }
+.course-tag.course-color-slate { background: light-dark(#e4e8ed, #262b33); color: light-dark(#3d4a5c, #b8c3d1); }
+
+.course-tag[class*="course-color-"] {
+  border-color: transparent;
+}
+
 /* "1 of 3 steps", turning green once every step is ticked. */
 .steps-tag {
   border: 1px solid var(--border);

@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=fc15d57f";
-import { render } from "../main.js?v=fc15d57f";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=fc15d57f";
-import { saveAssignments } from "../storage.js?v=fc15d57f";
-import { syncAssignments } from "./account.js?v=fc15d57f";
-import { showToast } from "./toast.js?v=fc15d57f";
+import { currentMonth } from "../calendar.js?v=a21bf339";
+import { render } from "../main.js?v=a21bf339";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=a21bf339";
+import { saveAssignments } from "../storage.js?v=a21bf339";
+import { syncAssignments } from "./account.js?v=a21bf339";
+import { showToast } from "./toast.js?v=a21bf339";
 
 export const state = {
   assignments: [],
@@ -22,6 +22,10 @@ export const state = {
   expandedDays: new Set(),
   // Repeating series whose later items are shown in the to-do list (normally only the next one is).
   expandedSeries: new Set(),
+  // Each course's tag color (course -> color), worked out on every render from the courses and the colors
+  // chosen in Course colors… (course -> color, saved in this browser).
+  courseColors: new Map(),
+  chosenColors: {},
   // The course chosen in the Course filter ("" for all), kept here because the dropdown is rebuilt on every render.
   courseFilter: "",
   // Whether Completed was open before a search opened it, so clearing the search puts it back; null when not searching.
