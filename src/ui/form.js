@@ -1,11 +1,11 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=777adc27";
-import { render } from "../main.js?v=777adc27";
-import { createSeries, validateRepeat } from "../repeat.js?v=777adc27";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=777adc27";
-import { findAssignment, state, updateAssignments } from "./store.js?v=777adc27";
-import { showToast } from "./toast.js?v=777adc27";
+import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=9d779c18";
+import { render } from "../main.js?v=9d779c18";
+import { createSeries, validateRepeat } from "../repeat.js?v=9d779c18";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=9d779c18";
+import { findAssignment, state, updateAssignments } from "./store.js?v=9d779c18";
+import { showToast } from "./toast.js?v=9d779c18";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -14,6 +14,22 @@ export function renderTypeOptions() {
 }
 
 /** Starts a new assignment due on the clicked calendar day. */
+/**
+ * Copy: the form, in Add mode, filled in from an assignment (steps unticked, since only their text is copied),
+ * with the due date left empty and focused, because that is what is always different for a copy.
+ */
+export function startCopying(assignment) {
+  if (state.editingId) {
+    stopEditing();
+  }
+  setFormOpen(true);
+  fillFormFrom(assignment);
+  elements.form.elements.dueDate.value = "";
+  elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
+  elements.form.elements.dueDate.focus({ preventScroll: true });
+  showToast(`Copying "${assignment.title}". Pick a due date, then Add.`);
+}
+
 export function startAddingOn(dateKey) {
   if (state.editingId) {
     stopEditing();
@@ -125,9 +141,8 @@ export function closeForm() {
   focusForm();
 }
 
-export function startEditing(assignment) {
-  state.editingId = assignment.id;
-  setFormOpen(true);
+/** Puts an assignment's details into the form, for Edit and for Copy. */
+function fillFormFrom(assignment) {
   const fields = elements.form.elements;
   fields.title.value = assignment.title;
   fields.course.value = assignment.course;
@@ -140,6 +155,13 @@ export function startEditing(assignment) {
   fields.hours.value = assignment.hours ?? "";
   fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
   showErrors({});
+}
+
+export function startEditing(assignment) {
+  state.editingId = assignment.id;
+  setFormOpen(true);
+  const fields = elements.form.elements;
+  fillFormFrom(assignment);
   elements.repeatFields.hidden = true;
   elements.formHeading.textContent = "Edit assignment";
   elements.submitButton.textContent = "Save changes";

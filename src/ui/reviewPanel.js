@@ -1,12 +1,12 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=777adc27";
-import { todaySummary, weekReview } from "../review.js?v=777adc27";
-import { formatDay, makeButton } from "./dom.js?v=777adc27";
-import { panels, setPanelOpen } from "./panels.js?v=777adc27";
-import { setView } from "./settings.js?v=777adc27";
-import { state } from "./store.js?v=777adc27";
+import { formatHours } from "../assignments.js?v=9d779c18";
+import { todaySummary, weekReview } from "../review.js?v=9d779c18";
+import { formatDay, makeButton } from "./dom.js?v=9d779c18";
+import { panels, setPanelOpen } from "./panels.js?v=9d779c18";
+import { setView } from "./settings.js?v=9d779c18";
+import { state } from "./store.js?v=9d779c18";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
 // Today's assignments named in the summary line before it says "+N more".

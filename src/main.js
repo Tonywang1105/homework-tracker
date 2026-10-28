@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=777adc27";
-import { currentMonth, shiftMonth } from "./calendar.js?v=777adc27";
-import { hasExamples } from "./examples.js?v=777adc27";
-import { parseSavedWidth } from "./layout.js?v=777adc27";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=777adc27";
-import { combineSeries } from "./repeat.js?v=777adc27";
-import { loadAssignments } from "./storage.js?v=777adc27";
-import { startAccount } from "./ui/account.js?v=777adc27";
-import { renderAgenda } from "./ui/agendaView.js?v=777adc27";
+import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=9d779c18";
+import { currentMonth, shiftMonth } from "./calendar.js?v=9d779c18";
+import { hasExamples } from "./examples.js?v=9d779c18";
+import { parseSavedWidth } from "./layout.js?v=9d779c18";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=9d779c18";
+import { combineSeries } from "./repeat.js?v=9d779c18";
+import { loadAssignments } from "./storage.js?v=9d779c18";
+import { startAccount } from "./ui/account.js?v=9d779c18";
+import { renderAgenda } from "./ui/agendaView.js?v=9d779c18";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,17 +21,18 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=777adc27";
-import { elements } from "./ui/dom.js?v=777adc27";
+} from "./ui/calendarView.js?v=9d779c18";
+import { elements } from "./ui/dom.js?v=9d779c18";
 import {
   closeForm,
   focusForm,
   handleSubmit,
   renderTypeOptions,
   setFormOpen,
+  startCopying,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=777adc27";
+} from "./ui/form.js?v=9d779c18";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -43,7 +44,7 @@ import {
   renderCourseSuggestions,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=777adc27";
+} from "./ui/list.js?v=9d779c18";
 import {
   addExamples,
   canvasPanel,
@@ -56,9 +57,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=777adc27";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=777adc27";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=777adc27";
+} from "./ui/panels.js?v=9d779c18";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=9d779c18";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=9d779c18";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -74,9 +75,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=777adc27";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=777adc27";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=777adc27";
+} from "./ui/settings.js?v=9d779c18";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=9d779c18";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=9d779c18";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -191,13 +192,19 @@ function start() {
   elements.quickAddText.addEventListener("input", handleQuickAddInput);
   handleQuickAddInput();
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
-  elements.detailsEdit.addEventListener("click", () => {
-    const assignment = findAssignment(state.detailsId);
-    toggleDetails(null);
-    if (assignment) {
-      startEditing(assignment);
-    }
-  });
+  // Edit and Copy in the details box close it, then open the form for that assignment.
+  for (const [button, openForm] of [
+    [elements.detailsEdit, startEditing],
+    [elements.detailsCopy, startCopying],
+  ]) {
+    button.addEventListener("click", () => {
+      const assignment = findAssignment(state.detailsId);
+      toggleDetails(null);
+      if (assignment) {
+        openForm(assignment);
+      }
+    });
+  }
   elements.detailsDone.addEventListener("click", () => {
     const assignment = findAssignment(state.detailsId);
     if (assignment) {

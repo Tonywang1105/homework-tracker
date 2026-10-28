@@ -13,12 +13,12 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=777adc27";
-import { render } from "../main.js?v=777adc27";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=777adc27";
-import { startEditing, stopEditing } from "./form.js?v=777adc27";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=777adc27";
-import { showToast } from "./toast.js?v=777adc27";
+} from "../assignments.js?v=9d779c18";
+import { render } from "../main.js?v=9d779c18";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=9d779c18";
+import { startCopying, startEditing, stopEditing } from "./form.js?v=9d779c18";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=9d779c18";
+import { showToast } from "./toast.js?v=9d779c18";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -124,7 +124,11 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 
   const actions = document.createElement("div");
   actions.className = "item-actions";
-  actions.append(makeActionButton("Edit", "edit", assignment.title), makeActionButton("Delete", "delete", assignment.title));
+  actions.append(
+    makeActionButton("Edit", "edit", assignment.title),
+    makeActionButton("Copy", "copy", assignment.title),
+    makeActionButton("Delete", "delete", assignment.title),
+  );
 
   item.append(checkbox, body, actions);
   return item;
@@ -296,6 +300,9 @@ export function handleListClick(event) {
       break;
     case "edit":
       startEditing(assignment);
+      break;
+    case "copy":
+      startCopying(assignment);
       break;
     case "delete": {
       const previous = state.assignments;
