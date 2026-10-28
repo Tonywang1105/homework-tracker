@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=ebc36942";
-import { currentMonth, shiftMonth } from "./calendar.js?v=ebc36942";
-import { hasExamples } from "./examples.js?v=ebc36942";
-import { parseSavedWidth } from "./layout.js?v=ebc36942";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=ebc36942";
-import { combineSeries } from "./repeat.js?v=ebc36942";
-import { loadAssignments } from "./storage.js?v=ebc36942";
-import { startAccount } from "./ui/account.js?v=ebc36942";
-import { renderAgenda } from "./ui/agendaView.js?v=ebc36942";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=58e8efec";
+import { currentMonth, shiftMonth } from "./calendar.js?v=58e8efec";
+import { hasExamples } from "./examples.js?v=58e8efec";
+import { parseSavedWidth } from "./layout.js?v=58e8efec";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=58e8efec";
+import { combineSeries } from "./repeat.js?v=58e8efec";
+import { loadAssignments } from "./storage.js?v=58e8efec";
+import { startAccount } from "./ui/account.js?v=58e8efec";
+import { renderAgenda } from "./ui/agendaView.js?v=58e8efec";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,9 +21,9 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=ebc36942";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=ebc36942";
-import { elements } from "./ui/dom.js?v=ebc36942";
+} from "./ui/calendarView.js?v=58e8efec";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=58e8efec";
+import { elements } from "./ui/dom.js?v=58e8efec";
 import {
   closeForm,
   focusForm,
@@ -33,8 +33,8 @@ import {
   startCopying,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=ebc36942";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=ebc36942";
+} from "./ui/form.js?v=58e8efec";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=58e8efec";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -46,8 +46,9 @@ import {
   renderCourseSuggestions,
   renderShowOlder,
   renderTodoRow,
+  tickTimers,
   toggleDone,
-} from "./ui/list.js?v=ebc36942";
+} from "./ui/list.js?v=58e8efec";
 import {
   addExamples,
   canvasPanel,
@@ -60,9 +61,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=ebc36942";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=ebc36942";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=ebc36942";
+} from "./ui/panels.js?v=58e8efec";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=58e8efec";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=58e8efec";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -78,9 +79,10 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=ebc36942";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=ebc36942";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=ebc36942";
+} from "./ui/settings.js?v=58e8efec";
+import { startShortcuts } from "./ui/shortcuts.js?v=58e8efec";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=58e8efec";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=58e8efec";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -206,6 +208,7 @@ function start() {
   elements.quickAddText.addEventListener("input", handleQuickAddInput);
   handleQuickAddInput();
   startGuideListeners();
+  startShortcuts();
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
   // Edit and Copy in the details box close it, then open the form for that assignment.
   for (const [button, openForm] of [
@@ -272,6 +275,8 @@ function start() {
 
   // Refresh the "due in …" text every minute so it stays accurate if the tab stays open.
   setInterval(render, 60 * 1000);
+  // A running timer's clock ticks every second without redrawing the list.
+  setInterval(tickTimers, 1000);
   render();
   startAccount();
   // Keep a copy of the app's files so it opens offline (see sw.js). Without it the app still works online.

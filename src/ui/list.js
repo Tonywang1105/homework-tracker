@@ -1,24 +1,27 @@
-// The to-do and completed lists: drawing rows and tags, and the row actions (done, edit, delete).
+// The to-do and completed lists: drawing rows and tags, and the row actions (done, timer, tomorrow, edit, delete).
 
 import {
   assignmentType,
+  canSnooze,
   describeDue,
   formatHours,
   parseSavedFilters,
   PRIORITY_LABELS,
   removeAssignment,
   searchWords,
+  snoozeDate,
   stepProgress,
   toDueDate,
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=ebc36942";
-import { render } from "../main.js?v=ebc36942";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=ebc36942";
-import { startCopying, startEditing, stopEditing } from "./form.js?v=ebc36942";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=ebc36942";
-import { showToast } from "./toast.js?v=ebc36942";
+} from "../assignments.js?v=58e8efec";
+import { render } from "../main.js?v=58e8efec";
+import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=58e8efec";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=58e8efec";
+import { startCopying, startEditing, stopEditing } from "./form.js?v=58e8efec";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=58e8efec";
+import { showToast } from "./toast.js?v=58e8efec";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -125,6 +128,8 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   const actions = document.createElement("div");
   actions.className = "item-actions";
   actions.append(
+    ...(assignment.done ? [] : [timerButton(assignment)]),
+    ...(canSnooze(assignment, now) ? [makeActionButton("Tomorrow", "snooze", assignment.title)] : []),
     makeActionButton("Edit", "edit", assignment.title),
     makeActionButton("Copy", "copy", assignment.title),
     makeActionButton("Delete", "delete", assignment.title),
@@ -132,6 +137,22 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 
   item.append(checkbox, body, actions);
   return item;
+}
+
+/** Start, or Stop while this assignment's timer is running. */
+function timerButton(assignment) {
+  const running = Boolean(assignment.timerStartedAt);
+  const button = makeActionButton(running ? "Stop" : "Start", running ? "timer-stop" : "timer-start", assignment.title);
+  button.classList.add("action-timer");
+  button.title = running ? "Stop the timer and add this time to the total" : "Time how long this takes";
+  return button;
+}
+
+/** "Working… 4:05" on a running timer's tag; called every second, so it ticks without redrawing the list. */
+export function tickTimers(now = new Date()) {
+  for (const tag of document.querySelectorAll(".timer-tag[data-started-at]")) {
+    tag.textContent = `Working… ${formatClock(sessionSeconds({ timerStartedAt: tag.dataset.startedAt }, now))}`;
+  }
 }
 
 /** The course tag, the type tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
@@ -148,7 +169,16 @@ export function renderTags(assignment) {
   if (type) {
     tags.push(makeTag(TYPE_LABELS[type], `type-tag type-${type}`));
   }
-  if (assignment.hours) {
+  if (assignment.timerStartedAt) {
+    const clock = makeTag(`Working… ${formatClock(sessionSeconds(assignment))}`, "timer-tag");
+    clock.dataset.startedAt = assignment.timerStartedAt;
+    tags.push(clock);
+  }
+  // Once time is tracked, its tag shows the estimate too ("spent 40 min of ~3 h"), so the estimate isn't repeated.
+  const spent = spentText(assignment);
+  if (spent) {
+    tags.push(makeTag(spent, "spent-tag"));
+  } else if (assignment.hours) {
     tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
   }
   const progress = stepProgress(assignment);
@@ -316,6 +346,29 @@ export function handleListClick(event) {
       toggleDone(assignment);
       focusRowAt(list, position, "toggle-done");
       break;
+    case "snooze": {
+      const previous = state.assignments;
+      updateAssignments(updateAssignment(previous, assignment.id, { dueDate: snoozeDate() }));
+      showToast(`Moved "${assignment.title}" to tomorrow.`, () => updateAssignments(previous));
+      // The row moved further down, so keep focus on it rather than losing it.
+      list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] [data-action="edit"]`)?.focus();
+      break;
+    }
+    case "timer-start":
+    case "timer-stop": {
+      const starting = control.dataset.action === "timer-start";
+      const stoppedOther = starting ? state.assignments.find((a) => a.timerStartedAt && a.id !== assignment.id) : null;
+      updateAssignments((starting ? startTimer : stopTimer)(state.assignments, assignment.id));
+      if (starting) {
+        showToast(stoppedOther ? `Timing "${assignment.title}". Stopped "${stoppedOther.title}".` : `Timing "${assignment.title}".`);
+      } else {
+        showToast(`Stopped "${assignment.title}": ${spentText(findAssignment(assignment.id))}.`);
+      }
+      tickTimers();
+      // The button changed between Start and Stop, so put focus on the new one.
+      list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] .action-timer`)?.focus();
+      break;
+    }
     case "edit":
       startEditing(assignment);
       break;
@@ -347,7 +400,9 @@ function focusRowAt(list, position, action) {
 
 /** Marks an assignment done (with Undo) or, if it is already done, back to not done. */
 export function toggleDone(assignment) {
-  const setDone = (done) => updateAssignments(updateAssignment(state.assignments, assignment.id, { done }));
+  // Finishing work stops its timer, so the time so far is kept.
+  const setDone = (done) =>
+    updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...withTimerStopped(a), done } : a)));
   setDone(!assignment.done);
   if (!assignment.done) {
     showToast(`Done: "${assignment.title}".`, () => setDone(false));

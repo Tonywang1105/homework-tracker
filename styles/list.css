@@ -269,7 +269,9 @@
 }
 
 .course-tag,
-.priority-tag {
+.priority-tag,
+.timer-tag,
+.spent-tag {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 1px 8px;
@@ -453,4 +455,16 @@
   list-style: none;
   padding: 8px 0 2px;
   font-size: 0.9rem;
+}
+
+/* A running timer ("Working… 4:05") stands out in the accent color; time spent is a quiet tag like the estimate. */
+.timer-tag {
+  background: var(--accent);
+  color: var(--surface);
+  font-variant-numeric: tabular-nums;
+}
+
+.spent-tag {
+  border: 1px solid var(--border);
+  color: var(--muted);
 }

@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/form.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/list.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/calendar.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/agenda.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/types.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/panels.css?v=ebc36942" />
-    <link rel="stylesheet" href="styles/messages.css?v=ebc36942" />
-    <script type="module" src="src/main.js?v=ebc36942"></script>
+    <link rel="stylesheet" href="styles/base.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/form.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/list.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/calendar.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/agenda.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/types.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/panels.css?v=58e8efec" />
+    <link rel="stylesheet" href="styles/messages.css?v=58e8efec" />
+    <script type="module" src="src/main.js?v=58e8efec"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -335,6 +335,9 @@
             <button type="button" id="colors-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="colors-panel">
               Course colors…
             </button>
+            <button type="button" id="shortcuts-panel-toggle" class="link-button import-toggle keyboard-only" aria-expanded="false" aria-controls="shortcuts-panel">
+              Keyboard shortcuts…
+            </button>
             <button type="button" id="guide-start" class="link-button import-toggle">Show the tour</button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
@@ -381,6 +384,14 @@
             <ul id="course-color-list" class="course-color-list"></ul>
             <div class="import-actions">
               <button type="button" id="colors-panel-close" class="button">Close</button>
+            </div>
+          </div>
+          <!-- The list of shortcuts is filled in from src/shortcuts.js. -->
+          <div id="shortcuts-panel" class="import-panel" hidden>
+            <p class="import-help">Press these keys anywhere except while typing in a box.</p>
+            <dl id="shortcut-list" class="shortcut-list"></dl>
+            <div class="import-actions">
+              <button type="button" id="shortcuts-panel-close" class="button">Close</button>
             </div>
           </div>
           <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->

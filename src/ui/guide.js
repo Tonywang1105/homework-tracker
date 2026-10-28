@@ -3,8 +3,8 @@
 // "Show the tour" at the bottom of the list brings it back. Called the guide here so it isn't confused with
 // the tour test in tests/tour.js.
 
-import { elements } from "./dom.js?v=ebc36942";
-import { loadText, saveChoice } from "./store.js?v=ebc36942";
+import { elements } from "./dom.js?v=58e8efec";
+import { loadText, saveChoice } from "./store.js?v=58e8efec";
 
 const GUIDE_SEEN_KEY = "homework-tracker.guideSeen";
 
@@ -29,7 +29,7 @@ const STEPS = [
   {
     target: "#todo-list li[data-id]",
     title: "Each assignment",
-    text: "Tick the box when it's done. Tags show its course, type and size. Edit, Copy and Delete are on the right.",
+    text: "Tick the box when it's done. Tags show its course, type and size. On the right, Start times how long it takes; Edit, Copy and Delete are there too.",
   },
   {
     target: ".import-links",

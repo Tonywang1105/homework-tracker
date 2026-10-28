@@ -1,16 +1,19 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=ebc36942";
-import { toDateKey } from "./calendar.js?v=ebc36942";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=58e8efec";
+import { toDateKey } from "./calendar.js?v=58e8efec";
+import { withTimerStopped } from "./timer.js?v=58e8efec";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).
  * `startPlan` is the start-date plan (id -> { startDate, status }), for what to start this week.
  * Returns {
- *   thisWeek: { start, end, due, done, overdue, coming, big: [{ assignment, status }], hoursDone },
+ *   thisWeek: { start, end, due, done, overdue, coming, big: [{ assignment, status }], hoursDone, tracked },
  *   nextWeek: { start, end, due, hours, unestimated, busiest: { dueDate, hours } | null },
  *   startThisWeek: [assignment],
- * }, where status is "done", "overdue" or "coming", and dates are "YYYY-MM-DD".
+ * }, where status is "done", "overdue" or "coming", and dates are "YYYY-MM-DD". tracked is
+ * { seconds, ratio }: the time tracked on this week's work (a running timer included), and time spent divided by
+ * time estimated on finished work that has both (null if none has), so 1.4 means it took 40% longer than planned.
  */
 export function weekReview(assignments, now = new Date(), startPlan = new Map()) {
   const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
@@ -35,6 +38,7 @@ export function weekReview(assignments, now = new Date(), startPlan = new Map())
       big: dueThisWeek.filter((a) => a.priority === "big").map((assignment) => ({ assignment, status: status(assignment) })),
       // Estimates of finished work; totalHours only counts unfinished work, so these are added up here.
       hoursDone: dueThisWeek.filter((a) => a.done).reduce((sum, a) => sum + (a.hours ?? 0), 0),
+      tracked: trackedTime(dueThisWeek, now),
     },
     nextWeek: {
       ...nextWeek,
@@ -51,6 +55,15 @@ export function weekReview(assignments, now = new Date(), startPlan = new Map())
       }),
     ),
   };
+}
+
+function trackedTime(assignments, now) {
+  const timed = assignments.map((a) => withTimerStopped(a, now));
+  const seconds = timed.reduce((sum, a) => sum + (a.spentSeconds ?? 0), 0);
+  const compared = timed.filter((a) => a.done && a.hours && a.spentSeconds);
+  const estimated = compared.reduce((sum, a) => sum + a.hours * 3600, 0);
+  const spent = compared.reduce((sum, a) => sum + a.spentSeconds, 0);
+  return { seconds, ratio: estimated > 0 ? spent / estimated : null };
 }
 
 function weekKeys(monday, offset) {

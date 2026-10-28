@@ -1,12 +1,13 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=ebc36942";
-import { todaySummary, weekReview } from "../review.js?v=ebc36942";
-import { formatDay, makeButton } from "./dom.js?v=ebc36942";
-import { panels, setPanelOpen } from "./panels.js?v=ebc36942";
-import { setView } from "./settings.js?v=ebc36942";
-import { state } from "./store.js?v=ebc36942";
+import { formatHours } from "../assignments.js?v=58e8efec";
+import { todaySummary, weekReview } from "../review.js?v=58e8efec";
+import { formatSpent } from "../timer.js?v=58e8efec";
+import { formatDay, makeButton } from "./dom.js?v=58e8efec";
+import { panels, setPanelOpen } from "./panels.js?v=58e8efec";
+import { setView } from "./settings.js?v=58e8efec";
+import { state } from "./store.js?v=58e8efec";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
 // Today's assignments named in the summary line before it says "+N more".
@@ -53,8 +54,8 @@ function dateRange({ start, end }) {
   return `${formatDay(start)} to ${formatDay(end)}`;
 }
 
-/** "6 due: 4 done, 1 overdue, 1 still to come. About 9 h of finished work." */
-function thisWeekText({ due, done, overdue, coming, hoursDone }) {
+/** "6 due: 4 done, 1 overdue, 1 still to come. About 9 h of finished work. Tracked 6 h: ..." */
+function thisWeekText({ due, done, overdue, coming, hoursDone, tracked }) {
   if (due === 0) {
     return "Nothing was due this week.";
   }
@@ -66,7 +67,23 @@ function thisWeekText({ due, done, overdue, coming, hoursDone }) {
     parts.push(`${coming} still to come`);
   }
   const finished = hoursDone > 0 ? ` About ${formatHours(hoursDone).slice(1)} of finished work.` : "";
-  return `${due} due: ${parts.join(", ")}.${finished}`;
+  return `${due} due: ${parts.join(", ")}.${finished}${trackedText(tracked)}`;
+}
+
+/** " Tracked 6 h; finished work took about 40% longer than you estimated." (empty if nothing was timed) */
+function trackedText({ seconds, ratio }) {
+  if (seconds === 0) {
+    return "";
+  }
+  const tracked = ` Tracked ${formatSpent(seconds)}`;
+  if (ratio === null) {
+    return `${tracked}.`;
+  }
+  const percent = Math.round(Math.abs(ratio - 1) * 100);
+  if (percent < 10) {
+    return `${tracked}; finished work took about as long as you estimated.`;
+  }
+  return `${tracked}; finished work took about ${percent}% ${ratio > 1 ? "longer" : "less time"} than you estimated.`;
 }
 
 /** "5 due, about 6 h of work (1 without an estimate). Busiest: Thu, 11/5 (~4 h)." */

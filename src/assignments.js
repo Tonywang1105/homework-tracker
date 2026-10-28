@@ -155,6 +155,23 @@ export function removeAssignment(assignments, id) {
   return assignments.filter((a) => a.id !== id);
 }
 
+/**
+ * Snooze ("Tomorrow"): only for unfinished small reminders due today or earlier, since moving a big
+ * assignment would hide a real deadline, and moving one due later to tomorrow would make it sooner.
+ */
+export function canSnooze(assignment, now = new Date()) {
+  return !assignment.done && assignment.priority === "small" && assignment.dueDate <= localDateKey(now);
+}
+
+/** Tomorrow's date as "YYYY-MM-DD", the date a snoozed reminder moves to (its time stays the same). */
+export function snoozeDate(now = new Date()) {
+  return localDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1));
+}
+
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
 /** The due moment as a Date, read in the browser's local time zone. */
 export function toDueDate(dueDate, dueTime) {
   return new Date(`${dueDate}T${dueTime}`);

@@ -1,8 +1,9 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=ebc36942";
-import { toDateKey } from "./calendar.js?v=ebc36942";
+import { validateAssignmentInput } from "./assignments.js?v=58e8efec";
+import { toDateKey } from "./calendar.js?v=58e8efec";
+import { readSpentSeconds } from "./timer.js?v=58e8efec";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -83,6 +84,11 @@ function restoreAssignment(saved) {
   // Keeps a repeating series combined in the list after a backup is restored.
   if (typeof saved.seriesId === "string") {
     restored.seriesId = saved.seriesId;
+  }
+  // Time spent is kept; a running timer isn't, since a backup may be days old and would count the whole gap.
+  const spentSeconds = readSpentSeconds(saved.spentSeconds);
+  if (spentSeconds !== undefined) {
+    restored.spentSeconds = spentSeconds;
   }
   // Keeps "Remove example assignments" working after a backup is restored.
   if (saved.example === true) {

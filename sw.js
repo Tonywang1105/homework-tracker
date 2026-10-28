@@ -43,8 +43,10 @@ const APP_FILES = [
   "src/quickadd.js",
   "src/repeat.js",
   "src/review.js",
+  "src/shortcuts.js",
   "src/storage.js",
   "src/sync.js",
+  "src/timer.js",
   "src/ui/account.js",
   "src/ui/agendaView.js",
   "src/ui/calendarView.js",
@@ -57,6 +59,7 @@ const APP_FILES = [
   "src/ui/quickAdd.js",
   "src/ui/reviewPanel.js",
   "src/ui/settings.js",
+  "src/ui/shortcuts.js",
   "src/ui/store.js",
   "src/ui/toast.js",
 ];
