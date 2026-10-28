@@ -181,6 +181,16 @@ export function groupAssignments(assignments) {
 }
 
 /**
+ * Splits finished work into recent and older, so Completed doesn't grow all semester: older is work due
+ * before the day `days` days ago. By due date, since the app doesn't record when work was finished.
+ */
+export function splitRecentDone(done, now = new Date(), days = 14) {
+  const cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days);
+  const isOlder = (a) => toDueDate(a.dueDate, "00:00") < cutoff;
+  return { recent: done.filter((a) => !isOlder(a)), older: done.filter(isOlder) };
+}
+
+/**
  * The assignments that pass the list's filters, used by both the list and the calendar so they agree.
  * course: only that course ("" for all); hideSmall: hide small reminders; hideDone: hide finished work;
  * search: words that must all appear in the title, course or notes (the list only). While searching,

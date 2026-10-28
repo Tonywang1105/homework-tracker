@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments } from "./assignments.js?v=a21bf339";
-import { currentMonth, shiftMonth } from "./calendar.js?v=a21bf339";
-import { hasExamples } from "./examples.js?v=a21bf339";
-import { parseSavedWidth } from "./layout.js?v=a21bf339";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=a21bf339";
-import { combineSeries } from "./repeat.js?v=a21bf339";
-import { loadAssignments } from "./storage.js?v=a21bf339";
-import { startAccount } from "./ui/account.js?v=a21bf339";
-import { renderAgenda } from "./ui/agendaView.js?v=a21bf339";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=ebc36942";
+import { currentMonth, shiftMonth } from "./calendar.js?v=ebc36942";
+import { hasExamples } from "./examples.js?v=ebc36942";
+import { parseSavedWidth } from "./layout.js?v=ebc36942";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=ebc36942";
+import { combineSeries } from "./repeat.js?v=ebc36942";
+import { loadAssignments } from "./storage.js?v=ebc36942";
+import { startAccount } from "./ui/account.js?v=ebc36942";
+import { renderAgenda } from "./ui/agendaView.js?v=ebc36942";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,9 +21,9 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=a21bf339";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=a21bf339";
-import { elements } from "./ui/dom.js?v=a21bf339";
+} from "./ui/calendarView.js?v=ebc36942";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=ebc36942";
+import { elements } from "./ui/dom.js?v=ebc36942";
 import {
   closeForm,
   focusForm,
@@ -33,8 +33,8 @@ import {
   startCopying,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=a21bf339";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=a21bf339";
+} from "./ui/form.js?v=ebc36942";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=ebc36942";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -44,9 +44,10 @@ import {
   renderAssignment,
   renderCourseFilter,
   renderCourseSuggestions,
+  renderShowOlder,
   renderTodoRow,
   toggleDone,
-} from "./ui/list.js?v=a21bf339";
+} from "./ui/list.js?v=ebc36942";
 import {
   addExamples,
   canvasPanel,
@@ -59,9 +60,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=a21bf339";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=a21bf339";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=a21bf339";
+} from "./ui/panels.js?v=ebc36942";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=ebc36942";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=ebc36942";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -77,9 +78,9 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=a21bf339";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=a21bf339";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=a21bf339";
+} from "./ui/settings.js?v=ebc36942";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=ebc36942";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=ebc36942";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -120,7 +121,15 @@ export function render() {
   offerGuide(state.assignments.length);
   elements.emptyMessage.textContent = emptyMessageText({ ...filters, search }, done.length);
 
-  elements.doneList.replaceChildren(...done.map((assignment) => renderAssignment(assignment, now)));
+  // Finished work due over two weeks ago stays folded away, so Completed doesn't grow all semester, unless
+  // asked for or while searching (finding old work is what search is for).
+  const { recent, older } = splitRecentDone(done, now);
+  const showAllDone = state.showOlderDone || searchWords(search).length > 0;
+  elements.doneList.replaceChildren(
+    // Older work goes below the recent work, where the "Show older" button was.
+    ...(showAllDone ? [...recent, ...older] : recent).map((assignment) => renderAssignment(assignment, now)),
+    ...(showAllDone || older.length === 0 ? [] : [renderShowOlder(older.length)]),
+  );
   elements.doneCount.textContent = `(${done.length})`;
   elements.doneSection.hidden = done.length === 0;
 

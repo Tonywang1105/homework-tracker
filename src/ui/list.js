@@ -13,12 +13,12 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=a21bf339";
-import { render } from "../main.js?v=a21bf339";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=a21bf339";
-import { startCopying, startEditing, stopEditing } from "./form.js?v=a21bf339";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=a21bf339";
-import { showToast } from "./toast.js?v=a21bf339";
+} from "../assignments.js?v=ebc36942";
+import { render } from "../main.js?v=ebc36942";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=ebc36942";
+import { startCopying, startEditing, stopEditing } from "./form.js?v=ebc36942";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=ebc36942";
+import { showToast } from "./toast.js?v=ebc36942";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -262,7 +262,25 @@ function saveFilters() {
   saveChoice(FILTERS_KEY, JSON.stringify(filters));
 }
 
+/** "Show 23 older" at the end of Completed, for finished work due over two weeks ago. */
+export function renderShowOlder(count) {
+  const item = document.createElement("li");
+  item.className = "show-older";
+  const button = makeButton("link-button", `Show ${count} older`);
+  button.dataset.showOlder = "";
+  item.append(button);
+  return item;
+}
+
 export function handleListClick(event) {
+  if (event.target.closest("[data-show-older]")) {
+    const shownBefore = elements.doneList.querySelectorAll("li[data-id]").length;
+    state.showOlderDone = true;
+    render();
+    // The button is gone, so put focus on the first assignment it revealed.
+    elements.doneList.querySelectorAll("li[data-id] .done-checkbox")[shownBefore]?.focus();
+    return;
+  }
   const seriesToggle = event.target.closest("[data-series-toggle]");
   if (seriesToggle) {
     const seriesId = seriesToggle.dataset.seriesToggle;

@@ -1,7 +1,7 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=a21bf339";
-import { state } from "./store.js?v=a21bf339";
+import { elements } from "./dom.js?v=ebc36942";
+import { state } from "./store.js?v=ebc36942";
 
 // A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
 // enough to read, and one with Undo stays long enough to use it.

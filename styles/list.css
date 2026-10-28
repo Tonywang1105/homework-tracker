@@ -447,3 +447,10 @@
   font-weight: 600;
   padding: 4px 0;
 }
+
+/* "Show 23 older" at the end of Completed. */
+.show-older {
+  list-style: none;
+  padding: 8px 0 2px;
+  font-size: 0.9rem;
+}

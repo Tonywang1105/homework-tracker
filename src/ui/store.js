@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=a21bf339";
-import { render } from "../main.js?v=a21bf339";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=a21bf339";
-import { saveAssignments } from "../storage.js?v=a21bf339";
-import { syncAssignments } from "./account.js?v=a21bf339";
-import { showToast } from "./toast.js?v=a21bf339";
+import { currentMonth } from "../calendar.js?v=ebc36942";
+import { render } from "../main.js?v=ebc36942";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=ebc36942";
+import { saveAssignments } from "../storage.js?v=ebc36942";
+import { syncAssignments } from "./account.js?v=ebc36942";
+import { showToast } from "./toast.js?v=ebc36942";
 
 export const state = {
   assignments: [],
@@ -28,6 +28,8 @@ export const state = {
   chosenColors: {},
   // The course chosen in the Course filter ("" for all), kept here because the dropdown is rebuilt on every render.
   courseFilter: "",
+  // Whether Completed shows finished work due over two weeks ago too (not remembered after a reload).
+  showOlderDone: false,
   // Whether Completed was open before a search opened it, so clearing the search puts it back; null when not searching.
   doneOpenBeforeSearch: null,
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
