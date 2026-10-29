@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/form.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/list.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/calendar.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/agenda.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/types.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/panels.css?v=baf0f7be" />
-    <link rel="stylesheet" href="styles/messages.css?v=baf0f7be" />
-    <script type="module" src="src/main.js?v=baf0f7be"></script>
+    <link rel="stylesheet" href="styles/base.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/form.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/list.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/calendar.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/agenda.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/types.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/panels.css?v=14885c19" />
+    <link rel="stylesheet" href="styles/messages.css?v=14885c19" />
+    <script type="module" src="src/main.js?v=14885c19"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -50,11 +50,6 @@
             Sign in to sync
           </button>
           <button type="button" id="sign-out" class="button account-button" hidden>Sign out</button>
-        </div>
-        <div class="segmented theme-switch" role="group" aria-label="Color theme">
-          <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
-          <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
-          <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
         </div>
       </div>
     </header>
@@ -265,9 +260,10 @@
 
         <div id="filters" class="filters" role="group" aria-label="Filters">
           <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->
+          <!-- The word "Search" is in the box's hint rather than beside it, so the filters fit on one line. -->
           <label id="search-field" class="filter-search">
-            Search
-            <input type="search" id="search" placeholder="Title, course or notes" autocomplete="off" />
+            <span class="visually-hidden">Search</span>
+            <input type="search" id="search" placeholder="Search" title="Searches titles, courses and notes" autocomplete="off" />
           </label>
           <label class="filter-course">
             Course
@@ -301,21 +297,6 @@
 
         <div id="workload" class="workload" hidden>
           <span id="workload-text"></span>
-          <!-- Fixed markup (not redrawn each minute), so typing in the box is never interrupted. -->
-          <label id="daily-limit" class="daily-limit" hidden>
-            · plan for
-            <input id="daily-hours" type="number" min="0.5" max="16" step="0.5" inputmode="decimal" aria-label="Hours of homework per day to plan for" />
-            h/day
-          </label>
-        </div>
-
-        <!-- Focus blocks for the timer, remembered on this device (src/ui/focus.js). Fixed markup, so typing isn't interrupted. -->
-        <div id="focus-settings" class="focus-settings" hidden>
-          <label class="focus-toggle"><input type="checkbox" id="focus-on" /> Focus blocks</label>
-          <span id="focus-lengths" class="focus-lengths" hidden>
-            <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> min work,</label>
-            <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> min break</label>
-          </span>
         </div>
 
         <section id="due-soon" class="due-soon" aria-labelledby="due-soon-heading" hidden>
@@ -374,25 +355,21 @@
 
         <div class="import-section">
           <div class="import-links">
+            <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
+              Weekly review…
+            </button>
             <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel">
               Import from Canvas…
-            </button>
-            <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel">
-              Backup &amp; restore…
             </button>
             <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel">
               Export to calendar…
             </button>
-            <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
-              Weekly review…
+            <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel">
+              Backup &amp; restore…
             </button>
-            <button type="button" id="colors-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="colors-panel">
-              Course colors…
+            <button type="button" id="settings-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="settings-panel">
+              Settings…
             </button>
-            <button type="button" id="shortcuts-panel-toggle" class="link-button import-toggle keyboard-only" aria-expanded="false" aria-controls="shortcuts-panel">
-              Keyboard shortcuts…
-            </button>
-            <button type="button" id="guide-start" class="link-button import-toggle">Show the tour</button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
             <p class="import-help">
@@ -430,22 +407,49 @@
               <button type="button" id="export-panel-close" class="button">Close</button>
             </div>
           </div>
-          <div id="colors-panel" class="import-panel" hidden>
-            <p class="import-help">
-              Each course's tag has its own color, picked automatically. Choose a different one here; the choice is
-              remembered on this device.
-            </p>
-            <ul id="course-color-list" class="course-color-list"></ul>
+          <!-- Settings, all kept on this device (Course colors' list and the shortcuts are filled in by their modules). -->
+          <div id="settings-panel" class="import-panel settings-panel" hidden>
+            <section class="settings-section" aria-labelledby="settings-planning">
+              <h3 id="settings-planning">Planning</h3>
+              <label class="settings-row">
+                Plan for
+                <input id="daily-hours" type="number" min="0.5" max="16" step="0.5" inputmode="decimal" />
+                hours of homework a day
+              </label>
+              <p class="import-help">Start-by dates and Today's plan fit work into this many hours a day.</p>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-focus">
+              <h3 id="settings-focus">Focus blocks</h3>
+              <label class="settings-row"><input type="checkbox" id="focus-on" /> Run the timer in blocks with breaks</label>
+              <span id="focus-lengths" class="focus-lengths" hidden>
+                <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> min work,</label>
+                <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> min break</label>
+              </span>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-colors">
+              <h3 id="settings-colors">Course colors</h3>
+              <p class="import-help">Each course's tag has its own color, picked automatically. Choose a different one here.</p>
+              <ul id="course-color-list" class="course-color-list"></ul>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-appearance">
+              <h3 id="settings-appearance">Appearance</h3>
+              <div class="segmented theme-switch" role="group" aria-label="Color theme">
+                <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
+                <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
+                <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+              </div>
+            </section>
+            <section id="settings-shortcuts" class="settings-section keyboard-only" aria-labelledby="settings-shortcuts-heading">
+              <h3 id="settings-shortcuts-heading">Keyboard shortcuts</h3>
+              <p class="import-help">Press these keys anywhere except while typing in a box.</p>
+              <dl id="shortcut-list" class="shortcut-list"></dl>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-help">
+              <h3 id="settings-help">Help</h3>
+              <button type="button" id="guide-start" class="button">Show the tour again</button>
+            </section>
             <div class="import-actions">
-              <button type="button" id="colors-panel-close" class="button">Close</button>
-            </div>
-          </div>
-          <!-- The list of shortcuts is filled in from src/shortcuts.js. -->
-          <div id="shortcuts-panel" class="import-panel" hidden>
-            <p class="import-help">Press these keys anywhere except while typing in a box.</p>
-            <dl id="shortcut-list" class="shortcut-list"></dl>
-            <div class="import-actions">
-              <button type="button" id="shortcuts-panel-close" class="button">Close</button>
+              <button type="button" id="settings-panel-close" class="button">Close</button>
             </div>
           </div>
           <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->

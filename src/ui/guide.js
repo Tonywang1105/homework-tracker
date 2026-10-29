@@ -1,10 +1,10 @@
 // The first-time tour: a few bubbles, one at a time, each pointing at a part of the page with Back, Next and
 // Skip. It starts the first time the list has anything in it (so there is something to point at), and
-// "Show the tour" at the bottom of the list brings it back. Called the guide here so it isn't confused with
+// "Show the tour again" in Settings brings it back. Called the guide here so it isn't confused with
 // the tour test in tests/tour.js.
 
-import { elements } from "./dom.js?v=baf0f7be";
-import { loadText, saveChoice } from "./store.js?v=baf0f7be";
+import { elements } from "./dom.js?v=14885c19";
+import { loadText, saveChoice } from "./store.js?v=14885c19";
 
 const GUIDE_SEEN_KEY = "homework-tracker.guideSeen";
 
@@ -34,7 +34,7 @@ const STEPS = [
   {
     target: ".import-links",
     title: "More tools",
-    text: "Import from Canvas, back up your list, add it to your phone's calendar, and review your week.",
+    text: "Review your week, import from Canvas, add your list to your phone's calendar, back up, and change Settings like hours per day and focus blocks.",
   },
   {
     target: "#sign-in",

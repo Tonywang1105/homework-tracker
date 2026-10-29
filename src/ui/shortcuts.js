@@ -1,14 +1,15 @@
 // Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them (src/shortcuts.js says which key is which).
 
-import { render } from "../main.js?v=baf0f7be";
-import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=baf0f7be";
-import { elements } from "./dom.js?v=baf0f7be";
-import { panels, setPanelOpen } from "./panels.js?v=baf0f7be";
-import { setView, VIEWS } from "./settings.js?v=baf0f7be";
-import { state } from "./store.js?v=baf0f7be";
-import { showToast } from "./toast.js?v=baf0f7be";
+import { render } from "../main.js?v=14885c19";
+import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=14885c19";
+import { elements } from "./dom.js?v=14885c19";
+import { panels, setPanelOpen } from "./panels.js?v=14885c19";
+import { setView, VIEWS } from "./settings.js?v=14885c19";
+import { state } from "./store.js?v=14885c19";
+import { showToast } from "./toast.js?v=14885c19";
 
-const shortcutsPanel = panels.find((panel) => panel.panel.id === "shortcuts-panel");
+// The shortcuts are listed in Settings, so ? opens Settings at that section.
+const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");
 const guide = document.getElementById("guide");
 
 // Boxes where a key types a letter. Checkboxes and buttons aren't, so "n" still works after ticking one.
@@ -54,6 +55,8 @@ function handleShortcutKey(event) {
       break;
     case "help":
       setPanelOpen(shortcutsPanel, true);
+      render();
+      document.getElementById("settings-shortcuts").scrollIntoView({ block: "nearest" });
       break;
   }
 }

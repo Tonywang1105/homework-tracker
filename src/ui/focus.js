@@ -9,11 +9,11 @@ import {
   parseFocusBreak,
   parseFocusSettings,
   parseWorkMinutes,
-} from "../focus.js?v=baf0f7be";
-import { render } from "../main.js?v=baf0f7be";
-import { formatClock, startTimer } from "../timer.js?v=baf0f7be";
-import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=baf0f7be";
-import { showToast } from "./toast.js?v=baf0f7be";
+} from "../focus.js?v=14885c19";
+import { render } from "../main.js?v=14885c19";
+import { formatClock, startTimer } from "../timer.js?v=14885c19";
+import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=14885c19";
+import { showToast } from "./toast.js?v=14885c19";
 
 const FOCUS_KEY = "homework-tracker.focus";
 const BREAK_KEY = "homework-tracker.focusBreak";
@@ -22,7 +22,6 @@ const CHIME_WINDOW_MS = 5000;
 const pageTitle = document.title;
 
 const focusElements = {
-  settings: document.getElementById("focus-settings"),
   on: document.getElementById("focus-on"),
   lengths: document.getElementById("focus-lengths"),
   work: document.getElementById("focus-work"),
@@ -146,7 +145,6 @@ export function tickFocus(now = new Date()) {
  * it; only tickFocus (every second) ends blocks, since that saves and redraws the list itself.
  */
 export function renderFocus(now = new Date()) {
-  focusElements.settings.hidden = state.assignments.length === 0 || state.view !== "list";
   const running = state.assignments.find((a) => a.timerStartedAt);
   const focusBreak = state.focusBreak;
   focusElements.bar.hidden = focusBreak === null;

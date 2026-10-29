@@ -319,3 +319,13 @@ button:focus-visible,
   background: var(--accent);
   color: var(--accent-text);
 }
+
+/* Read out by screen readers but not shown, for labels the layout shows another way. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

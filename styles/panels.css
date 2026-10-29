@@ -160,3 +160,55 @@
   font-size: 1rem;
   font-weight: 700;
 }
+
+/* Settings: one panel with a short section for each setting. */
+.settings-panel {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-section {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-section h3 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.settings-section .import-help {
+  margin: 6px 0 0;
+}
+
+.settings-row,
+.focus-lengths label {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.focus-lengths {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 8px;
+}
+
+.focus-lengths[hidden] {
+  display: none;
+}
+
+.settings-row input[type="number"],
+.focus-lengths input {
+  width: 4em;
+  padding: 3px 6px;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}

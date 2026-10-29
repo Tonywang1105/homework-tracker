@@ -1,12 +1,12 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=baf0f7be";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=baf0f7be";
-import { render } from "../main.js?v=baf0f7be";
-import { parseDailyHours } from "../plan.js?v=baf0f7be";
-import { countAssignments, elements, formatDay } from "./dom.js?v=baf0f7be";
-import { removeChoice, saveChoice, state } from "./store.js?v=baf0f7be";
-import { showToast } from "./toast.js?v=baf0f7be";
+import { formatHours, workload } from "../assignments.js?v=14885c19";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=14885c19";
+import { render } from "../main.js?v=14885c19";
+import { parseDailyHours } from "../plan.js?v=14885c19";
+import { countAssignments, elements, formatDay } from "./dom.js?v=14885c19";
+import { removeChoice, saveChoice, state } from "./store.js?v=14885c19";
+import { showToast } from "./toast.js?v=14885c19";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -106,8 +106,6 @@ export function setTheme(theme) {
 export function renderWorkload(now) {
   const { count, hours, unestimated, busiest } = workload(state.assignments, now);
   elements.workload.hidden = count === 0;
-  // The daily limit only matters once something has an estimate to plan.
-  elements.dailyLimit.hidden = state.startPlan.size === 0;
   if (count === 0) {
     return;
   }

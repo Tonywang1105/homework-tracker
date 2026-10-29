@@ -1,20 +1,20 @@
-// The Course colors… panel: each course with its tag's color, which can be changed (saved in this browser).
+// Course colors, in Settings: each course with its tag's color, which can be changed (saved in this browser).
 
-import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=baf0f7be";
-import { render } from "../main.js?v=baf0f7be";
-import { makeOption, makeTag } from "./dom.js?v=baf0f7be";
-import { loadText, saveChoice, state } from "./store.js?v=baf0f7be";
+import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=14885c19";
+import { render } from "../main.js?v=14885c19";
+import { makeOption, makeTag } from "./dom.js?v=14885c19";
+import { loadText, saveChoice, state } from "./store.js?v=14885c19";
 
 const CHOSEN_COLORS_KEY = "homework-tracker.courseColors";
 const AUTOMATIC = "";
 const colorList = document.getElementById("course-color-list");
-const panel = document.getElementById("colors-panel");
+const panel = document.getElementById("settings-panel");
 
 export function loadChosenColors() {
   state.chosenColors = parseChosenColors(loadText(CHOSEN_COLORS_KEY));
 }
 
-/** Works out every course's color for this render, and fills in the panel while it is open. */
+/** Works out every course's color for this render, and fills in Settings' list while it is open. */
 export function updateCourseColors(courses) {
   state.courseColors = courseColors(courses, state.chosenColors);
   if (panel.hidden) {

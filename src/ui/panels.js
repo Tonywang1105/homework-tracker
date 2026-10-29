@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=baf0f7be";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=14885c19";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,13 +8,13 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=baf0f7be";
-import { exampleAssignments, removeExamples } from "../examples.js?v=baf0f7be";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=baf0f7be";
-import { render } from "../main.js?v=baf0f7be";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=baf0f7be";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=baf0f7be";
-import { showToast } from "./toast.js?v=baf0f7be";
+} from "../canvas.js?v=14885c19";
+import { exampleAssignments, removeExamples } from "../examples.js?v=14885c19";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=14885c19";
+import { render } from "../main.js?v=14885c19";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=14885c19";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=14885c19";
+import { showToast } from "./toast.js?v=14885c19";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 
@@ -23,14 +23,13 @@ const CANVAS_SNOOZE_KEY = "homework-tracker.canvasReminderSnoozedUntil";
 // A semester's Canvas feed or a backup is well under 1 MB; anything far bigger is the wrong file.
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
 
-// The two panels under the To do list ("Import from Canvas…" and "Backup & restore…"). Only one is open at a time.
+// The panels under the To do list (Weekly review, Canvas import, calendar export, backup, Settings). Only one is open at a time.
 export const panels = [
   { toggleId: "canvas-panel-toggle", panelId: "import-panel", firstButtonId: "canvas-import-button", closeId: "canvas-panel-close" },
   { toggleId: "backup-panel-toggle", panelId: "backup-panel", firstButtonId: "backup-download-button", closeId: "backup-panel-close" },
   { toggleId: "export-panel-toggle", panelId: "export-panel", firstButtonId: "export-download-button", closeId: "export-panel-close" },
   { toggleId: "review-panel-toggle", panelId: "review-panel", firstButtonId: "review-panel-close", closeId: "review-panel-close" },
-  { toggleId: "colors-panel-toggle", panelId: "colors-panel", firstButtonId: "colors-panel-close", closeId: "colors-panel-close" },
-  { toggleId: "shortcuts-panel-toggle", panelId: "shortcuts-panel", firstButtonId: "shortcuts-panel-close", closeId: "shortcuts-panel-close" },
+  { toggleId: "settings-panel-toggle", panelId: "settings-panel", firstButtonId: "daily-hours", closeId: "settings-panel-close" },
 ].map(({ toggleId, panelId, firstButtonId, closeId }) => ({
   toggle: document.getElementById(toggleId),
   panel: document.getElementById(panelId),
