@@ -1,11 +1,11 @@
 // Today's plan, at the top of the list: what's overdue, what's due today, and the hours the start-date
 // plan (src/plan.js) fits into today, each with Start, so "what should I do now?" has one answer.
 
-import { describeDue, formatHours } from "../assignments.js?v=78dcb73d";
-import { todayPlan } from "../plan.js?v=78dcb73d";
-import { makeTag } from "./dom.js?v=78dcb73d";
-import { makeTimerClock, timerButton } from "./list.js?v=78dcb73d";
-import { state } from "./store.js?v=78dcb73d";
+import { assignmentType, describeDue, formatHours } from "../assignments.js?v=baf0f7be";
+import { toDateKey } from "../calendar.js?v=baf0f7be";
+import { makeTag } from "./dom.js?v=baf0f7be";
+import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=baf0f7be";
+import { state } from "./store.js?v=baf0f7be";
 
 const box = document.getElementById("today-plan");
 const total = document.getElementById("today-plan-total");
@@ -19,7 +19,7 @@ export function renderTodayPlan(now) {
   if (box.hidden) {
     return;
   }
-  const entries = todayPlan(state.assignments, state.startPlan, now, state.dailyHours);
+  const entries = state.todayPlan;
   const hours = entries.reduce((sum, entry) => sum + entry.todayHours, 0);
   total.textContent = hours > 0 ? `${formatHours(hours)} of work` : "";
   list.replaceChildren(...entries.map((entry) => renderEntry(entry, now)));
@@ -59,6 +59,13 @@ function renderEntry({ assignment, reason, todayHours, hoursLeft }, now) {
     const ofLeft = hoursLeft > todayHours ? ` of ${formatHours(hoursLeft)} left` : "";
     const ahead = reason === "ahead" ? " · getting ahead" : "";
     body.append(makeTag(`${formatHours(todayHours)} today${ofLeft}${ahead}`, "today-plan-hours"));
+  }
+  // Today's share of its steps (an exam's topics): "Study: Eigenvalues, Diagonalization".
+  const today = toDateKey(now);
+  const todaySteps = (assignment.steps ?? []).filter((_, index) => stepSchedule(assignment, now)[index] === today);
+  if (todaySteps.length > 0) {
+    const label = assignmentType(assignment) === "exam" ? "Study" : "Steps";
+    body.append(makeTag(`${label}: ${todaySteps.map((step) => step.text).join(", ")}`, "today-plan-steps"));
   }
   if (assignment.timerStartedAt) {
     body.append(makeTimerClock(assignment, now));

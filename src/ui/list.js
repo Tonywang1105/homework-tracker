@@ -17,15 +17,17 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=78dcb73d";
-import { timerTagText } from "../focus.js?v=78dcb73d";
-import { render } from "../main.js?v=78dcb73d";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=78dcb73d";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=78dcb73d";
-import { primeChime } from "./focus.js?v=78dcb73d";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=78dcb73d";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=78dcb73d";
-import { showToast } from "./toast.js?v=78dcb73d";
+} from "../assignments.js?v=baf0f7be";
+import { toDateKey } from "../calendar.js?v=baf0f7be";
+import { timerTagText } from "../focus.js?v=baf0f7be";
+import { render } from "../main.js?v=baf0f7be";
+import { stepDays } from "../plan.js?v=baf0f7be";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=baf0f7be";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=baf0f7be";
+import { primeChime } from "./focus.js?v=baf0f7be";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=baf0f7be";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=baf0f7be";
+import { showToast } from "./toast.js?v=baf0f7be";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -218,12 +220,26 @@ export function renderTags(assignment, { courseButton = true } = {}) {
   return tags;
 }
 
+/** Which day each of an assignment's steps is planned for (see stepDays), using this render's plans. */
+export function stepSchedule(assignment, now = new Date()) {
+  const todayHours = state.todayPlan.find((entry) => entry.assignment.id === assignment.id)?.todayHours ?? 0;
+  return stepDays(assignment, state.startPlan.get(assignment.id), todayHours, now);
+}
+
 /**
  * An assignment's steps as checkboxes, used in its list row and in the details box. Each checkbox has
- * data-step (its position), so one click handler can tell which step was ticked.
+ * data-step (its position), so one click handler can tell which step was ticked. Unticked steps show the day
+ * they're planned for ("today", "Fri, 10/30"); without an estimate, a hint says how to get that.
  */
 export function renderSteps(assignment, list = document.createElement("ul")) {
   list.className = "steps";
+  const now = new Date();
+  const today = toDateKey(now);
+  const schedule = stepSchedule(assignment, now);
+  const needsEstimate = !assignment.done && !assignment.hours && assignment.steps.some((step) => !step.done) && describeDue(assignment, now).urgency !== "overdue";
+  const hint = document.createElement("li");
+  hint.className = "steps-hint";
+  hint.textContent = 'Add "Time needed" to spread these over days.';
   list.replaceChildren(
     ...assignment.steps.map((step, index) => {
       const item = document.createElement("li");
@@ -236,10 +252,17 @@ export function renderSteps(assignment, list = document.createElement("ul")) {
       const text = document.createElement("span");
       text.textContent = step.text;
       label.append(checkbox, text);
+      if (schedule[index]) {
+        const day = document.createElement("span");
+        day.className = `step-day${schedule[index] === today ? " is-today" : ""}`;
+        day.textContent = schedule[index] === today ? "today" : formatDay(schedule[index]);
+        label.append(day);
+      }
       item.classList.toggle("is-done", step.done);
       item.append(label);
       return item;
     }),
+    ...(needsEstimate ? [hint] : []),
   );
   return list;
 }

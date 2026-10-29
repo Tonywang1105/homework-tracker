@@ -1,11 +1,11 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, validateAssignmentInput, withExtension } from "../assignments.js?v=78dcb73d";
-import { render } from "../main.js?v=78dcb73d";
-import { createSeries, validateRepeat } from "../repeat.js?v=78dcb73d";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=78dcb73d";
-import { findAssignment, state, updateAssignments } from "./store.js?v=78dcb73d";
-import { showToast } from "./toast.js?v=78dcb73d";
+import { AUTO_TYPE, guessType, keepStepTicks, TYPE_LABELS, TYPES, validateAssignmentInput, withExtension } from "../assignments.js?v=baf0f7be";
+import { render } from "../main.js?v=baf0f7be";
+import { createSeries, validateRepeat } from "../repeat.js?v=baf0f7be";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=baf0f7be";
+import { findAssignment, state, updateAssignments } from "./store.js?v=baf0f7be";
+import { showToast } from "./toast.js?v=baf0f7be";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -118,6 +118,15 @@ function savedMessage(before, after) {
   return `Saved changes to "${after.title}".`;
 }
 
+/** For an exam (chosen, or guessed from a title like "Midterm 2"), the steps are the topics to study. */
+export function updateStepsLabel() {
+  const fields = elements.form.elements;
+  const type = fields.type.value === AUTO_TYPE ? guessType(fields.title.value) : fields.type.value;
+  const exam = type === "exam";
+  document.getElementById("steps-label-text").textContent = exam ? "Topics to study" : "Steps";
+  fields.steps.placeholder = exam ? "e.g. Eigenvalues (then the next topic on the next line)" : "e.g. Checkpoint 1 (then Checkpoint 2 on the next line)";
+}
+
 /** The Until date only matters (and is only required) when the assignment repeats. */
 export function updateRepeatFields() {
   const repeating = elements.form.elements.repeat.value !== "";
@@ -128,6 +137,7 @@ export function updateRepeatFields() {
 function resetForm() {
   elements.form.reset();
   updateRepeatFields();
+  updateStepsLabel();
   showErrors({});
   focusForm();
 }
@@ -166,6 +176,7 @@ function fillFormFrom(assignment) {
   fields.notes.value = assignment.notes;
   fields.hours.value = assignment.hours ?? "";
   fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
+  updateStepsLabel();
   showErrors({});
 }
 

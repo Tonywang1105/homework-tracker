@@ -741,3 +741,29 @@ button.course-tag:hover {
 .focus-bar .button {
   padding: 6px 14px;
 }
+
+/* The day a step (an exam's topic) is planned for, after its text; today's stands out. */
+.step-day {
+  margin-left: auto;
+  padding-left: 10px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.step-day.is-today {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.steps-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+  padding: 2px 0 0 26px;
+}
+
+/* Today's topics in Today's plan: "Study: Eigenvalues, Diagonalization". */
+.today-plan-steps {
+  font-size: 0.85rem;
+  color: var(--text);
+}

@@ -1,9 +1,9 @@
 // "When to start": using time estimates, the latest day to start each assignment so that no day needs
 // more than a daily limit of homework. No DOM, so it can be unit-tested with Node.
 
-import { toDueDate } from "./assignments.js?v=78dcb73d";
-import { toDateKey } from "./calendar.js?v=78dcb73d";
-import { sessionSeconds } from "./timer.js?v=78dcb73d";
+import { toDueDate } from "./assignments.js?v=baf0f7be";
+import { toDateKey } from "./calendar.js?v=baf0f7be";
+import { sessionSeconds } from "./timer.js?v=baf0f7be";
 
 export const DEFAULT_DAILY_HOURS = 3;
 const MIN_DAILY_HOURS = 0.5;
@@ -34,9 +34,10 @@ export function hoursLeft(assignment, now = new Date()) {
  * Plans backwards from the latest due date: each assignment takes the latest free hours before it is due,
  * at most `dailyHours` per day, so busy weeks push start dates earlier. Only unfinished assignments with
  * hours left (the estimate minus time tracked) that aren't due yet are planned.
- * Returns a Map from assignment id to { startDate, status, shortHours, todayHours, hoursLeft }, where status is
+ * Returns a Map from assignment id to { startDate, status, shortHours, todayHours, hoursLeft, days }, where status is
  * "later" (start on startDate), "today" (startDate is today or earlier), or "behind" (even starting
- * today, shortHours won't fit at the daily limit), and todayHours is how much of it is planned for today.
+ * today, shortHours won't fit at the daily limit), todayHours is how much of it is planned for today, and days
+ * is every planned day, earliest first, as [{ date, hours }].
  */
 export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_DAILY_HOURS) {
   const today = toDateKey(now);
@@ -49,6 +50,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
   for (const assignment of planned) {
     let remaining = hoursLeft(assignment, now);
     let todayHours = 0;
+    const days = [];
     let day = lastWorkDay(assignment);
     let startDate = day < today ? today : day;
     while (remaining > 0 && day >= today) {
@@ -58,6 +60,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
         used.set(day, (used.get(day) ?? 0) + taken);
         remaining -= taken;
         startDate = day;
+        days.unshift({ date: day, hours: taken });
         if (day === today) {
           todayHours = taken;
         }
@@ -71,6 +74,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
       shortHours: remaining,
       todayHours,
       hoursLeft: hoursLeft(assignment, now),
+      days,
     });
   }
   return plan;
@@ -124,6 +128,44 @@ export function todayPlan(assignments, plan, now = new Date(), dailyHours = DEFA
         order.indexOf(a.reason) - order.indexOf(b.reason) ||
         toDueDate(a.assignment.dueDate, a.assignment.dueTime) - toDueDate(b.assignment.dueDate, b.assignment.dueTime),
     );
+}
+
+/**
+ * Which day each step is for, so an exam's topics (or any assignment's steps) are spread over the days the plan
+ * gives it. Returns an array the length of assignment.steps: a "YYYY-MM-DD" date for each unticked step, null for
+ * ticked ones, or all null if the assignment isn't planned (no estimate, finished, or past due).
+ * Today gets a share of the unticked steps in proportion to `todayHours` (the hours Today's plan gives it, which
+ * can be more than the plan's own share when getting ahead), and the rest are spread over the plan's later days in
+ * proportion to their hours, in order. Worked out afresh each time, so ticking a step re-spreads the others.
+ */
+export function stepDays(assignment, planEntry, todayHours, now = new Date()) {
+  const steps = assignment.steps ?? [];
+  const result = steps.map(() => null);
+  const open = steps.flatMap((step, index) => (step.done ? [] : [index]));
+  if (!planEntry || open.length === 0 || planEntry.hoursLeft <= 0) {
+    return result;
+  }
+  const today = toDateKey(now);
+  const todayCount = todayHours > 0 ? Math.min(Math.max(Math.round((open.length * todayHours) / planEntry.hoursLeft), 1), open.length) : 0;
+  const later = planEntry.days.filter((day) => day.date > today);
+  const laterHours = later.reduce((sum, day) => sum + day.hours, 0);
+  open.forEach((stepIndex, k) => {
+    if (k < todayCount) {
+      result[stepIndex] = today;
+      return;
+    }
+    if (laterHours === 0) {
+      // Nothing planned after today (due tomorrow morning, or behind): the rest is today's too.
+      result[stepIndex] = today;
+      return;
+    }
+    // The middle of this step's share of the later hours falls on one of the later days.
+    const rest = open.length - todayCount;
+    const position = ((k - todayCount + 0.5) / rest) * laterHours;
+    let covered = 0;
+    result[stepIndex] = later.find((day) => (covered += day.hours) >= position)?.date ?? later.at(-1).date;
+  });
+  return result;
 }
 
 /** A daily limit from the settings box, or null if it isn't a sensible number of hours. */

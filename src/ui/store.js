@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=78dcb73d";
-import { render } from "../main.js?v=78dcb73d";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=78dcb73d";
-import { saveAssignments } from "../storage.js?v=78dcb73d";
-import { syncAssignments } from "./account.js?v=78dcb73d";
-import { showToast } from "./toast.js?v=78dcb73d";
+import { currentMonth } from "../calendar.js?v=baf0f7be";
+import { render } from "../main.js?v=baf0f7be";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=baf0f7be";
+import { saveAssignments } from "../storage.js?v=baf0f7be";
+import { syncAssignments } from "./account.js?v=baf0f7be";
+import { showToast } from "./toast.js?v=baf0f7be";
 
 export const state = {
   assignments: [],
@@ -42,6 +42,8 @@ export const state = {
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
   dailyHours: DEFAULT_DAILY_HOURS,
   startPlan: new Map(),
+  // Today's plan's entries ({ assignment, reason, todayHours, hoursLeft }), worked out on every render.
+  todayPlan: [],
   view: "list",
   // The month the calendar shows, as { year, month } with month 0-11.
   shownMonth: currentMonth(),

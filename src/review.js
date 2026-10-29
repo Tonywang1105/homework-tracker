@@ -1,8 +1,8 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=78dcb73d";
-import { toDateKey } from "./calendar.js?v=78dcb73d";
-import { withTimerStopped } from "./timer.js?v=78dcb73d";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=baf0f7be";
+import { toDateKey } from "./calendar.js?v=baf0f7be";
+import { withTimerStopped } from "./timer.js?v=baf0f7be";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).

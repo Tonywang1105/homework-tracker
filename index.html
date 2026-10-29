@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/form.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/list.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/calendar.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/agenda.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/types.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/panels.css?v=78dcb73d" />
-    <link rel="stylesheet" href="styles/messages.css?v=78dcb73d" />
-    <script type="module" src="src/main.js?v=78dcb73d"></script>
+    <link rel="stylesheet" href="styles/base.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/form.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/list.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/calendar.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/agenda.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/types.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/panels.css?v=baf0f7be" />
+    <link rel="stylesheet" href="styles/messages.css?v=baf0f7be" />
+    <script type="module" src="src/main.js?v=baf0f7be"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -157,7 +157,7 @@
           </div>
 
           <div class="field">
-            <label for="steps">Steps <span class="optional">optional, one per line</span></label>
+            <label for="steps"><span id="steps-label-text">Steps</span> <span class="optional">optional, one per line</span></label>
             <textarea id="steps" name="steps" rows="3" placeholder="e.g. Checkpoint 1 (then Checkpoint 2 on the next line)"></textarea>
             <p class="field-error" id="steps-error"></p>
           </div>
