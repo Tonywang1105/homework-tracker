@@ -1,11 +1,11 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, updateAssignment, validateAssignmentInput } from "../assignments.js?v=ee7cd01c";
-import { render } from "../main.js?v=ee7cd01c";
-import { createSeries, validateRepeat } from "../repeat.js?v=ee7cd01c";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=ee7cd01c";
-import { findAssignment, state, updateAssignments } from "./store.js?v=ee7cd01c";
-import { showToast } from "./toast.js?v=ee7cd01c";
+import { AUTO_TYPE, keepStepTicks, TYPE_LABELS, TYPES, validateAssignmentInput, withExtension } from "../assignments.js?v=941ad035";
+import { render } from "../main.js?v=941ad035";
+import { createSeries, validateRepeat } from "../repeat.js?v=941ad035";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=941ad035";
+import { findAssignment, state, updateAssignments } from "./store.js?v=941ad035";
+import { showToast } from "./toast.js?v=941ad035";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -76,13 +76,14 @@ export function handleSubmit(event) {
   showErrors({});
 
   if (state.editingId) {
-    const editedTitle = result.fields.title;
+    const before = findAssignment(state.editingId);
     // Steps that are still there keep their ticks; the form only shows their text.
-    const steps = keepStepTicks(findAssignment(state.editingId)?.steps, result.fields.steps);
-    updateAssignments(updateAssignment(state.assignments, state.editingId, { ...result.fields, steps }));
+    const steps = keepStepTicks(before.steps, result.fields.steps);
+    const after = withExtension(before, { ...before, ...result.fields, steps }, state.extending);
+    updateAssignments(state.assignments.map((a) => (a.id === before.id ? after : a)));
     setFormOpen(false);
     stopEditing();
-    showToast(`Saved changes to "${editedTitle}".`);
+    showToast(savedMessage(before, after));
   } else {
     const previous = state.assignments;
     const added = createSeries(result.fields, repeat.dates);
@@ -104,6 +105,17 @@ export function handleSubmit(event) {
       showToast(summary, () => updateAssignments(previous));
     }
   }
+}
+
+/** "Extended "MP3" to Sat, 10/31.", "Removed the extension on "MP3".", or "Saved changes to "MP3"." */
+function savedMessage(before, after) {
+  if (after.originalDueDate && after.dueDate !== before.dueDate) {
+    return `Extended "${after.title}" to ${formatDay(after.dueDate)}.`;
+  }
+  if (before.originalDueDate && !after.originalDueDate) {
+    return `Removed the extension on "${after.title}".`;
+  }
+  return `Saved changes to "${after.title}".`;
 }
 
 /** The Until date only matters (and is only required) when the assignment repeats. */
@@ -171,8 +183,19 @@ export function startEditing(assignment) {
   fields.title.focus({ preventScroll: true });
 }
 
+/** Extend…: Edit with the due date selected, where saving a new date keeps the original (see withExtension). */
+export function startExtending(assignment) {
+  startEditing(assignment);
+  state.extending = true;
+  elements.formHeading.textContent = `Extend "${assignment.title}"`;
+  elements.submitButton.textContent = "Save new date";
+  elements.form.elements.dueDate.focus({ preventScroll: true });
+  showToast(`Pick the new due date for "${assignment.title}", then Save new date.`);
+}
+
 export function stopEditing() {
   state.editingId = null;
+  state.extending = false;
   elements.repeatFields.hidden = false;
   elements.formHeading.textContent = "Add an assignment";
   elements.submitButton.textContent = "Add assignment";

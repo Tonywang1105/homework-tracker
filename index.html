@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/form.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/list.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/calendar.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/agenda.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/types.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/panels.css?v=ee7cd01c" />
-    <link rel="stylesheet" href="styles/messages.css?v=ee7cd01c" />
-    <script type="module" src="src/main.js?v=ee7cd01c"></script>
+    <link rel="stylesheet" href="styles/base.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/form.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/list.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/calendar.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/agenda.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/types.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/panels.css?v=941ad035" />
+    <link rel="stylesheet" href="styles/messages.css?v=941ad035" />
+    <script type="module" src="src/main.js?v=941ad035"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -199,6 +199,35 @@
 
         <!-- What's due today and how the week is going, at a glance; filled in by src/ui/reviewPanel.js. -->
         <p id="today-summary" class="today-summary" hidden></p>
+
+        <!-- A course's page: shown in the List when one course is chosen; filled in by src/ui/coursePage.js. -->
+        <section id="course-page" class="course-page" aria-labelledby="course-page-title" hidden>
+          <div class="course-page-header">
+            <h3 id="course-page-title" class="course-page-title" tabindex="-1"></h3>
+            <button type="button" id="course-page-all" class="link-button">All courses</button>
+          </div>
+          <ul id="course-links" class="course-links" aria-label="Course links"></ul>
+          <p id="course-links-empty" class="course-links-empty" hidden>
+            No links yet. Add this course's Canvas, PrairieLearn or Gradescope page, or its slides.
+          </p>
+          <button type="button" id="course-links-edit" class="link-button" aria-expanded="false" aria-controls="course-links-editor">
+            Edit links
+          </button>
+          <div id="course-links-editor" class="course-links-editor" hidden>
+            <ul id="course-links-edit-list" class="course-links-edit-list" aria-label="Links to rename or remove"></ul>
+            <form id="course-link-form" class="course-link-form" novalidate>
+              <label class="course-link-field">Name <span class="optional">optional</span>
+                <input name="label" maxlength="40" placeholder="e.g. Gradescope" autocomplete="off" />
+              </label>
+              <label class="course-link-field">Link
+                <input name="url" maxlength="500" placeholder="e.g. gradescope.com" autocomplete="off" inputmode="url" />
+              </label>
+              <button type="submit" class="button button-primary">Add link</button>
+            </form>
+            <p id="course-link-error" class="course-link-error" role="alert"></p>
+            <button type="button" id="course-links-done" class="button">Done</button>
+          </div>
+        </section>
 
         <!-- Overdue work, work due today, and what the start-date plan fits into today; filled in by src/ui/todayPlan.js. -->
         <section id="today-plan" class="today-plan" aria-labelledby="today-plan-heading" hidden>

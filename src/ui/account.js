@@ -2,13 +2,15 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { firebaseConfig } from "../firebase-config.js?v=ee7cd01c";
-import { render } from "../main.js?v=ee7cd01c";
-import { saveAssignments } from "../storage.js?v=ee7cd01c";
-import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=ee7cd01c";
-import { elements } from "./dom.js?v=ee7cd01c";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=ee7cd01c";
-import { showToast } from "./toast.js?v=ee7cd01c";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=941ad035";
+import { firebaseConfig } from "../firebase-config.js?v=941ad035";
+import { render } from "../main.js?v=941ad035";
+import { saveAssignments } from "../storage.js?v=941ad035";
+import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=941ad035";
+import { applyCourseLinks } from "./coursePage.js?v=941ad035";
+import { elements } from "./dom.js?v=941ad035";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=941ad035";
+import { showToast } from "./toast.js?v=941ad035";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
@@ -18,6 +20,8 @@ const SYNCED_ACCOUNT_KEY = "homework-tracker.syncedAccount";
 // { userId, assignments }. Kept after signing out, so signing back in can tell "deleted on the phone"
 // apart from "added here while signed out" (see mergeWithLastSynced).
 const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
+// Set when course links change while signed in but before Firebase has connected, so they're sent once it has.
+const LINKS_PENDING_KEY = "homework-tracker.courseLinksPending";
 // Firestore takes at most 500 writes at once.
 const MAX_WRITES_PER_BATCH = 400;
 
@@ -51,6 +55,25 @@ export function syncAssignments(assignments) {
   const { saves, deletes } = listChanges(sync.remoteList, assignments);
   sync.remoteList = assignments;
   writeChanges(sync.userId, saves, deletes).catch(handleSyncError);
+}
+
+/**
+ * Sends the course links to the account after they change. All of them live in one small document,
+ * users/<id>/settings/courseLinks, and the last change wins.
+ */
+export function syncCourseLinks(links) {
+  if (!sync) {
+    if (loadText(SYNCED_ACCOUNT_KEY)) {
+      saveChoice(LINKS_PENDING_KEY, "yes");
+    }
+    return;
+  }
+  writeLinks(sync.userId, links).catch(handleLinksError);
+}
+
+function writeLinks(userId, links) {
+  const { dbApi, db } = firebase;
+  return dbApi.setDoc(dbApi.doc(db, "users", userId, "settings", "courseLinks"), { links });
 }
 
 /** Loads Firebase once and starts following who is signed in. */
@@ -123,6 +146,7 @@ async function handleUser(user) {
   showAccount({ status: "Syncing…", signedIn: true });
   const { dbApi, db } = firebase;
   const assignmentsRef = dbApi.collection(db, "users", user.uid, "assignments");
+  const linksRef = dbApi.doc(db, "users", user.uid, "settings", "courseLinks");
 
   if (loadText(SYNCED_ACCOUNT_KEY) !== user.uid) {
     // Signing in on this device: combine its list with the account's. From the server, not the offline
@@ -136,6 +160,16 @@ async function handleUser(user) {
     const { saves, deletes } = listChanges(remote, assignments);
     await writeChanges(user.uid, saves, deletes);
     state.assignments = assignments;
+    // Course links too: the account's, plus any this device has that the account doesn't.
+    try {
+      const linksSnapshot = await dbApi.getDocFromServer(linksRef);
+      const links = mergeLinks(state.courseLinks, readLinks(linksSnapshot.data()?.links));
+      await writeLinks(user.uid, links);
+      removeChoice(LINKS_PENDING_KEY);
+      state.courseLinks = links;
+    } catch (error) {
+      handleLinksError(error);
+    }
     saveChoice(SYNCED_ACCOUNT_KEY, user.uid);
     showToast(
       addedCount > 0
@@ -144,13 +178,32 @@ async function handleUser(user) {
     );
   }
 
-  sync = { userId: user.uid, remoteList: state.assignments, stop: null };
+  if (loadText(LINKS_PENDING_KEY)) {
+    writeLinks(user.uid, state.courseLinks)
+      .then(() => removeChoice(LINKS_PENDING_KEY))
+      .catch(handleLinksError);
+  }
+
+  sync = { userId: user.uid, remoteList: state.assignments, stop: null, stopLinks: null };
   sync.stop = dbApi.onSnapshot(
     assignmentsRef,
     { includeMetadataChanges: true },
     (snapshot) => showRemoteList(user, snapshot),
     handleSyncError,
   );
+  sync.stopLinks = dbApi.onSnapshot(linksRef, (snapshot) => showRemoteLinks(user, snapshot), handleLinksError);
+}
+
+/** The account's course links changed (here or on another device): show them. */
+function showRemoteLinks(user, snapshot) {
+  if (!snapshot.exists()) {
+    // An account from before course pages: start it with this device's links.
+    if (state.courseLinks.length > 0) {
+      writeLinks(user.uid, state.courseLinks).catch(handleLinksError);
+    }
+    return;
+  }
+  applyCourseLinks(readLinks(snapshot.data().links));
 }
 
 /** The account's list changed (here or on another device): show it, and keep this device's copy up to date. */
@@ -199,6 +252,7 @@ async function writeChanges(userId, saves, deletes) {
 
 function stopSyncing() {
   sync?.stop?.();
+  sync?.stopLinks?.();
   sync = null;
 }
 
@@ -206,6 +260,12 @@ function handleSyncError(error) {
   console.error("Sync failed:", error.code ?? error.message);
   showAccount({ status: "Sync failed: changes are saved on this device only", signedIn: true });
   showToast(`Couldn't sync with your account (${error.code ?? error.message}). Try reloading the page.`);
+}
+
+/** Course links failing to sync leaves the assignments syncing; the links stay saved on this device. */
+function handleLinksError(error) {
+  console.error("Course links sync failed:", error.code ?? error.message);
+  showToast(`Couldn't sync course links (${error.code ?? error.message}). They're saved on this device.`);
 }
 
 /** Shows the sign-in button, or who is signed in and whether the list is synced. */

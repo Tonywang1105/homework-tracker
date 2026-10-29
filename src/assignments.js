@@ -156,6 +156,32 @@ export function removeAssignment(assignments, id) {
 }
 
 /**
+ * Extensions: `after` is the edited assignment, `before` it as it was. Extend… (`extending`) moving the due date
+ * keeps the original in originalDueDate and originalDueTime; an already extended assignment keeps its original
+ * through later edits; setting the date back to the original removes the extension. An ordinary Edit of an
+ * assignment that isn't extended is a correction, so no original is kept.
+ */
+export function withExtension(before, after, extending = false) {
+  const { originalDueDate, originalDueTime, ...rest } = after;
+  let original = null;
+  if (before.originalDueDate) {
+    original = { date: before.originalDueDate, time: before.originalDueTime };
+  } else if (extending && (after.dueDate !== before.dueDate || after.dueTime !== before.dueTime)) {
+    original = { date: before.dueDate, time: before.dueTime };
+  }
+  if (!original || after.dueDate === original.date) {
+    return rest;
+  }
+  return { ...rest, originalDueDate: original.date, originalDueTime: original.time };
+}
+
+/** Extend… is offered on unfinished big and regular work that's overdue or due within a week (small has Tomorrow). */
+export function canExtend(assignment, now = new Date()) {
+  const weekAhead = now.getTime() + 7 * DAY_MS;
+  return !assignment.done && assignment.priority !== "small" && toDueDate(assignment.dueDate, assignment.dueTime).getTime() <= weekAhead;
+}
+
+/**
  * Snooze ("Tomorrow"): only for unfinished small reminders due today or earlier, since moving a big
  * assignment would hide a real deadline, and moving one due later to tomorrow would make it sooner.
  */

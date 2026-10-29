@@ -1,7 +1,8 @@
-// The to-do and completed lists: drawing rows and tags, and the row actions (done, timer, tomorrow, edit, delete).
+// The to-do and completed lists: drawing rows and tags, and the row actions (done, timer, tomorrow, extend, edit, delete).
 
 import {
   assignmentType,
+  canExtend,
   canSnooze,
   describeDue,
   formatHours,
@@ -15,13 +16,13 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=ee7cd01c";
-import { render } from "../main.js?v=ee7cd01c";
-import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=ee7cd01c";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=ee7cd01c";
-import { startCopying, startEditing, stopEditing } from "./form.js?v=ee7cd01c";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=ee7cd01c";
-import { showToast } from "./toast.js?v=ee7cd01c";
+} from "../assignments.js?v=941ad035";
+import { render } from "../main.js?v=941ad035";
+import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=941ad035";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=941ad035";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=941ad035";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=941ad035";
+import { showToast } from "./toast.js?v=941ad035";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -130,6 +131,7 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   actions.append(
     ...(assignment.done ? [] : [timerButton(assignment)]),
     ...(canSnooze(assignment, now) ? [makeActionButton("Tomorrow", "snooze", assignment.title)] : []),
+    ...(canExtend(assignment, now) ? [makeActionButton("Extend…", "extend", assignment.title)] : []),
     makeActionButton("Edit", "edit", assignment.title),
     makeActionButton("Copy", "copy", assignment.title),
     makeActionButton("Delete", "delete", assignment.title),
@@ -162,15 +164,26 @@ export function tickTimers(now = new Date()) {
   }
 }
 
-/** The course tag, the type tag (if any) and the Big/Small tag, shared by the list and the calendar details box. */
-export function renderTags(assignment) {
+/**
+ * The course tag, the type tag (if any) and the Big/Small tag, shared by the list, the details box and the Agenda.
+ * The course tag is a button that opens the course's page, except where the tags sit inside a button (`courseButton: false`).
+ */
+export function renderTags(assignment, { courseButton = true } = {}) {
   const tags = [];
   // Unfinished work whose deadline has passed is labelled, in words as well as color, wherever its tags appear.
   if (!assignment.done && describeDue(assignment).urgency === "overdue") {
     tags.push(makeTag("Overdue", "overdue-tag"));
   }
   if (assignment.course) {
-    tags.push(makeTag(assignment.course, `course-tag course-color-${state.courseColors.get(assignment.course) ?? "slate"}`));
+    const className = `course-tag course-color-${state.courseColors.get(assignment.course) ?? "slate"}`;
+    if (courseButton) {
+      const button = makeButton(className, assignment.course);
+      button.dataset.coursePage = assignment.course;
+      button.title = `Show ${assignment.course}'s page`;
+      tags.push(button);
+    } else {
+      tags.push(makeTag(assignment.course, className));
+    }
   }
   const type = assignmentType(assignment);
   if (type) {
@@ -185,6 +198,9 @@ export function renderTags(assignment) {
     tags.push(makeTag(spent, "spent-tag"));
   } else if (assignment.hours) {
     tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
+  }
+  if (assignment.originalDueDate) {
+    tags.push(makeTag(`extended from ${formatDay(assignment.originalDueDate)}`, "extended-tag"));
   }
   const progress = stepProgress(assignment);
   if (progress) {
@@ -374,6 +390,9 @@ export function handleListClick(event) {
       list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] .action-timer`)?.focus();
       break;
     }
+    case "extend":
+      startExtending(assignment);
+      break;
     case "edit":
       startEditing(assignment);
       break;

@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=ee7cd01c";
-import { toDateKey } from "./calendar.js?v=ee7cd01c";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=941ad035";
+import { toDateKey } from "./calendar.js?v=941ad035";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
@@ -123,6 +123,19 @@ export function isIcsCalendar(text) {
  * past due are skipped, so a first import doesn't fill the list with old overdue work.
  * Returns { assignments, added, updated, skippedPast }.
  */
+/**
+ * The due fields after a re-import. Canvas still has the original date of work with an extension, so for
+ * extended work Canvas's date updates only the original; if Canvas's date is now at or after the extended one
+ * (the whole class got more time), the extension isn't needed any more and Canvas's date is used.
+ */
+function canvasDue(current, item) {
+  const canvasDate = { dueDate: item.dueDate, dueTime: item.dueTime };
+  if (!current.originalDueDate || toDueDate(item.dueDate, item.dueTime) >= toDueDate(current.dueDate, current.dueTime)) {
+    return canvasDate;
+  }
+  return { dueDate: current.dueDate, dueTime: current.dueTime, originalDueDate: item.dueDate, originalDueTime: item.dueTime };
+}
+
 export function mergeCanvasAssignments(existing, imported, now = new Date()) {
   const byUid = new Map(existing.filter((a) => a.canvasUid).map((a) => [a.canvasUid, a]));
   const updates = new Map();
@@ -133,10 +146,15 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
     const current = byUid.get(item.canvasUid);
     if (current) {
       const course = current.course !== item.course && shortCourseName(current.course) === item.course ? item.course : current.course;
+      const due = canvasDue(current, item);
       const changed =
-        current.title !== item.title || current.dueDate !== item.dueDate || current.dueTime !== item.dueTime || current.course !== course;
+        current.title !== item.title ||
+        current.course !== course ||
+        Object.entries(due).some(([key, value]) => current[key] !== value) ||
+        (current.originalDueDate !== undefined && due.originalDueDate === undefined);
       if (changed) {
-        updates.set(current.id, { ...current, title: item.title, course, dueDate: item.dueDate, dueTime: item.dueTime });
+        const { originalDueDate, originalDueTime, ...rest } = current;
+        updates.set(current.id, { ...rest, title: item.title, course, ...due });
       }
       continue;
     }

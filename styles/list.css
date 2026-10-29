@@ -271,7 +271,8 @@
 .course-tag,
 .priority-tag,
 .timer-tag,
-.spent-tag {
+.spent-tag,
+.extended-tag {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 1px 8px;
@@ -534,4 +535,140 @@
   margin: 4px 0 0;
   color: var(--muted);
   font-size: 0.88rem;
+}
+
+/* "extended from Thu, 10/29": the real deadline moved, so it's dashed, like a line that was redrawn. */
+.extended-tag {
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+}
+
+/* Course tags are buttons that open the course's page (plain labels in the Agenda, whose rows are buttons). */
+button.course-tag {
+  font-family: inherit;
+  line-height: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+button.course-tag:hover {
+  text-decoration: underline;
+}
+
+/* A course's page: its name, its links as buttons, and the editor for them, above the list. */
+.course-page {
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.course-page[hidden],
+.course-links[hidden],
+.course-links-empty[hidden],
+.course-links-editor[hidden],
+#course-links-edit[hidden] {
+  display: none;
+}
+
+.course-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.course-page-title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.course-page-count {
+  font-size: 0.88rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.course-links {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 6px;
+  padding: 0;
+}
+
+.course-link {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.course-links-empty {
+  margin: 8px 0 4px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.course-links-editor {
+  margin-top: 10px;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.course-links-edit-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+
+.course-links-edit-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+
+.course-links-edit-list input,
+.course-link-field input {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 8px;
+}
+
+.course-link-address {
+  color: var(--muted);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.course-link-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.course-link-field {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.course-link-error {
+  margin: 0;
+  color: var(--overdue);
+  font-size: 0.9rem;
+}
+
+.course-link-error:empty {
+  display: none;
 }

@@ -1,15 +1,17 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=ee7cd01c";
-import { render } from "../main.js?v=ee7cd01c";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=ee7cd01c";
-import { saveAssignments } from "../storage.js?v=ee7cd01c";
-import { syncAssignments } from "./account.js?v=ee7cd01c";
-import { showToast } from "./toast.js?v=ee7cd01c";
+import { currentMonth } from "../calendar.js?v=941ad035";
+import { render } from "../main.js?v=941ad035";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=941ad035";
+import { saveAssignments } from "../storage.js?v=941ad035";
+import { syncAssignments } from "./account.js?v=941ad035";
+import { showToast } from "./toast.js?v=941ad035";
 
 export const state = {
   assignments: [],
   editingId: null,
+  // Whether the form is open from Extend… (rather than Edit), so saving a new date keeps the original.
+  extending: false,
   // While saved data is unreadable we never write, so a mistake can't overwrite what is there.
   storageReadable: true,
   toastTimer: null,
@@ -26,6 +28,8 @@ export const state = {
   // chosen in Course colors… (course -> color, saved in this browser).
   courseColors: new Map(),
   chosenColors: {},
+  // Every course's links ({ course, label, url }), shown on the course pages; saved in this browser and synced.
+  courseLinks: [],
   // The course chosen in the Course filter ("" for all), kept here because the dropdown is rebuilt on every render.
   courseFilter: "",
   // Whether Completed shows finished work due over two weeks ago too (not remembered after a reload).

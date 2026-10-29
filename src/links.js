@@ -66,7 +66,7 @@ function count(text, character) {
   return text.split(character).length - 1;
 }
 
-function isWebAddress(text) {
+export function isWebAddress(text) {
   try {
     const { protocol, hostname } = new URL(text);
     return (protocol === "https:" || protocol === "http:") && hostname !== "";
