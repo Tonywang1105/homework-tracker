@@ -1,11 +1,11 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=070467bd";
-import { render } from "../main.js?v=070467bd";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=070467bd";
-import { saveAssignments } from "../storage.js?v=070467bd";
-import { syncAssignments } from "./account.js?v=070467bd";
-import { showToast } from "./toast.js?v=070467bd";
+import { currentMonth } from "../calendar.js?v=78dcb73d";
+import { render } from "../main.js?v=78dcb73d";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=78dcb73d";
+import { saveAssignments } from "../storage.js?v=78dcb73d";
+import { syncAssignments } from "./account.js?v=78dcb73d";
+import { showToast } from "./toast.js?v=78dcb73d";
 
 export const state = {
   assignments: [],
@@ -36,6 +36,9 @@ export const state = {
   showOlderDone: false,
   // Whether Completed was open before a search opened it, so clearing the search puts it back; null when not searching.
   doneOpenBeforeSearch: null,
+  // Focus blocks on this device ({ on, workMinutes, breakMinutes }), and the break after a block, or null.
+  focus: { on: false, workMinutes: 25, breakMinutes: 5 },
+  focusBreak: null,
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
   dailyHours: DEFAULT_DAILY_HOURS,
   startPlan: new Map(),

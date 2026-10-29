@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/form.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/list.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/calendar.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/agenda.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/types.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/panels.css?v=070467bd" />
-    <link rel="stylesheet" href="styles/messages.css?v=070467bd" />
-    <script type="module" src="src/main.js?v=070467bd"></script>
+    <link rel="stylesheet" href="styles/base.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/form.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/list.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/calendar.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/agenda.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/types.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/panels.css?v=78dcb73d" />
+    <link rel="stylesheet" href="styles/messages.css?v=78dcb73d" />
+    <script type="module" src="src/main.js?v=78dcb73d"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -229,6 +229,15 @@
           </div>
         </section>
 
+        <!-- When a focus block ends: the break, then the next block; stays until acted on (src/ui/focus.js). -->
+        <div id="focus-bar" class="focus-bar" role="status" hidden>
+          <span id="focus-bar-text" class="focus-bar-text"></span>
+          <span class="focus-bar-actions">
+            <button type="button" id="focus-bar-action" class="button button-primary"></button>
+            <button type="button" id="focus-bar-dismiss" class="link-button"></button>
+          </span>
+        </div>
+
         <!-- Overdue work, work due today, and what the start-date plan fits into today; filled in by src/ui/todayPlan.js. -->
         <section id="today-plan" class="today-plan" aria-labelledby="today-plan-heading" hidden>
           <h3 id="today-plan-heading" class="today-plan-heading">Today's plan <span id="today-plan-total" class="today-plan-total"></span></h3>
@@ -298,6 +307,15 @@
             <input id="daily-hours" type="number" min="0.5" max="16" step="0.5" inputmode="decimal" aria-label="Hours of homework per day to plan for" />
             h/day
           </label>
+        </div>
+
+        <!-- Focus blocks for the timer, remembered on this device (src/ui/focus.js). Fixed markup, so typing isn't interrupted. -->
+        <div id="focus-settings" class="focus-settings" hidden>
+          <label class="focus-toggle"><input type="checkbox" id="focus-on" /> Focus blocks</label>
+          <span id="focus-lengths" class="focus-lengths" hidden>
+            <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> min work,</label>
+            <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> min break</label>
+          </span>
         </div>
 
         <section id="due-soon" class="due-soon" aria-labelledby="due-soon-heading" hidden>

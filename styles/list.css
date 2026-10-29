@@ -672,3 +672,72 @@ button.course-tag:hover {
 .course-link-error:empty {
   display: none;
 }
+
+/* Focus blocks: the setting under the workload line, and the bar shown when a block or break ends. */
+.focus-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.focus-settings[hidden],
+.focus-lengths[hidden],
+.focus-bar[hidden] {
+  display: none;
+}
+
+.focus-toggle,
+.focus-lengths label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-weight: 400;
+}
+
+.focus-lengths {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+}
+
+.focus-lengths input {
+  width: 3.6em;
+  padding: 1px 4px;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.focus-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--small-soft);
+  border-left: 4px solid var(--later);
+}
+
+.focus-bar-text {
+  font-variant-numeric: tabular-nums;
+}
+
+.focus-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.focus-bar .button {
+  padding: 6px 14px;
+}

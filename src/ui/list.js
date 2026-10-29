@@ -17,13 +17,15 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=070467bd";
-import { render } from "../main.js?v=070467bd";
-import { formatClock, sessionSeconds, spentText, startTimer, stopTimer } from "../timer.js?v=070467bd";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=070467bd";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=070467bd";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=070467bd";
-import { showToast } from "./toast.js?v=070467bd";
+} from "../assignments.js?v=78dcb73d";
+import { timerTagText } from "../focus.js?v=78dcb73d";
+import { render } from "../main.js?v=78dcb73d";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=78dcb73d";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=78dcb73d";
+import { primeChime } from "./focus.js?v=78dcb73d";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=78dcb73d";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=78dcb73d";
+import { showToast } from "./toast.js?v=78dcb73d";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -153,15 +155,15 @@ export function timerButton(assignment) {
 
 /** A running timer's "Working… 4:05" tag, which tickTimers keeps ticking. */
 export function makeTimerClock(assignment, now = new Date()) {
-  const clock = makeTag(`Working… ${formatClock(sessionSeconds(assignment, now))}`, "timer-tag");
+  const clock = makeTag(timerTagText(assignment, state.focus, now), "timer-tag");
   clock.dataset.startedAt = assignment.timerStartedAt;
   return clock;
 }
 
-/** "Working… 4:05" on a running timer's tag; called every second, so it ticks without redrawing the list. */
+/** "Working… 4:05" (or "Focus 18:42 left") on a running timer's tag; called every second, so it ticks without redrawing the list. */
 export function tickTimers(now = new Date()) {
   for (const tag of document.querySelectorAll(".timer-tag[data-started-at]")) {
-    tag.textContent = `Working… ${formatClock(sessionSeconds({ timerStartedAt: tag.dataset.startedAt }, now))}`;
+    tag.textContent = timerTagText({ timerStartedAt: tag.dataset.startedAt }, state.focus, now);
   }
 }
 
@@ -382,6 +384,7 @@ export function handleListClick(event) {
       const stoppedOther = starting ? state.assignments.find((a) => a.timerStartedAt && a.id !== assignment.id) : null;
       updateAssignments((starting ? startTimer : stopTimer)(state.assignments, assignment.id));
       if (starting) {
+        primeChime();
         showToast(stoppedOther ? `Timing "${assignment.title}". Stopped "${stoppedOther.title}".` : `Timing "${assignment.title}".`);
       } else {
         showToast(`Stopped "${assignment.title}": ${spentText(findAssignment(assignment.id))}.`);
