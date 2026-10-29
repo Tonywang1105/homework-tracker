@@ -1,9 +1,9 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=941ad035";
-import { toDateKey } from "./calendar.js?v=941ad035";
-import { readSpentSeconds } from "./timer.js?v=941ad035";
+import { validateAssignmentInput } from "./assignments.js?v=070467bd";
+import { toDateKey } from "./calendar.js?v=070467bd";
+import { readSpentSeconds } from "./timer.js?v=070467bd";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -89,6 +89,10 @@ function restoreAssignment(saved) {
   if (/^\d{4}-\d{2}-\d{2}$/.test(saved.originalDueDate) && /^\d{2}:\d{2}$/.test(saved.originalDueTime)) {
     restored.originalDueDate = saved.originalDueDate;
     restored.originalDueTime = saved.originalDueTime;
+  }
+  // When it was finished, for the streak, if it's a real time.
+  if (restored.done && typeof saved.doneAt === "string" && !Number.isNaN(Date.parse(saved.doneAt))) {
+    restored.doneAt = saved.doneAt;
   }
   // Time spent is kept; a running timer isn't, since a backup may be days old and would count the whole gap.
   const spentSeconds = readSpentSeconds(saved.spentSeconds);

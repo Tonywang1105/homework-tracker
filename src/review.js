@@ -1,8 +1,8 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=941ad035";
-import { toDateKey } from "./calendar.js?v=941ad035";
-import { withTimerStopped } from "./timer.js?v=941ad035";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=070467bd";
+import { toDateKey } from "./calendar.js?v=070467bd";
+import { withTimerStopped } from "./timer.js?v=070467bd";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).
@@ -16,7 +16,7 @@ import { withTimerStopped } from "./timer.js?v=941ad035";
  * time estimated on finished work that has both (null if none has), so 1.4 means it took 40% longer than planned.
  */
 export function weekReview(assignments, now = new Date(), startPlan = new Map()) {
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const monday = mondayOf(now);
   const thisWeek = weekKeys(monday, 0);
   const nextWeek = weekKeys(monday, 7);
   const inWeek = (week) => (a) => a.dueDate >= week.start && a.dueDate <= week.end;
@@ -66,9 +66,53 @@ function trackedTime(assignments, now) {
   return { seconds, ratio: estimated > 0 ? spent / estimated : null };
 }
 
+/** Midnight on the Monday of `now`'s week. */
+function mondayOf(now) {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+}
+
 function weekKeys(monday, offset) {
   const day = (n) => toDateKey(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + offset + n));
   return { start: day(0), end: day(6) };
+}
+
+/**
+ * What was actually finished this week (Monday to Sunday), by when it was marked done rather than when it was due:
+ * { total, big, byDay: [{ date, count }] } with a day for each of Monday to Sunday. Work finished before finish
+ * times were recorded has no doneAt, so it isn't counted.
+ */
+export function finishedThisWeek(assignments, now = new Date()) {
+  const monday = mondayOf(now);
+  const days = Array.from({ length: 7 }, (_, n) => toDateKey(new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + n)));
+  const finished = assignments.filter((a) => a.done && a.doneAt && days.includes(doneDay(a)));
+  return {
+    total: finished.length,
+    big: finished.filter((a) => a.priority === "big").length,
+    byDay: days.map((date) => ({ date, count: finished.filter((a) => doneDay(a) === date).length })),
+  };
+}
+
+/**
+ * Days in a row with at least one thing finished, counting back from today, or from yesterday if nothing is
+ * finished yet today (so the streak doesn't look broken first thing in the morning). Small reminders count too.
+ */
+export function doneStreak(assignments, now = new Date()) {
+  const finishedDays = new Set(assignments.filter((a) => a.done && a.doneAt).map(doneDay));
+  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  if (!finishedDays.has(toDateKey(day))) {
+    day.setDate(day.getDate() - 1);
+  }
+  let streak = 0;
+  while (finishedDays.has(toDateKey(day))) {
+    streak += 1;
+    day.setDate(day.getDate() - 1);
+  }
+  return streak;
+}
+
+/** The local day ("YYYY-MM-DD") an assignment was marked done. */
+function doneDay(assignment) {
+  return toDateKey(new Date(assignment.doneAt));
 }
 
 /** The day with the most estimated hours, or null if nothing has an estimate. */
@@ -102,5 +146,6 @@ export function todaySummary(assignments, now = new Date()) {
     overdue: unfinished.filter((a) => toDueDate(a.dueDate, a.dueTime) < now).length,
     weekDone: thisWeek.done,
     weekDue: thisWeek.due,
+    streak: doneStreak(assignments, now),
   };
 }

@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/form.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/list.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/calendar.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/agenda.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/types.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/panels.css?v=941ad035" />
-    <link rel="stylesheet" href="styles/messages.css?v=941ad035" />
-    <script type="module" src="src/main.js?v=941ad035"></script>
+    <link rel="stylesheet" href="styles/base.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/form.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/list.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/calendar.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/agenda.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/types.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/panels.css?v=070467bd" />
+    <link rel="stylesheet" href="styles/messages.css?v=070467bd" />
+    <script type="module" src="src/main.js?v=070467bd"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -434,6 +434,8 @@
           <div id="review-panel" class="import-panel review-panel" hidden>
             <h3>This week <span id="review-this-dates" class="review-dates"></span></h3>
             <p id="review-this-summary"></p>
+            <p id="review-finished"></p>
+            <ol id="review-days" class="review-days" aria-label="Finished each day this week"></ol>
             <ul id="review-big" class="review-list" aria-label="Big assignments this week"></ul>
             <h3>Next week <span id="review-next-dates" class="review-dates"></span></h3>
             <p id="review-next-summary"></p>

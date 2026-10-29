@@ -1,5 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
+import { withTimerStopped } from "./timer.js?v=070467bd";
+
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
 export const PRIORITY_LABELS = { big: "Big", regular: "Regular", small: "Small" };
@@ -148,6 +150,20 @@ export function createAssignment(fields, { id = crypto.randomUUID(), now = new D
 /** A new list where the assignment with this id has `changes` applied, e.g. { done: true }. */
 export function updateAssignment(assignments, id, changes) {
   return assignments.map((a) => (a.id === id ? { ...a, ...changes } : a));
+}
+
+/**
+ * Marks an assignment done or not done. Done records when (doneAt), for the streak and the Finished line in the
+ * Weekly review, and stops its timer so the time so far is kept; not done clears doneAt.
+ */
+export function setDone(assignments, id, done, now = new Date()) {
+  return assignments.map((a) => {
+    if (a.id !== id) {
+      return a;
+    }
+    const { doneAt, ...rest } = withTimerStopped(a, now);
+    return done ? { ...rest, done: true, doneAt: now.toISOString() } : { ...rest, done: false };
+  });
 }
 
 /** A new list without the assignment with this id. */

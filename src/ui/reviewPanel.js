@@ -1,15 +1,17 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=941ad035";
-import { todaySummary, weekReview } from "../review.js?v=941ad035";
-import { formatSpent } from "../timer.js?v=941ad035";
-import { formatDay, makeButton } from "./dom.js?v=941ad035";
-import { panels, setPanelOpen } from "./panels.js?v=941ad035";
-import { setView } from "./settings.js?v=941ad035";
-import { state } from "./store.js?v=941ad035";
+import { formatHours } from "../assignments.js?v=070467bd";
+import { toDateKey } from "../calendar.js?v=070467bd";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=070467bd";
+import { formatSpent } from "../timer.js?v=070467bd";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=070467bd";
+import { panels, setPanelOpen } from "./panels.js?v=070467bd";
+import { setView } from "./settings.js?v=070467bd";
+import { state } from "./store.js?v=070467bd";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
+const WEEKDAY_FORMAT = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short" });
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;
 const summaryLine = document.getElementById("today-summary");
@@ -19,6 +21,8 @@ const reviewElements = {
   panel: document.getElementById("review-panel"),
   thisDates: document.getElementById("review-this-dates"),
   thisSummary: document.getElementById("review-this-summary"),
+  finished: document.getElementById("review-finished"),
+  days: document.getElementById("review-days"),
   big: document.getElementById("review-big"),
   nextDates: document.getElementById("review-next-dates"),
   nextSummary: document.getElementById("review-next-summary"),
@@ -35,6 +39,7 @@ export function renderReview(now) {
 
   reviewElements.thisDates.textContent = dateRange(thisWeek);
   reviewElements.thisSummary.textContent = thisWeekText(thisWeek);
+  renderFinished(now);
   reviewElements.big.replaceChildren(
     ...thisWeek.big.map(({ assignment, status }) =>
       listItem(`${assignment.title}: ${STATUS_TEXT[status]}`, `review-${status}`),
@@ -48,6 +53,31 @@ export function renderReview(now) {
     ...startThisWeek.map((a) => listItem(`${a.title}: start by ${formatDay(state.startPlan.get(a.id).startDate)}`)),
   );
   reviewElements.start.hidden = startThisWeek.length === 0;
+}
+
+/** "Finished 9 this week (3 big) · 4-day streak", and a Mon–Sun row with how many were finished each day. */
+function renderFinished(now) {
+  const { total, big, byDay } = finishedThisWeek(state.assignments, now);
+  const streak = doneStreak(state.assignments, now);
+  const bigText = big > 0 ? ` (${big} big)` : "";
+  const streakText = streak > 0 ? ` · ${streak}-day streak` : "";
+  reviewElements.finished.textContent = `Finished ${total} this week${bigText}${streakText}.`;
+  const today = byDay.find(({ date }) => date === toDateKey(now));
+  reviewElements.days.replaceChildren(
+    ...byDay.map((day) => {
+      const item = document.createElement("li");
+      item.className = `review-day${day.count > 0 ? " has-done" : ""}${day === today ? " is-today" : ""}`;
+      const name = document.createElement("span");
+      name.className = "review-day-name";
+      name.textContent = WEEKDAY_FORMAT.format(new Date(`${day.date}T12:00`));
+      const count = document.createElement("span");
+      count.className = "review-day-count";
+      count.textContent = String(day.count);
+      item.append(name, count);
+      item.setAttribute("aria-label", `${name.textContent}: ${day.count} finished`);
+      return item;
+    }),
+  );
 }
 
 function dateRange({ start, end }) {
@@ -115,7 +145,7 @@ export function renderTodaySummary(now) {
   if (summaryLine.hidden) {
     return;
   }
-  const { dueToday, overdue, weekDone, weekDue } = todaySummary(state.assignments, now);
+  const { dueToday, overdue, weekDone, weekDue, streak } = todaySummary(state.assignments, now);
   const parts = [label("Today:"), ` ${todayText(dueToday)}`];
   if (overdue > 0) {
     const late = document.createElement("span");
@@ -124,6 +154,10 @@ export function renderTodaySummary(now) {
     parts.push(" · ", late);
   }
   parts.push(" · ", label("This week:"), weekDue === 0 ? " nothing due" : ` ${weekDone} of ${weekDue} done`);
+  // A single day isn't a streak yet, so it only shows from two days in a row.
+  if (streak >= 2) {
+    parts.push(` · ${streak}-day streak`);
+  }
   parts.push(" · ", summaryLink("Agenda", "agenda"), " · ", summaryLink("Weekly review", "review"));
   summaryLine.replaceChildren(...parts);
 }

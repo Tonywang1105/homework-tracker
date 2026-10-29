@@ -10,19 +10,20 @@ import {
   PRIORITY_LABELS,
   removeAssignment,
   searchWords,
+  setDone,
   snoozeDate,
   stepProgress,
   toDueDate,
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=941ad035";
-import { render } from "../main.js?v=941ad035";
-import { formatClock, sessionSeconds, spentText, startTimer, stopTimer, withTimerStopped } from "../timer.js?v=941ad035";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=941ad035";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=941ad035";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=941ad035";
-import { showToast } from "./toast.js?v=941ad035";
+} from "../assignments.js?v=070467bd";
+import { render } from "../main.js?v=070467bd";
+import { formatClock, sessionSeconds, spentText, startTimer, stopTimer } from "../timer.js?v=070467bd";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=070467bd";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=070467bd";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=070467bd";
+import { showToast } from "./toast.js?v=070467bd";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -424,11 +425,10 @@ function focusRowAt(list, position, action) {
 
 /** Marks an assignment done (with Undo) or, if it is already done, back to not done. */
 export function toggleDone(assignment) {
-  // Finishing work stops its timer, so the time so far is kept.
-  const setDone = (done) =>
-    updateAssignments(state.assignments.map((a) => (a.id === assignment.id ? { ...withTimerStopped(a), done } : a)));
-  setDone(!assignment.done);
+  // Records when it was finished (for the streak) and stops its timer, so the time so far is kept.
+  const markDone = (done) => updateAssignments(setDone(state.assignments, assignment.id, done));
+  markDone(!assignment.done);
   if (!assignment.done) {
-    showToast(`Done: "${assignment.title}".`, () => setDone(false));
+    showToast(`Done: "${assignment.title}".`, () => markDone(false));
   }
 }

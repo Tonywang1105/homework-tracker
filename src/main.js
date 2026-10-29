@@ -1,14 +1,14 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=941ad035";
-import { currentMonth, shiftMonth } from "./calendar.js?v=941ad035";
-import { hasExamples } from "./examples.js?v=941ad035";
-import { parseSavedWidth } from "./layout.js?v=941ad035";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=941ad035";
-import { combineSeries } from "./repeat.js?v=941ad035";
-import { loadAssignments } from "./storage.js?v=941ad035";
-import { startAccount } from "./ui/account.js?v=941ad035";
-import { renderAgenda } from "./ui/agendaView.js?v=941ad035";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=070467bd";
+import { currentMonth, shiftMonth } from "./calendar.js?v=070467bd";
+import { hasExamples } from "./examples.js?v=070467bd";
+import { parseSavedWidth } from "./layout.js?v=070467bd";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts } from "./plan.js?v=070467bd";
+import { combineSeries } from "./repeat.js?v=070467bd";
+import { loadAssignments } from "./storage.js?v=070467bd";
+import { startAccount } from "./ui/account.js?v=070467bd";
+import { renderAgenda } from "./ui/agendaView.js?v=070467bd";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -21,10 +21,10 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=941ad035";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=941ad035";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=941ad035";
-import { elements } from "./ui/dom.js?v=941ad035";
+} from "./ui/calendarView.js?v=070467bd";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=070467bd";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=070467bd";
+import { elements } from "./ui/dom.js?v=070467bd";
 import {
   closeForm,
   focusForm,
@@ -34,8 +34,8 @@ import {
   startCopying,
   startEditing,
   updateRepeatFields,
-} from "./ui/form.js?v=941ad035";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=941ad035";
+} from "./ui/form.js?v=070467bd";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=070467bd";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -49,7 +49,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=941ad035";
+} from "./ui/list.js?v=070467bd";
 import {
   addExamples,
   canvasPanel,
@@ -62,9 +62,9 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=941ad035";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=941ad035";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=941ad035";
+} from "./ui/panels.js?v=070467bd";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=070467bd";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=070467bd";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -80,11 +80,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=941ad035";
-import { startShortcuts } from "./ui/shortcuts.js?v=941ad035";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=941ad035";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=941ad035";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=941ad035";
+} from "./ui/settings.js?v=070467bd";
+import { startShortcuts } from "./ui/shortcuts.js?v=070467bd";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=070467bd";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=070467bd";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=070467bd";
 
 export function render() {
   const courses = courseNames(state.assignments);
