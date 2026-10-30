@@ -1,9 +1,9 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=14885c19";
-import { toDateKey } from "./calendar.js?v=14885c19";
-import { readSpentSeconds } from "./timer.js?v=14885c19";
+import { validateAssignmentInput } from "./assignments.js?v=5448d2e0";
+import { toDateKey } from "./calendar.js?v=5448d2e0";
+import { readSpentSeconds } from "./timer.js?v=5448d2e0";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";

@@ -17,17 +17,18 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=14885c19";
-import { toDateKey } from "../calendar.js?v=14885c19";
-import { timerTagText } from "../focus.js?v=14885c19";
-import { render } from "../main.js?v=14885c19";
-import { stepDays } from "../plan.js?v=14885c19";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=14885c19";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=14885c19";
-import { primeChime } from "./focus.js?v=14885c19";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=14885c19";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=14885c19";
-import { showToast } from "./toast.js?v=14885c19";
+} from "../assignments.js?v=5448d2e0";
+import { toDateKey } from "../calendar.js?v=5448d2e0";
+import { timerTagText } from "../focus.js?v=5448d2e0";
+import { render } from "../main.js?v=5448d2e0";
+import { stepDays } from "../plan.js?v=5448d2e0";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=5448d2e0";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=5448d2e0";
+import { primeChime } from "./focus.js?v=5448d2e0";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=5448d2e0";
+import { toggleSelected } from "./select.js?v=5448d2e0";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=5448d2e0";
+import { showToast } from "./toast.js?v=5448d2e0";
 
 const FILTERS_KEY = "homework-tracker.filters";
 
@@ -101,10 +102,20 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 
   const checkbox = document.createElement("input");
   checkbox.type = "checkbox";
-  checkbox.className = "done-checkbox";
-  checkbox.checked = assignment.done;
-  checkbox.dataset.action = "toggle-done";
-  checkbox.setAttribute("aria-label", `Mark "${assignment.title}" as ${assignment.done ? "not done" : "done"}`);
+  if (state.selecting) {
+    // In select mode the box picks the row instead of marking it done.
+    const selected = state.selectedIds.has(assignment.id);
+    checkbox.className = "done-checkbox select-checkbox";
+    checkbox.checked = selected;
+    checkbox.dataset.action = "toggle-select";
+    checkbox.setAttribute("aria-label", `Select "${assignment.title}"`);
+    item.classList.toggle("is-selected", selected);
+  } else {
+    checkbox.className = "done-checkbox";
+    checkbox.checked = assignment.done;
+    checkbox.dataset.action = "toggle-done";
+    checkbox.setAttribute("aria-label", `Mark "${assignment.title}" as ${assignment.done ? "not done" : "done"}`);
+  }
 
   const body = document.createElement("div");
   body.className = "assignment-body";
@@ -382,6 +393,11 @@ export function handleListClick(event) {
   const position = [...list.querySelectorAll("li[data-id]")].indexOf(item);
 
   switch (control.dataset.action) {
+    case "toggle-select":
+      toggleSelected(assignment.id);
+      // The row was redrawn, so put focus back on its new select box.
+      list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] [data-action="toggle-select"]`)?.focus();
+      break;
     case "toggle-step": {
       const index = Number(control.dataset.step);
       toggleAssignmentStep(assignment, index);

@@ -119,3 +119,9 @@
   outline-offset: 4px;
   border-radius: 6px;
 }
+
+/* While selecting, messages show at the top, so they never cover Select's action bar (taller on a phone). */
+body.is-selecting .toast {
+  top: 20px;
+  bottom: auto;
+}

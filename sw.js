@@ -62,6 +62,7 @@ const APP_FILES = [
   "src/ui/panels.js",
   "src/ui/quickAdd.js",
   "src/ui/reviewPanel.js",
+  "src/ui/select.js",
   "src/ui/settings.js",
   "src/ui/shortcuts.js",
   "src/ui/store.js",

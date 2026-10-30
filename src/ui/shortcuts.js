@@ -1,12 +1,12 @@
 // Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them (src/shortcuts.js says which key is which).
 
-import { render } from "../main.js?v=14885c19";
-import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=14885c19";
-import { elements } from "./dom.js?v=14885c19";
-import { panels, setPanelOpen } from "./panels.js?v=14885c19";
-import { setView, VIEWS } from "./settings.js?v=14885c19";
-import { state } from "./store.js?v=14885c19";
-import { showToast } from "./toast.js?v=14885c19";
+import { render } from "../main.js?v=5448d2e0";
+import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=5448d2e0";
+import { elements } from "./dom.js?v=5448d2e0";
+import { panels, setPanelOpen } from "./panels.js?v=5448d2e0";
+import { setView, VIEWS } from "./settings.js?v=5448d2e0";
+import { state } from "./store.js?v=5448d2e0";
+import { showToast } from "./toast.js?v=5448d2e0";
 
 // The shortcuts are listed in Settings, so ? opens Settings at that section.
 const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");

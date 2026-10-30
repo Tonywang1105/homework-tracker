@@ -1,6 +1,6 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { withTimerStopped } from "./timer.js?v=14885c19";
+import { withTimerStopped } from "./timer.js?v=5448d2e0";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -164,6 +164,25 @@ export function setDone(assignments, id, done, now = new Date()) {
     const { doneAt, ...rest } = withTimerStopped(a, now);
     return done ? { ...rest, done: true, doneAt: now.toISOString() } : { ...rest, done: false };
   });
+}
+
+/** A new list where every assignment whose id is in `ids` (a Set) has `changes` applied, for Select. */
+export function changeAssignments(assignments, ids, changes) {
+  return assignments.map((a) => (ids.has(a.id) ? { ...a, ...changes } : a));
+}
+
+/** A new list without the assignments whose ids are in `ids` (a Set), for Select. */
+export function removeAssignmentsById(assignments, ids) {
+  return assignments.filter((a) => !ids.has(a.id));
+}
+
+/**
+ * Marks the unfinished assignments among `ids` done, each with its finish time (finished ones are left alone, so
+ * their finish times don't move). Returns { assignments, changed }, changed being how many were marked.
+ */
+export function markManyDone(assignments, ids, now = new Date()) {
+  const toMark = assignments.filter((a) => ids.has(a.id) && !a.done).map((a) => a.id);
+  return { assignments: toMark.reduce((list, id) => setDone(list, id, true, now), assignments), changed: toMark.length };
 }
 
 /** A new list without the assignment with this id. */

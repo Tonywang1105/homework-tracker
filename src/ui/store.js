@@ -1,15 +1,18 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=14885c19";
-import { render } from "../main.js?v=14885c19";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=14885c19";
-import { saveAssignments } from "../storage.js?v=14885c19";
-import { syncAssignments } from "./account.js?v=14885c19";
-import { showToast } from "./toast.js?v=14885c19";
+import { currentMonth } from "../calendar.js?v=5448d2e0";
+import { render } from "../main.js?v=5448d2e0";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=5448d2e0";
+import { saveAssignments } from "../storage.js?v=5448d2e0";
+import { syncAssignments } from "./account.js?v=5448d2e0";
+import { showToast } from "./toast.js?v=5448d2e0";
 
 export const state = {
   assignments: [],
   editingId: null,
+  // Select mode: whether it's on, and the ids of the assignments picked so far.
+  selecting: false,
+  selectedIds: new Set(),
   // Whether the form is open from Extend… (rather than Edit), so saving a new date keeps the original.
   extending: false,
   // While saved data is unreadable we never write, so a mistake can't overwrite what is there.

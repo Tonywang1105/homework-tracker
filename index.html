@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/form.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/list.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/calendar.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/agenda.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/types.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/panels.css?v=14885c19" />
-    <link rel="stylesheet" href="styles/messages.css?v=14885c19" />
-    <script type="module" src="src/main.js?v=14885c19"></script>
+    <link rel="stylesheet" href="styles/base.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/form.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/list.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/calendar.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/agenda.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/types.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/panels.css?v=5448d2e0" />
+    <link rel="stylesheet" href="styles/messages.css?v=5448d2e0" />
+    <script type="module" src="src/main.js?v=5448d2e0"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -279,6 +279,7 @@
             <input type="checkbox" id="hide-done" />
             Hide completed
           </label>
+          <button type="button" id="select-toggle" class="link-button" aria-pressed="false">Select</button>
         </div>
 
         <div id="getting-started" class="getting-started" hidden>
@@ -351,6 +352,24 @@
               <button type="button" id="details-done" class="button button-primary">Mark done</button>
             </div>
           </div>
+        </div>
+
+        <!-- Select mode's actions, stuck to the bottom of the screen while the list is in view (src/ui/select.js). -->
+        <div id="select-bar" class="select-bar" role="toolbar" aria-label="Selected assignments" hidden>
+          <span id="select-count" class="select-count" aria-live="polite"></span>
+          <button type="button" class="button button-primary" data-bulk="done">Mark done</button>
+          <label class="select-size">
+            <span class="visually-hidden">Change size of the selected</span>
+            <select id="select-size">
+              <option value="">Size…</option>
+              <option value="big">Big</option>
+              <option value="regular">Regular</option>
+              <option value="small">Small</option>
+            </select>
+          </label>
+          <button type="button" class="button" data-bulk="delete">Delete</button>
+          <button type="button" class="link-button" data-bulk="all">Select all shown</button>
+          <button type="button" class="link-button" data-bulk="cancel">Cancel</button>
         </div>
 
         <div class="import-section">
