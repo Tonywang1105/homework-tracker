@@ -1,14 +1,18 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=8ed150ab";
-import { render } from "../main.js?v=8ed150ab";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=8ed150ab";
-import { saveAssignments } from "../storage.js?v=8ed150ab";
-import { syncAssignments } from "./account.js?v=8ed150ab";
-import { showToast } from "./toast.js?v=8ed150ab";
+import { currentMonth } from "../calendar.js?v=03cdcd76";
+import { render } from "../main.js?v=03cdcd76";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=03cdcd76";
+import { saveAssignments } from "../storage.js?v=03cdcd76";
+import { withDeletions } from "../trash.js?v=03cdcd76";
+import { syncAssignments } from "./account.js?v=03cdcd76";
+import { showToast } from "./toast.js?v=03cdcd76";
 
 export const state = {
+  // The live assignments; every screen draws from these.
   assignments: [],
+  // Recently deleted ones (with deletedAt), kept 30 days; saved and synced together with the live ones.
+  deleted: [],
   editingId: null,
   // Select mode: whether it's on, and the ids of the assignments picked so far.
   selecting: false,
@@ -56,18 +60,29 @@ function persist() {
   if (!state.storageReadable) {
     return;
   }
-  if (!saveAssignments(localStorage, state.assignments)) {
+  const all = [...state.assignments, ...state.deleted];
+  if (!saveAssignments(localStorage, all)) {
     showToast("Couldn't save. Your browser blocked storage, so changes will be lost on reload.");
   }
-  syncAssignments(state.assignments);
+  syncAssignments(all);
 }
 
 export function findAssignment(id) {
   return state.assignments.find((a) => a.id === id);
 }
 
+/** Replaces the live list. Whatever leaves it goes to Recently deleted, and whatever comes back (Undo) leaves that. */
 export function updateAssignments(newAssignments) {
+  state.deleted = withDeletions(state.assignments, newAssignments, state.deleted);
   state.assignments = newAssignments;
+  persist();
+  render();
+}
+
+/** Recently deleted changed by itself (Restore, Delete all now): saves both lists. */
+export function updateDeleted(live, deleted) {
+  state.assignments = live;
+  state.deleted = deleted;
   persist();
   render();
 }

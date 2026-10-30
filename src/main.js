@@ -1,15 +1,16 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=8ed150ab";
-import { currentMonth, shiftMonth } from "./calendar.js?v=8ed150ab";
-import { hasExamples } from "./examples.js?v=8ed150ab";
-import { parseSavedWidth } from "./layout.js?v=8ed150ab";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=8ed150ab";
-import { combineSeries } from "./repeat.js?v=8ed150ab";
-import { loadAssignments } from "./storage.js?v=8ed150ab";
-import { startAccount } from "./ui/account.js?v=8ed150ab";
-import { renderAgenda } from "./ui/agendaView.js?v=8ed150ab";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=8ed150ab";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=03cdcd76";
+import { currentMonth, shiftMonth } from "./calendar.js?v=03cdcd76";
+import { hasExamples } from "./examples.js?v=03cdcd76";
+import { parseSavedWidth } from "./layout.js?v=03cdcd76";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=03cdcd76";
+import { combineSeries } from "./repeat.js?v=03cdcd76";
+import { loadAssignments } from "./storage.js?v=03cdcd76";
+import { splitDeleted } from "./trash.js?v=03cdcd76";
+import { startAccount } from "./ui/account.js?v=03cdcd76";
+import { renderAgenda } from "./ui/agendaView.js?v=03cdcd76";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=03cdcd76";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -22,11 +23,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=8ed150ab";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=8ed150ab";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=8ed150ab";
-import { elements } from "./ui/dom.js?v=8ed150ab";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=8ed150ab";
+} from "./ui/calendarView.js?v=03cdcd76";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=03cdcd76";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=03cdcd76";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=03cdcd76";
+import { elements } from "./ui/dom.js?v=03cdcd76";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=03cdcd76";
 import {
   closeForm,
   focusForm,
@@ -37,8 +39,8 @@ import {
   startEditing,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=8ed150ab";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=8ed150ab";
+} from "./ui/form.js?v=03cdcd76";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=03cdcd76";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -52,7 +54,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=8ed150ab";
+} from "./ui/list.js?v=03cdcd76";
 import {
   addExamples,
   canvasPanel,
@@ -65,10 +67,10 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=8ed150ab";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=8ed150ab";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=8ed150ab";
-import { renderSelect, startSelect } from "./ui/select.js?v=8ed150ab";
+} from "./ui/panels.js?v=03cdcd76";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=03cdcd76";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=03cdcd76";
+import { renderSelect, startSelect } from "./ui/select.js?v=03cdcd76";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -84,11 +86,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=8ed150ab";
-import { startShortcuts } from "./ui/shortcuts.js?v=8ed150ab";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=8ed150ab";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=8ed150ab";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=8ed150ab";
+} from "./ui/settings.js?v=03cdcd76";
+import { startShortcuts } from "./ui/shortcuts.js?v=03cdcd76";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=03cdcd76";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=03cdcd76";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=03cdcd76";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -132,6 +134,7 @@ export function render() {
   renderCoursePage();
   renderFocus(now);
   renderSelect();
+  renderDeleted(now);
   offerGuide(state.assignments.length);
   elements.emptyMessage.textContent = emptyMessageText({ ...filters, search }, done.length);
 
@@ -170,7 +173,7 @@ export function render() {
 function start() {
   const loaded = loadAssignments(localStorage);
   if (loaded.ok) {
-    state.assignments = loaded.assignments;
+    ({ live: state.assignments, deleted: state.deleted } = splitDeleted(loaded.assignments));
   } else {
     state.storageReadable = false;
     elements.storageErrorMessage.textContent = `${loaded.error} Nothing new will be saved until you start over.`;
@@ -228,6 +231,7 @@ function start() {
   startFocus();
   startSelect();
   startCalendarDrag();
+  startDeletedPanel();
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
   // Edit and Copy in the details box close it, then open the form for that assignment.
   for (const [button, openForm] of [

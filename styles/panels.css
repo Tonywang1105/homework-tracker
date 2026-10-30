@@ -212,3 +212,44 @@
   border: 1px solid var(--border);
   border-radius: 6px;
 }
+
+/* Recently deleted: each assignment with when it was deleted, and Restore. */
+.deleted-list {
+  list-style: none;
+  margin: 8px 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.deleted-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.deleted-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.deleted-text strong {
+  color: var(--text);
+}
+
+.deleted-list .button {
+  padding: 4px 12px;
+}
+
+.deleted-none {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#deleted-empty[hidden] {
+  display: none;
+}

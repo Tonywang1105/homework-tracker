@@ -1,8 +1,8 @@
 // Page elements and small helpers for building the page: buttons, tags, notes, dates, downloads.
 
-import { dueSoon, toDueDate, workload } from "../assignments.js?v=8ed150ab";
-import { removeExamples } from "../examples.js?v=8ed150ab";
-import { splitLinks } from "../links.js?v=8ed150ab";
+import { dueSoon, toDueDate, workload } from "../assignments.js?v=03cdcd76";
+import { removeExamples } from "../examples.js?v=03cdcd76";
+import { splitLinks } from "../links.js?v=03cdcd76";
 
 export const elements = {
   form: document.getElementById("assignment-form"),

@@ -1,14 +1,14 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=8ed150ab";
-import { toDateKey } from "../calendar.js?v=8ed150ab";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=8ed150ab";
-import { formatSpent } from "../timer.js?v=8ed150ab";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=8ed150ab";
-import { panels, setPanelOpen } from "./panels.js?v=8ed150ab";
-import { setView } from "./settings.js?v=8ed150ab";
-import { state } from "./store.js?v=8ed150ab";
+import { formatHours } from "../assignments.js?v=03cdcd76";
+import { toDateKey } from "../calendar.js?v=03cdcd76";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=03cdcd76";
+import { formatSpent } from "../timer.js?v=03cdcd76";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=03cdcd76";
+import { panels, setPanelOpen } from "./panels.js?v=03cdcd76";
+import { setView } from "./settings.js?v=03cdcd76";
+import { state } from "./store.js?v=03cdcd76";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
 const WEEKDAY_FORMAT = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short" });

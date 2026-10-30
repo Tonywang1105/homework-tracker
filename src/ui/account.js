@@ -2,15 +2,16 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=8ed150ab";
-import { firebaseConfig } from "../firebase-config.js?v=8ed150ab";
-import { render } from "../main.js?v=8ed150ab";
-import { saveAssignments } from "../storage.js?v=8ed150ab";
-import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=8ed150ab";
-import { applyCourseLinks } from "./coursePage.js?v=8ed150ab";
-import { elements } from "./dom.js?v=8ed150ab";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=8ed150ab";
-import { showToast } from "./toast.js?v=8ed150ab";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=03cdcd76";
+import { firebaseConfig } from "../firebase-config.js?v=03cdcd76";
+import { render } from "../main.js?v=03cdcd76";
+import { saveAssignments } from "../storage.js?v=03cdcd76";
+import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=03cdcd76";
+import { splitDeleted } from "../trash.js?v=03cdcd76";
+import { applyCourseLinks } from "./coursePage.js?v=03cdcd76";
+import { elements } from "./dom.js?v=03cdcd76";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=03cdcd76";
+import { showToast } from "./toast.js?v=03cdcd76";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
@@ -47,7 +48,7 @@ export function startAccount() {
   }
 }
 
-/** Sends the list to the account after the app saves it. Does nothing while signed out. */
+/** Sends the list (live and Recently deleted together) to the account after the app saves it. Does nothing while signed out. */
 export function syncAssignments(assignments) {
   if (!sync) {
     return;
@@ -154,12 +155,12 @@ async function handleUser(user) {
     const snapshot = await dbApi.getDocsFromServer(assignmentsRef);
     const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
     const lastSynced = loadLastSynced(user.uid);
-    const { assignments, addedCount } = lastSynced
-      ? mergeWithLastSynced(state.assignments, remote, lastSynced)
-      : mergeLists(state.assignments, remote);
+    // Recently deleted ones are merged too, so a deletion here or there isn't undone by the other copy.
+    const local = [...state.assignments, ...state.deleted];
+    const { assignments, addedCount } = lastSynced ? mergeWithLastSynced(local, remote, lastSynced) : mergeLists(local, remote);
     const { saves, deletes } = listChanges(remote, assignments);
     await writeChanges(user.uid, saves, deletes);
-    state.assignments = assignments;
+    ({ live: state.assignments, deleted: state.deleted } = splitDeleted(assignments));
     // Course links too: the account's, plus any this device has that the account doesn't.
     try {
       const linksSnapshot = await dbApi.getDocFromServer(linksRef);
@@ -184,7 +185,7 @@ async function handleUser(user) {
       .catch(handleLinksError);
   }
 
-  sync = { userId: user.uid, remoteList: state.assignments, stop: null, stopLinks: null };
+  sync = { userId: user.uid, remoteList: [...state.assignments, ...state.deleted], stop: null, stopLinks: null };
   sync.stop = dbApi.onSnapshot(
     assignmentsRef,
     { includeMetadataChanges: true },
@@ -210,7 +211,7 @@ function showRemoteLinks(user, snapshot) {
 function showRemoteList(user, snapshot) {
   const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
   sync.remoteList = remote;
-  state.assignments = remote;
+  ({ live: state.assignments, deleted: state.deleted } = splitDeleted(remote));
   saveAssignments(localStorage, remote);
   // Only a list Firebase has confirmed counts as "the account as last seen", not one with uploads pending.
   if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) {

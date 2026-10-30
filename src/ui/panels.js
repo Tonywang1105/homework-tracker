@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=8ed150ab";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=03cdcd76";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,13 +8,14 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=8ed150ab";
-import { exampleAssignments, removeExamples } from "../examples.js?v=8ed150ab";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=8ed150ab";
-import { render } from "../main.js?v=8ed150ab";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=8ed150ab";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=8ed150ab";
-import { showToast } from "./toast.js?v=8ed150ab";
+} from "../canvas.js?v=03cdcd76";
+import { exampleAssignments, removeExamples } from "../examples.js?v=03cdcd76";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=03cdcd76";
+import { deletedCanvasUids } from "../trash.js?v=03cdcd76";
+import { render } from "../main.js?v=03cdcd76";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=03cdcd76";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=03cdcd76";
+import { showToast } from "./toast.js?v=03cdcd76";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 
@@ -86,11 +87,15 @@ export async function handleCanvasFile() {
     showToast(`"${file.name}" isn't a calendar (.ics) file. Use the Calendar Feed link in Canvas Calendar.`);
     return;
   }
-  const imported = readCanvasAssignments(text);
-  if (imported.length === 0) {
+  const inFile = readCanvasAssignments(text);
+  if (inFile.length === 0) {
     showToast("No Canvas assignments found in that file.");
     return;
   }
+  // Assignments deleted here stay deleted, while they're in Recently deleted. (If that's all of them, the merge
+  // below has nothing to add and says the list is already up to date.)
+  const skipped = deletedCanvasUids(state.deleted);
+  const imported = inFile.filter((item) => !skipped.has(item.canvasUid));
 
   const previous = state.assignments;
   const result = mergeCanvasAssignments(previous, imported);
