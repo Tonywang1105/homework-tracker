@@ -17,18 +17,18 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=5448d2e0";
-import { toDateKey } from "../calendar.js?v=5448d2e0";
-import { timerTagText } from "../focus.js?v=5448d2e0";
-import { render } from "../main.js?v=5448d2e0";
-import { stepDays } from "../plan.js?v=5448d2e0";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=5448d2e0";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=5448d2e0";
-import { primeChime } from "./focus.js?v=5448d2e0";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=5448d2e0";
-import { toggleSelected } from "./select.js?v=5448d2e0";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=5448d2e0";
-import { showToast } from "./toast.js?v=5448d2e0";
+} from "../assignments.js?v=8ed150ab";
+import { toDateKey } from "../calendar.js?v=8ed150ab";
+import { timerTagText } from "../focus.js?v=8ed150ab";
+import { render } from "../main.js?v=8ed150ab";
+import { stepDays } from "../plan.js?v=8ed150ab";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=8ed150ab";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=8ed150ab";
+import { primeChime } from "./focus.js?v=8ed150ab";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=8ed150ab";
+import { toggleSelected } from "./select.js?v=8ed150ab";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=8ed150ab";
+import { showToast } from "./toast.js?v=8ed150ab";
 
 const FILTERS_KEY = "homework-tracker.filters";
 

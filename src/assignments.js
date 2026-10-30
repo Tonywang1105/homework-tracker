@@ -1,6 +1,6 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { withTimerStopped } from "./timer.js?v=5448d2e0";
+import { withTimerStopped } from "./timer.js?v=8ed150ab";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -208,6 +208,17 @@ export function withExtension(before, after, extending = false) {
     return rest;
   }
   return { ...rest, originalDueDate: original.date, originalDueTime: original.time };
+}
+
+/**
+ * Dragging an assignment to another day on the calendar: the due date changes and the time stays. Moving
+ * unfinished big or regular work later counts as an extension (the original date is kept, as with Extend…);
+ * moving a small reminder, or moving earlier, is a plain move; dropping it back on the original date ends the
+ * extension. Returns the moved assignment.
+ */
+export function rescheduleTo(assignment, date) {
+  const extending = !assignment.done && assignment.priority !== "small" && date > assignment.dueDate;
+  return withExtension(assignment, { ...assignment, dueDate: date }, extending);
 }
 
 /** Extend… is offered on unfinished big and regular work that's overdue or due within a week (small has Tomorrow). */

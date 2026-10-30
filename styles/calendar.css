@@ -387,3 +387,34 @@
   align-items: center;
   gap: 5px;
 }
+
+/* Dragging a tag to another day: the tag follows the pointer, the original fades, and the day under it is outlined. */
+.calendar-item {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.calendar-item.is-drag-source {
+  opacity: 0.35;
+}
+
+.drag-ghost {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-2deg);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.25);
+  max-width: 12em;
+}
+
+body.is-dragging,
+body.is-dragging * {
+  cursor: grabbing;
+}
+
+.calendar-day.is-drop-target {
+  outline: 2px dashed var(--accent);
+  outline-offset: -3px;
+  background: var(--small-soft);
+}
