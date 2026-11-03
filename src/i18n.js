@@ -94,9 +94,9 @@ const PHRASES = {
   "quick.label": ["Quick add", "快速添加", "Añadir rápido"],
   "quick.add": ["Add", "添加", "Añadir"],
   "start.empty": [
-    "No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.",
-    "还没有作业。用表单添加一项、从下方的 Canvas 导入，或者先用示例看看应用怎么用。",
-    "Aún no hay tareas. Añade una con el formulario, importa de Canvas abajo o mira cómo funciona con unos ejemplos.",
+    "No assignments yet. Add one with the form, use Import… below (Canvas or PrairieLearn), or see how the app works with some examples.",
+    "还没有作业。用表单添加一项、用下方的「导入…」（Canvas 或 PrairieLearn），或者先用示例看看应用怎么用。",
+    "Aún no hay tareas. Añade una con el formulario, usa Importar… abajo (Canvas o PrairieLearn) o mira cómo funciona con unos ejemplos.",
   ],
   "start.try": ["Try with example assignments", "用示例作业试试", "Probar con tareas de ejemplo"],
   "examples.notice": ["You're looking at example assignments.", "你正在看示例作业。", "Estás viendo tareas de ejemplo."],
@@ -374,6 +374,32 @@ const PHRASES = {
 
   // Panels
   "panel.close": ["Close", "关闭", "Cerrar"],
+  "links.import": ["Import…", "导入…", "Importar…"],
+  "import.canvas_heading": ["From Canvas", "从 Canvas 导入", "Desde Canvas"],
+  "import.pl_heading": ["Paste from PrairieLearn", "从 PrairieLearn 粘贴", "Pegar de PrairieLearn"],
+  "pl.help": [
+    "Open a course's Assessments page in PrairieLearn, press Cmd+A then Cmd+C (Ctrl on Windows), and paste it here. Nothing is sent anywhere: the app reads the text on this device.",
+    "在 PrairieLearn 里打开一门课的 Assessments 页面，按 Cmd+A 再按 Cmd+C（Windows 上用 Ctrl），然后粘贴到这里。内容不会发送到任何地方，应用只在这台设备上读取文字。",
+    "Abre la página Assessments de un curso en PrairieLearn, pulsa Cmd+A y luego Cmd+C (Ctrl en Windows) y pégala aquí. No se envía nada: la app lee el texto en este dispositivo.",
+  ],
+  "pl.paste_ph": ["Paste the Assessments page here", "把 Assessments 页面粘贴到这里", "Pega aquí la página Assessments"],
+  "pl.course": ["Course", "课程", "Curso"],
+  "pl.course_ph": ["e.g. CS 124", "例如：CS 124", "p. ej., CS 124"],
+  "pl.none_found": [
+    "No upcoming assessments found. Make sure you copied a PrairieLearn Assessments page.",
+    "没有找到即将到期的作业。请确认复制的是 PrairieLearn 的 Assessments 页面。",
+    "No se encontraron tareas próximas. Asegúrate de copiar una página Assessments de PrairieLearn.",
+  ],
+  "pl.nothing_new": ["Nothing new to add: everything here is already in your list.", "没有新内容：这些都已经在你的列表里了。", "Nada nuevo que añadir: todo ya está en tu lista."],
+  "pl.will_add": ["Will add {added}.", "将添加 {added}。", "Se añadirán {added}."],
+  "pl.will_update": [" Will update {n} with a new date.", "将更新 {n} 项的日期。", " Se actualizarán {n} con una fecha nueva."],
+  "pl.already": [" {n} already in your list.", "{n} 项已在列表中。", " {n} ya están en tu lista."],
+  "pl.skipped": [" Skipped {past} past due and {done} finished.", "跳过 {past} 项已过期、{done} 项已完成。", " Se omitieron {past} vencidas y {done} terminadas."],
+  "pl.need_course": [" Type the course so they can be told apart.", "请填写课程，方便区分。", " Escribe el curso para poder distinguirlas."],
+  "pl.add": ["Add", "添加", "Añadir"],
+  "pl.add_count": ["Add {n}", "添加 {n} 项", "Añadir {n}"],
+  "pl.updated_mark": ["{title} (new date)", "{title}（新日期）", "{title} (fecha nueva)"],
+  "msg.pl_done": ["PrairieLearn: added {added}, updated {updated}.", "PrairieLearn：添加 {added} 项，更新 {updated} 项。", "PrairieLearn: {added} añadidas, {updated} actualizadas."],
   "canvas.help": [
     "In Canvas, open Calendar, click Calendar Feed, and open the link to download a .ics file. Choose that file here. Importing again updates due dates and keeps your notes.",
     "在 Canvas 中打开 Calendar，点击 Calendar Feed，然后打开链接下载 .ics 文件，再在这里选择它。再次导入会更新截止日期，并保留你的备注。",
@@ -467,7 +493,6 @@ const PHRASES = {
 
   // The links at the bottom and Settings
   "links.review": ["Weekly review…", "每周回顾…", "Resumen semanal…"],
-  "links.canvas": ["Import from Canvas…", "从 Canvas 导入…", "Importar de Canvas…"],
   "links.export": ["Export to calendar…", "导出到日历…", "Exportar al calendario…"],
   "links.backup": ["Backup & restore…", "备份与恢复…", "Copia de seguridad…"],
   "links.settings": ["Settings…", "设置…", "Ajustes…"],

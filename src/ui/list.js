@@ -19,19 +19,19 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=76f0b296";
-import { toDateKey } from "../calendar.js?v=76f0b296";
-import { timerTagText } from "../focus.js?v=76f0b296";
-import { t } from "../i18n.js?v=76f0b296";
-import { render } from "../main.js?v=76f0b296";
-import { stepDays } from "../plan.js?v=76f0b296";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=76f0b296";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=76f0b296";
-import { primeChime } from "./focus.js?v=76f0b296";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=76f0b296";
-import { toggleSelected } from "./select.js?v=76f0b296";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=76f0b296";
-import { showToast } from "./toast.js?v=76f0b296";
+} from "../assignments.js?v=2d9bfdcf";
+import { toDateKey } from "../calendar.js?v=2d9bfdcf";
+import { timerTagText } from "../focus.js?v=2d9bfdcf";
+import { t } from "../i18n.js?v=2d9bfdcf";
+import { render } from "../main.js?v=2d9bfdcf";
+import { stepDays } from "../plan.js?v=2d9bfdcf";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=2d9bfdcf";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=2d9bfdcf";
+import { primeChime } from "./focus.js?v=2d9bfdcf";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=2d9bfdcf";
+import { toggleSelected } from "./select.js?v=2d9bfdcf";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=2d9bfdcf";
+import { showToast } from "./toast.js?v=2d9bfdcf";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it

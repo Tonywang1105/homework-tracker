@@ -11,13 +11,13 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=76f0b296";
-import { t } from "../i18n.js?v=76f0b296";
-import { render } from "../main.js?v=76f0b296";
-import { createSeries, validateRepeat } from "../repeat.js?v=76f0b296";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=76f0b296";
-import { findAssignment, state, updateAssignments } from "./store.js?v=76f0b296";
-import { showToast } from "./toast.js?v=76f0b296";
+} from "../assignments.js?v=2d9bfdcf";
+import { t } from "../i18n.js?v=2d9bfdcf";
+import { render } from "../main.js?v=2d9bfdcf";
+import { createSeries, validateRepeat } from "../repeat.js?v=2d9bfdcf";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=2d9bfdcf";
+import { findAssignment, state, updateAssignments } from "./store.js?v=2d9bfdcf";
+import { showToast } from "./toast.js?v=2d9bfdcf";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
 

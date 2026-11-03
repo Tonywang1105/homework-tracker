@@ -258,3 +258,55 @@
 #deleted-empty[hidden] {
   display: none;
 }
+
+/* Paste from PrairieLearn: the paste box, the course, and the preview of what it will add. */
+.pl-text {
+  width: 100%;
+  font: inherit;
+  font-size: 0.85rem;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.pl-course {
+  margin: 8px 0;
+}
+
+.pl-course input {
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 6px;
+  width: 9em;
+}
+
+.pl-preview {
+  margin: 6px 0;
+  font-size: 0.9rem;
+}
+
+.pl-preview:empty {
+  display: none;
+}
+
+/* Import…: a small heading over each way to import (Canvas, PrairieLearn). */
+.import-heading {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.import-heading + .import-help {
+  margin-top: 0;
+}
+
+.import-panel .import-heading:not(:first-child) {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}

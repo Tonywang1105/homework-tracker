@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/form.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/list.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/calendar.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/agenda.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/types.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/panels.css?v=76f0b296" />
-    <link rel="stylesheet" href="styles/messages.css?v=76f0b296" />
-    <script type="module" src="src/main.js?v=76f0b296"></script>
+    <link rel="stylesheet" href="styles/base.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/form.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/list.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/calendar.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/agenda.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/types.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/panels.css?v=2d9bfdcf" />
+    <link rel="stylesheet" href="styles/messages.css?v=2d9bfdcf" />
+    <script type="module" src="src/main.js?v=2d9bfdcf"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -307,7 +307,7 @@
         </div>
 
         <div id="getting-started" class="getting-started" hidden>
-          <p data-i18n="start.empty">No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.</p>
+          <p data-i18n="start.empty">No assignments yet. Add one with the form, use Import… below (Canvas or PrairieLearn), or see how the app works with some examples.</p>
           <button type="button" id="try-examples" class="button button-primary" data-i18n="start.try">Try with example assignments</button>
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>
@@ -401,8 +401,8 @@
             <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel" data-i18n="links.review">
               Weekly review…
             </button>
-            <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel" data-i18n="links.canvas">
-              Import from Canvas…
+            <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel" data-i18n="links.import">
+              Import…
             </button>
             <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel" data-i18n="links.export">
               Export to calendar…
@@ -414,16 +414,34 @@
               Settings…
             </button>
           </div>
+          <!-- Import…: from Canvas (a downloaded calendar file) or by pasting a PrairieLearn Assessments page
+               (src/ui/prairieLearnPanel.js; the pasted text is read on this device only). -->
           <div id="import-panel" class="import-panel" hidden>
+            <h3 class="import-heading" data-i18n="import.canvas_heading">From Canvas</h3>
             <p class="import-help" data-i18n="canvas.help">
               In Canvas, open Calendar, click Calendar Feed, and open the link to download a .ics file. Choose that file here.
               Importing again updates due dates and keeps your notes.
             </p>
             <div class="import-actions">
               <button type="button" id="canvas-import-button" class="button button-primary" data-i18n="canvas.choose">Choose Canvas file…</button>
-              <button type="button" id="canvas-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
             <input type="file" id="canvas-file" accept=".ics,text/calendar" hidden />
+            <h3 class="import-heading" data-i18n="import.pl_heading">Paste from PrairieLearn</h3>
+            <p class="import-help" data-i18n="pl.help">
+              Open a course's Assessments page in PrairieLearn, press Cmd+A then Cmd+C (Ctrl on Windows), and paste it here.
+              Nothing is sent anywhere: the app reads the text on this device.
+            </p>
+            <textarea id="pl-text" class="pl-text" rows="5" placeholder="Paste the Assessments page here" data-i18n-placeholder="pl.paste_ph" aria-label="PrairieLearn Assessments page"></textarea>
+            <label class="settings-row pl-course">
+              <span data-i18n="pl.course">Course</span>
+              <input id="pl-course" type="text" maxlength="60" autocomplete="off" placeholder="e.g. CS 124" data-i18n-placeholder="pl.course_ph" />
+            </label>
+            <p id="pl-preview" class="pl-preview" aria-live="polite"></p>
+            <ul id="pl-list" class="review-list"></ul>
+            <div class="import-actions">
+              <button type="button" id="pl-add" class="button button-primary" disabled>Add</button>
+              <button type="button" id="canvas-panel-close" class="button" data-i18n="panel.close">Close</button>
+            </div>
           </div>
           <div id="backup-panel" class="import-panel" hidden>
             <p class="import-help" data-i18n="backup.help">
