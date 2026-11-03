@@ -19,19 +19,19 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=8dd2ac6b";
-import { toDateKey } from "../calendar.js?v=8dd2ac6b";
-import { timerTagText } from "../focus.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { stepDays } from "../plan.js?v=8dd2ac6b";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=8dd2ac6b";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=8dd2ac6b";
-import { primeChime } from "./focus.js?v=8dd2ac6b";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=8dd2ac6b";
-import { toggleSelected } from "./select.js?v=8dd2ac6b";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+} from "../assignments.js?v=76f0b296";
+import { toDateKey } from "../calendar.js?v=76f0b296";
+import { timerTagText } from "../focus.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { stepDays } from "../plan.js?v=76f0b296";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=76f0b296";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=76f0b296";
+import { primeChime } from "./focus.js?v=76f0b296";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=76f0b296";
+import { toggleSelected } from "./select.js?v=76f0b296";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
@@ -301,7 +301,7 @@ export function toggleAssignmentStep(assignment, index) {
   const updated = findAssignment(assignment.id);
   const progress = stepProgress(updated);
   if (!updated.done && progress.done === progress.total) {
-    showToast(`All steps done. Mark "${updated.title}" done?`, () => toggleDone(updated), "Mark done");
+    showToast(t("msg.all_steps_done", { title: updated.title }), () => toggleDone(updated), t("select.mark_done"));
   }
 }
 
@@ -440,7 +440,7 @@ export function handleListClick(event) {
     case "snooze": {
       const previous = state.assignments;
       updateAssignments(updateAssignment(previous, assignment.id, { dueDate: snoozeDate() }));
-      showToast(`Moved "${assignment.title}" to tomorrow.`, () => updateAssignments(previous));
+      showToast(t("msg.moved_tomorrow", { title: assignment.title }), () => updateAssignments(previous));
       // The row moved further down, so keep focus on it rather than losing it.
       list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] [data-action="edit"]`)?.focus();
       break;
@@ -452,9 +452,13 @@ export function handleListClick(event) {
       updateAssignments((starting ? startTimer : stopTimer)(state.assignments, assignment.id));
       if (starting) {
         primeChime();
-        showToast(stoppedOther ? `Timing "${assignment.title}". Stopped "${stoppedOther.title}".` : `Timing "${assignment.title}".`);
+        showToast(
+          stoppedOther
+            ? t("msg.timing_stopped_other", { title: assignment.title, other: stoppedOther.title })
+            : t("msg.timing", { title: assignment.title }),
+        );
       } else {
-        showToast(`Stopped "${assignment.title}": ${spentText(findAssignment(assignment.id))}.`);
+        showToast(t("msg.stopped", { title: assignment.title, spent: spentText(findAssignment(assignment.id)) }));
       }
       tickTimers();
       // The button changed between Start and Stop, so put focus on the new one.
@@ -476,7 +480,7 @@ export function handleListClick(event) {
         stopEditing();
       }
       updateAssignments(removeAssignment(previous, assignment.id));
-      showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous), "Undo", DELETE_UNDO_MS);
+      showToast(t("msg.deleted", { title: assignment.title }), () => updateAssignments(previous), t("msg.undo"), DELETE_UNDO_MS);
       focusRowAt(list, position, "delete");
       break;
     }
@@ -499,6 +503,6 @@ export function toggleDone(assignment) {
   const markDone = (done) => updateAssignments(setDone(state.assignments, assignment.id, done));
   markDone(!assignment.done);
   if (!assignment.done) {
-    showToast(`Done: "${assignment.title}".`, () => markDone(false));
+    showToast(t("msg.done", { title: assignment.title }), () => markDone(false));
   }
 }

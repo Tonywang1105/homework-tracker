@@ -3,43 +3,44 @@
 // "Show the tour again" in Settings brings it back. Called the guide here so it isn't confused with
 // the tour test in tests/tour.js.
 
-import { elements } from "./dom.js?v=8dd2ac6b";
-import { loadText, saveChoice } from "./store.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=76f0b296";
+import { elements } from "./dom.js?v=76f0b296";
+import { loadText, saveChoice } from "./store.js?v=76f0b296";
 
 const GUIDE_SEEN_KEY = "homework-tracker.guideSeen";
 
 // Each step points at the first visible element matching `target`; steps whose target isn't showing
-// (like Sign in, once signed in) are left out.
+// (like Sign in, once signed in) are left out. Titles and texts are phrase keys in src/i18n.js.
 const STEPS = [
   {
     target: "#quick-add",
-    title: "Add homework fast",
-    text: "Type one line like “MP4 cs124 fri 11:59pm” and press Enter. For notes, steps or repeats, use the full form.",
+    title: "guide.quick_title",
+    text: "guide.quick_text",
   },
   {
     target: "#today-summary",
-    title: "Today at a glance",
-    text: "What's due today, what's overdue, and how much of this week is done.",
+    title: "guide.summary_title",
+    text: "guide.summary_text",
   },
   {
     target: ".list-header .segmented",
-    title: "Three views",
-    text: "List: everything, soonest first. Calendar: the whole month. Agenda: the next two weeks, day by day.",
+    title: "guide.views_title",
+    text: "guide.views_text",
   },
   {
     target: "#todo-list li[data-id]",
-    title: "Each assignment",
-    text: "Tick the box when it's done. Tags show its course, type and size. On the right, Start times how long it takes; Edit, Copy and Delete are there too.",
+    title: "guide.row_title",
+    text: "guide.row_text",
   },
   {
     target: ".import-links",
-    title: "More tools",
-    text: "Review your week, import from Canvas, add your list to your phone's calendar, back up, and change Settings like hours per day and focus blocks.",
+    title: "guide.tools_title",
+    text: "guide.tools_text",
   },
   {
     target: "#sign-in",
-    title: "Use it on your phone too",
-    text: "Sign in with Google to see the same list on your laptop and phone.",
+    title: "guide.phone_title",
+    text: "guide.phone_text",
   },
 ];
 
@@ -95,11 +96,11 @@ function showStep(index) {
   current = Math.max(0, index);
   const step = steps[current];
   setHighlight(targetOf(step));
-  guide.title.textContent = step.title;
-  guide.text.textContent = step.text;
-  guide.count.textContent = `${current + 1} of ${steps.length}`;
+  guide.title.textContent = t(step.title);
+  guide.text.textContent = t(step.text);
+  guide.count.textContent = t("guide.count", { n: current + 1, total: steps.length });
   guide.back.hidden = current === 0;
-  guide.next.textContent = current === steps.length - 1 ? "Done" : "Next";
+  guide.next.textContent = t(current === steps.length - 1 ? "guide.done" : "guide.next");
   guide.box.hidden = false;
   highlighted.scrollIntoView({ block: "center" });
   placeBox();

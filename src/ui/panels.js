@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=8dd2ac6b";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=76f0b296";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,14 +8,15 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=8dd2ac6b";
-import { exampleAssignments, removeExamples } from "../examples.js?v=8dd2ac6b";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=8dd2ac6b";
-import { deletedCanvasUids } from "../trash.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=8dd2ac6b";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+} from "../canvas.js?v=76f0b296";
+import { exampleAssignments, removeExamples } from "../examples.js?v=76f0b296";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { deletedCanvasUids } from "../trash.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=76f0b296";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 
@@ -56,7 +57,7 @@ export function setPanelOpen(chosen, open) {
 
 /**
  * Reads the file just chosen in a hidden file input. Returns its { file, text }, or null after
- * telling the student what went wrong. `kind` names the file in messages, e.g. "Canvas calendar file".
+ * telling the student what went wrong. `kind` is the phrase key naming the file in messages, e.g. "kind.canvas".
  */
 async function readChosenFile(input, kind) {
   const file = input.files[0];
@@ -66,30 +67,30 @@ async function readChosenFile(input, kind) {
     return null;
   }
   if (file.size > MAX_IMPORT_BYTES) {
-    showToast(`"${file.name}" is too big to be a ${kind}.`);
+    showToast(t("msg.file_too_big", { name: file.name, kind: t(kind) }));
     return null;
   }
   try {
     return { file, text: await file.text() };
   } catch {
-    showToast(`Couldn't read "${file.name}". Try choosing it again.`);
+    showToast(t("msg.file_unreadable", { name: file.name }));
     return null;
   }
 }
 
 export async function handleCanvasFile() {
-  const chosen = await readChosenFile(elements.canvasFile, "Canvas calendar file");
+  const chosen = await readChosenFile(elements.canvasFile, "kind.canvas");
   if (!chosen) {
     return;
   }
   const { file, text } = chosen;
   if (!isIcsCalendar(text)) {
-    showToast(`"${file.name}" isn't a calendar (.ics) file. Use the Calendar Feed link in Canvas Calendar.`);
+    showToast(t("msg.not_ics", { name: file.name }));
     return;
   }
   const inFile = readCanvasAssignments(text);
   if (inFile.length === 0) {
-    showToast("No Canvas assignments found in that file.");
+    showToast(t("msg.no_canvas"));
     return;
   }
   // Assignments deleted here stay deleted, while they're in Recently deleted. (If that's all of them, the merge
@@ -116,55 +117,55 @@ export function renderCanvasReminder(now) {
   const reminder = importReminder(lastImport, loadText(CANVAS_SNOOZE_KEY), now);
   elements.canvasReminder.hidden = reminder === null;
   if (reminder) {
-    elements.canvasReminderText.textContent = `Your Canvas import is ${reminder.daysAgo} days old. New or changed deadlines won't show until you import again.`;
+    elements.canvasReminderText.textContent = t("canvas.reminder", { n: reminder.daysAgo });
   }
 }
 
 export function snoozeCanvasReminder() {
   saveChoice(CANVAS_SNOOZE_KEY, snoozeUntil());
   render();
-  showToast("OK, I'll remind you again in 3 days.");
+  showToast(t("msg.reminder_snoozed"));
 }
 
 /** "Imported 3 new, updated 1. Skipped 2 already past due." */
 function importSummary({ added, updated, skippedPast }) {
   const changes = [];
   if (added > 0) {
-    changes.push(`imported ${added} new`);
+    changes.push(t("msg.canvas_new", { n: added }));
   }
   if (updated > 0) {
-    changes.push(`updated ${updated}`);
+    changes.push(t("msg.canvas_updated", { n: updated }));
   }
-  let summary = changes.length > 0 ? `Canvas: ${changes.join(", ")}.` : "Canvas: already up to date.";
+  let summary = changes.length > 0 ? t("msg.canvas_changes", { changes: changes.join(", ") }) : t("msg.canvas_up_to_date");
   if (skippedPast > 0) {
-    summary += ` Skipped ${skippedPast} already past due.`;
+    summary += t("msg.canvas_skipped", { n: skippedPast });
   }
   return summary;
 }
 
 export function handleBackupDownload() {
   if (state.assignments.length === 0) {
-    showToast("Nothing to back up yet.");
+    showToast(t("msg.nothing_backup"));
     return;
   }
   const fileName = backupFileName();
   downloadFile(fileName, JSON.stringify(createBackup(state.assignments), null, 2), "application/json");
-  showToast(`Backed up ${countAssignments(state.assignments.length)} to ${fileName}.`);
+  showToast(t("msg.backed_up", { count: countAssignments(state.assignments.length), file: fileName }));
 }
 
 export function handleCalendarExport() {
   const upcoming = upcomingForExport(state.assignments);
   if (upcoming.length === 0) {
-    showToast("Nothing upcoming to export: every assignment is finished or past due.");
+    showToast(t("msg.nothing_export"));
     return;
   }
   const fileName = calendarFileName();
   downloadFile(fileName, calendarFile(state.assignments), "text/calendar");
-  showToast(`Exported ${countAssignments(upcoming.length)} to ${fileName}. Open it to add them to your calendar.`);
+  showToast(t("msg.exported", { count: countAssignments(upcoming.length), file: fileName }));
 }
 
 export async function handleBackupFile() {
-  const chosen = await readChosenFile(elements.backupFile, "Homework Tracker backup");
+  const chosen = await readChosenFile(elements.backupFile, "kind.backup");
   if (!chosen) {
     return;
   }
@@ -174,7 +175,7 @@ export async function handleBackupFile() {
     return;
   }
   const previous = state.assignments;
-  const replacing = `Replace your ${countAssignments(previous.length)} with the ${countAssignments(result.assignments.length)} in this backup?`;
+  const replacing = t("msg.confirm_replace", { current: countAssignments(previous.length), backup: countAssignments(result.assignments.length) });
   if (previous.length > 0 && !window.confirm(replacing)) {
     return;
   }
@@ -183,18 +184,18 @@ export async function handleBackupFile() {
   state.storageReadable = true;
   elements.storageError.hidden = true;
   updateAssignments(result.assignments);
-  const skipped = result.skipped > 0 ? ` Skipped ${result.skipped} that couldn't be read.` : "";
-  showToast(`Restored ${countAssignments(result.assignments.length)}.${skipped}`, () => updateAssignments(previous));
+  const skipped = result.skipped > 0 ? t("msg.restore_skipped", { n: result.skipped }) : "";
+  showToast(t("msg.restored", { count: countAssignments(result.assignments.length), skipped }), () => updateAssignments(previous));
 }
 
 export function addExamples() {
   const examples = exampleAssignments();
   updateAssignments([...state.assignments, ...examples]);
-  showToast(`Added ${countAssignments(examples.length)} as examples. Try the calendar, filters and details.`);
+  showToast(t("msg.examples_added", { count: countAssignments(examples.length) }));
 }
 
 export function handleRemoveExamples() {
   const previous = state.assignments;
   updateAssignments(removeExamples(previous));
-  showToast("Removed the example assignments.", () => updateAssignments(previous));
+  showToast(t("msg.examples_removed"), () => updateAssignments(previous));
 }

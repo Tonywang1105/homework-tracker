@@ -1,12 +1,13 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=8dd2ac6b";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=8dd2ac6b";
-import { startAddingOn } from "./form.js?v=8dd2ac6b";
-import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=8dd2ac6b";
-import { findAssignment, state } from "./store.js?v=8dd2ac6b";
+import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=76f0b296";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=76f0b296";
+import { startAddingOn } from "./form.js?v=76f0b296";
+import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=76f0b296";
+import { findAssignment, state } from "./store.js?v=76f0b296";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -31,8 +32,7 @@ export function renderCalendar(assignments, course, now) {
 
   const leftThisMonth = weeks.flat().some((day) => day.inMonth && day.assignments.some((a) => !a.done));
   elements.calendarEmpty.hidden = leftThisMonth || state.assignments.length === 0;
-  const forCourse = course ? ` for ${course}` : "";
-  elements.calendarEmpty.textContent = `Nothing left to do${forCourse} in ${monthName}.`;
+  elements.calendarEmpty.textContent = course ? t("cal.nothing_left_course", { course, month: monthName }) : t("cal.nothing_left", { month: monthName });
 }
 
 function renderCalendarDay(day) {
@@ -53,7 +53,7 @@ function renderCalendarDay(day) {
     const hoursLabel = document.createElement("span");
     hoursLabel.className = "day-hours";
     hoursLabel.textContent = dayHours < 1 ? `${Math.round(dayHours * 60)}m` : `${Math.round(dayHours * 10) / 10}h`;
-    hoursLabel.title = `About ${formatHours(dayHours).slice(1)} of unfinished work due`;
+    hoursLabel.title = `About ${formatHoursPlain(dayHours)} of unfinished work due`;
     cell.append(hoursLabel);
   }
 
@@ -81,10 +81,10 @@ function renderMoreToggle(hiddenCount, dayName) {
     // On a phone the day is too narrow for "+3 more", so CSS hides the word "more" there.
     const moreWord = document.createElement("span");
     moreWord.className = "more-word";
-    moreWord.textContent = " more";
+    moreWord.textContent = t("cal.more");
     button.append(`+${hiddenCount}`, moreWord);
   } else {
-    button.textContent = "Show less";
+    button.textContent = t("cal.show_less");
   }
   button.setAttribute(
     "aria-label",
@@ -220,9 +220,9 @@ export function renderDetails(now) {
   if (stepProgress(assignment)) {
     renderSteps(assignment, elements.detailsSteps);
   }
-  showNote(elements.detailsNotes, assignment.notes || "No notes.");
+  showNote(elements.detailsNotes, assignment.notes || t("cal.no_notes"));
   elements.detailsNotes.classList.toggle("is-empty", !assignment.notes);
-  elements.detailsDone.textContent = assignment.done ? "Mark not done" : "Mark done";
+  elements.detailsDone.textContent = t(assignment.done ? "cal.mark_not_done" : "cal.mark_done");
   elements.details.hidden = false;
   positionDetails(button);
 }

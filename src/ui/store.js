@@ -1,12 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=8dd2ac6b";
-import { saveAssignments } from "../storage.js?v=8dd2ac6b";
-import { withDeletions } from "../trash.js?v=8dd2ac6b";
-import { syncAssignments } from "./account.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { currentMonth } from "../calendar.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=76f0b296";
+import { saveAssignments } from "../storage.js?v=76f0b296";
+import { withDeletions } from "../trash.js?v=76f0b296";
+import { syncAssignments } from "./account.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 export const state = {
   // The live assignments; every screen draws from these.
@@ -62,7 +63,7 @@ function persist() {
   }
   const all = [...state.assignments, ...state.deleted];
   if (!saveAssignments(localStorage, all)) {
-    showToast("Couldn't save. Your browser blocked storage, so changes will be lost on reload.");
+    showToast(t("msg.storage_blocked"));
   }
   syncAssignments(all);
 }

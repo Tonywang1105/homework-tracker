@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/form.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/list.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/calendar.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/agenda.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/types.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/panels.css?v=8dd2ac6b" />
-    <link rel="stylesheet" href="styles/messages.css?v=8dd2ac6b" />
-    <script type="module" src="src/main.js?v=8dd2ac6b"></script>
+    <link rel="stylesheet" href="styles/base.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/form.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/list.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/calendar.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/agenda.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/types.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/panels.css?v=76f0b296" />
+    <link rel="stylesheet" href="styles/messages.css?v=76f0b296" />
+    <script type="module" src="src/main.js?v=76f0b296"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -49,7 +49,7 @@
           <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n="account.sign_in">
             Sign in to sync
           </button>
-          <button type="button" id="sign-out" class="button account-button" hidden>Sign out</button>
+          <button type="button" id="sign-out" class="button account-button" hidden data-i18n="sync.sign_out">Sign out</button>
         </div>
         <!-- The app's language, at the top so it's easy to find from any view (src/ui/language.js). Each name is in its own language. -->
         <div class="segmented language-switch" role="group" aria-label="Language / 语言 / Idioma">
@@ -61,7 +61,7 @@
     </header>
     <div id="storage-error" class="banner banner-error" role="alert" hidden>
       <p id="storage-error-message"></p>
-      <button type="button" id="reset-storage" class="button button-danger">Start over with an empty list</button>
+      <button type="button" id="reset-storage" class="button button-danger" data-i18n="storage.start_over">Start over with an empty list</button>
     </div>
 
     <main class="layout">
@@ -216,11 +216,11 @@
         <section id="course-page" class="course-page" aria-labelledby="course-page-title" hidden>
           <div class="course-page-header">
             <h3 id="course-page-title" class="course-page-title" tabindex="-1"></h3>
-            <button type="button" id="course-page-all" class="link-button">All courses</button>
+            <button type="button" id="course-page-all" class="link-button" data-i18n="course.all">All courses</button>
           </div>
           <ul id="course-links" class="course-links" aria-label="Course links"></ul>
           <p id="course-links-empty" class="course-links-empty" hidden>
-            No links yet. Add this course's Canvas, PrairieLearn or Gradescope page, or its slides.
+            <span data-i18n="course.no_links">No links yet. Add this course's Canvas, PrairieLearn or Gradescope page, or its slides.</span>
           </p>
           <button type="button" id="course-links-edit" class="link-button" aria-expanded="false" aria-controls="course-links-editor">
             Edit links
@@ -228,16 +228,16 @@
           <div id="course-links-editor" class="course-links-editor" hidden>
             <ul id="course-links-edit-list" class="course-links-edit-list" aria-label="Links to rename or remove"></ul>
             <form id="course-link-form" class="course-link-form" novalidate>
-              <label class="course-link-field">Name <span class="optional">optional</span>
-                <input name="label" maxlength="40" placeholder="e.g. Gradescope" autocomplete="off" />
+              <label class="course-link-field"><span data-i18n="course.link_name">Name</span> <span class="optional" data-i18n="form.optional">optional</span>
+                <input name="label" maxlength="40" placeholder="e.g. Gradescope" data-i18n-placeholder="course.link_name_ph" autocomplete="off" />
               </label>
-              <label class="course-link-field">Link
-                <input name="url" maxlength="500" placeholder="e.g. gradescope.com" autocomplete="off" inputmode="url" />
+              <label class="course-link-field"><span data-i18n="course.link">Link</span>
+                <input name="url" maxlength="500" placeholder="e.g. gradescope.com" data-i18n-placeholder="course.link_ph" autocomplete="off" inputmode="url" />
               </label>
-              <button type="submit" class="button button-primary">Add link</button>
+              <button type="submit" class="button button-primary" data-i18n="course.add_link">Add link</button>
             </form>
             <p id="course-link-error" class="course-link-error" role="alert"></p>
-            <button type="button" id="course-links-done" class="button">Done</button>
+            <button type="button" id="course-links-done" class="button" data-i18n="course.done">Done</button>
           </div>
         </section>
 
@@ -312,8 +312,8 @@
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>
           <span id="canvas-reminder-text"></span>
-          <button type="button" id="canvas-reminder-import" class="link-button">Import again</button>
-          <button type="button" id="canvas-reminder-snooze" class="link-button">Not now</button>
+          <button type="button" id="canvas-reminder-import" class="link-button" data-i18n="canvas.import_again">Import again</button>
+          <button type="button" id="canvas-reminder-snooze" class="link-button" data-i18n="canvas.not_now">Not now</button>
         </div>
         <div id="example-bar" class="notice-bar" hidden>
           <span data-i18n="examples.notice">You're looking at example assignments.</span>
@@ -325,7 +325,7 @@
         </div>
 
         <section id="due-soon" class="due-soon" aria-labelledby="due-soon-heading" hidden>
-          <h3 id="due-soon-heading" class="due-soon-heading">Due soon <span id="due-soon-count" class="count"></span></h3>
+          <h3 id="due-soon-heading" class="due-soon-heading"><span data-i18n="cal.due_soon">Due soon</span> <span id="due-soon-count" class="count"></span></h3>
           <ul id="due-soon-list" class="due-soon-list"></ul>
         </section>
 
@@ -346,7 +346,7 @@
               <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month">‹</button>
               <h3 id="calendar-month" class="calendar-month" aria-live="polite"></h3>
               <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month">›</button>
-              <button type="button" id="this-month" class="button">Today</button>
+              <button type="button" id="this-month" class="button" data-i18n="cal.today">Today</button>
             </div>
             <table class="calendar">
               <thead>
@@ -371,8 +371,8 @@
             <ul id="details-steps" class="steps" aria-label="Steps" hidden></ul>
             <p id="details-notes" class="notes"></p>
             <div class="details-actions">
-              <button type="button" id="details-edit" class="button">Edit</button>
-              <button type="button" id="details-copy" class="button">Copy</button>
+              <button type="button" id="details-edit" class="button" data-i18n="action.edit">Edit</button>
+              <button type="button" id="details-copy" class="button" data-i18n="action.copy">Copy</button>
               <button type="button" id="details-done" class="button button-primary">Mark done</button>
             </div>
           </div>
@@ -415,39 +415,38 @@
             </button>
           </div>
           <div id="import-panel" class="import-panel" hidden>
-            <p class="import-help">
-              In Canvas, open <strong>Calendar</strong>, click <strong>Calendar Feed</strong>, and open the link to download a
-              <code>.ics</code> file. Choose that file here. Importing again updates due dates and keeps your notes.
+            <p class="import-help" data-i18n="canvas.help">
+              In Canvas, open Calendar, click Calendar Feed, and open the link to download a .ics file. Choose that file here.
+              Importing again updates due dates and keeps your notes.
             </p>
             <div class="import-actions">
-              <button type="button" id="canvas-import-button" class="button button-primary">Choose Canvas file…</button>
-              <button type="button" id="canvas-panel-close" class="button">Close</button>
+              <button type="button" id="canvas-import-button" class="button button-primary" data-i18n="canvas.choose">Choose Canvas file…</button>
+              <button type="button" id="canvas-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
             <input type="file" id="canvas-file" accept=".ics,text/calendar" hidden />
           </div>
           <div id="backup-panel" class="import-panel" hidden>
-            <p class="import-help">
-              Your assignments are saved only in this browser. <strong>Back up</strong> downloads them to a file you can keep
-              safe or open in another browser or device. <strong>Restore</strong> replaces this browser's list with a backup.
-              The file includes your notes, so keep it private.
+            <p class="import-help" data-i18n="backup.help">
+              Your assignments are saved only in this browser. Back up downloads them to a file you can keep safe or open in another
+              browser or device. Restore replaces this browser's list with a backup. The file includes your notes, so keep it private.
             </p>
             <div class="import-actions">
-              <button type="button" id="backup-download-button" class="button button-primary">Back up</button>
-              <button type="button" id="backup-restore-button" class="button">Restore from file…</button>
-              <button type="button" id="backup-panel-close" class="button">Close</button>
+              <button type="button" id="backup-download-button" class="button button-primary" data-i18n="backup.download">Back up</button>
+              <button type="button" id="backup-restore-button" class="button" data-i18n="backup.restore">Restore from file…</button>
+              <button type="button" id="backup-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
             <input type="file" id="backup-file" accept=".json,application/json" hidden />
           </div>
           <div id="export-panel" class="import-panel" hidden>
-            <p class="import-help">
-              Download your upcoming, unfinished assignments as a calendar file and open it on your phone or computer to add them
-              to <strong>Apple Calendar</strong> or <strong>Google Calendar</strong>, with a reminder a day before big assignments and
-              an hour before the rest. This is a snapshot: after adding or changing assignments, export again. For Google Calendar,
-              importing into a separate "Homework" calendar makes it easy to clear before re-importing.
+            <p class="import-help" data-i18n="export.help">
+              Download your upcoming, unfinished assignments as a calendar file and open it on your phone or computer to add them to
+              Apple Calendar or Google Calendar, with a reminder a day before big assignments and an hour before the rest. This is a
+              snapshot: after adding or changing assignments, export again. For Google Calendar, importing into a separate "Homework"
+              calendar makes it easy to clear before re-importing.
             </p>
             <div class="import-actions">
-              <button type="button" id="export-download-button" class="button button-primary">Download calendar file</button>
-              <button type="button" id="export-panel-close" class="button">Close</button>
+              <button type="button" id="export-download-button" class="button button-primary" data-i18n="export.download">Download calendar file</button>
+              <button type="button" id="export-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
           </div>
           <!-- Settings, all kept on this device (Course colors' list and the shortcuts are filled in by their modules). -->
@@ -504,19 +503,19 @@
           </div>
           <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->
           <div id="review-panel" class="import-panel review-panel" hidden>
-            <h3>This week <span id="review-this-dates" class="review-dates"></span></h3>
+            <h3><span data-i18n="review.this_week">This week</span> <span id="review-this-dates" class="review-dates"></span></h3>
             <p id="review-this-summary"></p>
             <p id="review-finished"></p>
             <ol id="review-days" class="review-days" aria-label="Finished each day this week"></ol>
             <ul id="review-big" class="review-list" aria-label="Big assignments this week"></ul>
-            <h3>Next week <span id="review-next-dates" class="review-dates"></span></h3>
+            <h3><span data-i18n="review.next_week">Next week</span> <span id="review-next-dates" class="review-dates"></span></h3>
             <p id="review-next-summary"></p>
             <div id="review-start" hidden>
-              <p>Start these this week to stay on track:</p>
+              <p data-i18n="review.start_these">Start these this week to stay on track:</p>
               <ul id="review-start-list" class="review-list"></ul>
             </div>
             <div class="import-actions">
-              <button type="button" id="review-panel-close" class="button">Close</button>
+              <button type="button" id="review-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
           </div>
         </div>
@@ -529,15 +528,15 @@
       <h2 id="guide-title" class="guide-title"></h2>
       <p id="guide-text" class="guide-text"></p>
       <div class="guide-actions">
-        <button type="button" id="guide-skip" class="link-button">Skip tour</button>
-        <button type="button" id="guide-back" class="button">Back</button>
+        <button type="button" id="guide-skip" class="link-button" data-i18n="guide.skip">Skip tour</button>
+        <button type="button" id="guide-back" class="button" data-i18n="guide.back">Back</button>
         <button type="button" id="guide-next" class="button button-primary">Next</button>
       </div>
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite" hidden>
       <span id="toast-message"></span>
-      <button type="button" id="toast-undo" class="toast-undo" hidden>Undo</button>
+      <button type="button" id="toast-undo" class="toast-undo" hidden data-i18n="msg.undo">Undo</button>
       <button type="button" id="toast-close" class="toast-close" aria-label="Close message">×</button>
     </div>
 

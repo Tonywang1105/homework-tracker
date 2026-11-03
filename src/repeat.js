@@ -1,8 +1,9 @@
 // Repeating assignments: one form entry becomes a series of separate weekly or every-other-week
 // assignments. No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment } from "./assignments.js?v=8dd2ac6b";
-import { toDateKey } from "./calendar.js?v=8dd2ac6b";
+import { createAssignment } from "./assignments.js?v=76f0b296";
+import { toDateKey } from "./calendar.js?v=76f0b296";
+import { t } from "./i18n.js?v=76f0b296";
 
 // The Repeat choices in the form, as days between copies. "" means the assignment doesn't repeat.
 const REPEAT_DAYS = { "": 0, weekly: 7, biweekly: 14 };
@@ -35,20 +36,20 @@ export function repeatDates(firstDate, everyDays, untilDate) {
  */
 export function validateRepeat({ repeat = "", untilDate = "" }, dueDate) {
   if (!(repeat in REPEAT_DAYS)) {
-    return { ok: false, errors: { repeat: "Choose how often it repeats." } };
+    return { ok: false, errors: { repeat: t("err.repeat") } };
   }
   if (repeat === "") {
     return { ok: true, dates: [dueDate] };
   }
   if (!DATE_PATTERN.test(untilDate)) {
-    return { ok: false, errors: { untilDate: "Pick the last date it repeats." } };
+    return { ok: false, errors: { untilDate: t("err.until") } };
   }
   if (untilDate < dueDate) {
-    return { ok: false, errors: { untilDate: "Pick a date after the first due date." } };
+    return { ok: false, errors: { untilDate: t("err.until_after") } };
   }
   const dates = repeatDates(dueDate, REPEAT_DAYS[repeat], untilDate);
   if (dates.length > MAX_REPEATS) {
-    return { ok: false, errors: { untilDate: `That makes ${dates.length} copies; pick an earlier date (at most ${MAX_REPEATS}).` } };
+    return { ok: false, errors: { untilDate: t("err.until_many", { n: dates.length, max: MAX_REPEATS }) } };
   }
   return { ok: true, dates };
 }

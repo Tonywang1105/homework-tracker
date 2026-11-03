@@ -167,6 +167,11 @@
   gap: 4px;
 }
 
+/* The grid above would beat the hidden attribute and leave Settings always showing. */
+.settings-panel[hidden] {
+  display: none;
+}
+
 .settings-section {
   padding: 10px 0;
   border-bottom: 1px solid var(--border);

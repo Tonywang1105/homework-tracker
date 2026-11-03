@@ -9,11 +9,12 @@ import {
   parseFocusBreak,
   parseFocusSettings,
   parseWorkMinutes,
-} from "../focus.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { formatClock, startTimer } from "../timer.js?v=8dd2ac6b";
-import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+} from "../focus.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { formatClock, startTimer } from "../timer.js?v=76f0b296";
+import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const FOCUS_KEY = "homework-tracker.focus";
 const BREAK_KEY = "homework-tracker.focusBreak";
@@ -41,9 +42,9 @@ export function startFocus() {
   focusElements.breakMinutes.value = state.focus.breakMinutes;
   focusElements.lengths.hidden = !state.focus.on;
   focusElements.on.addEventListener("change", () => saveFocus({ on: focusElements.on.checked }));
-  focusElements.work.addEventListener("change", () => changeLength(focusElements.work, parseWorkMinutes, "workMinutes", "A block can be 1 to 120 minutes."));
+  focusElements.work.addEventListener("change", () => changeLength(focusElements.work, parseWorkMinutes, "workMinutes", "msg.focus_block_range"));
   focusElements.breakMinutes.addEventListener("change", () =>
-    changeLength(focusElements.breakMinutes, parseBreakMinutes, "breakMinutes", "A break can be 1 to 60 minutes."),
+    changeLength(focusElements.breakMinutes, parseBreakMinutes, "breakMinutes", "msg.focus_break_range"),
   );
   focusElements.barAction.addEventListener("click", startNextBlock);
   focusElements.barDismiss.addEventListener("click", () => setBreak(null));
@@ -64,7 +65,7 @@ function changeLength(input, parse, key, problem) {
   const minutes = parse(input.value);
   if (minutes === null) {
     input.value = state.focus[key];
-    showToast(problem);
+    showToast(t(problem));
     return;
   }
   saveFocus({ [key]: minutes });
@@ -152,13 +153,13 @@ export function renderFocus(now = new Date()) {
     const secondsLeft = Math.ceil((new Date(focusBreak.endsAt) - now) / 1000);
     const minutes = Math.round((new Date(focusBreak.endsAt) - new Date(focusBreak.endedAt)) / 60000);
     if (secondsLeft > 0) {
-      focusElements.barText.textContent = `Block done on "${focusBreak.title}". Take a ${minutes}-minute break: ${formatClock(secondsLeft)} left.`;
-      focusElements.barAction.textContent = "Keep going";
-      focusElements.barDismiss.textContent = "End focus";
+      focusElements.barText.textContent = t("focus.block_done", { title: focusBreak.title, minutes, clock: formatClock(secondsLeft) });
+      focusElements.barAction.textContent = t("focus.keep_going");
+      focusElements.barDismiss.textContent = t("focus.end");
     } else {
-      focusElements.barText.textContent = `Break's over. Ready for the next block on "${focusBreak.title}"?`;
-      focusElements.barAction.textContent = "Start next block";
-      focusElements.barDismiss.textContent = "Not now";
+      focusElements.barText.textContent = t("focus.break_over", { title: focusBreak.title });
+      focusElements.barAction.textContent = t("focus.start_next");
+      focusElements.barDismiss.textContent = t("focus.not_now");
     }
   }
   document.title = titleText(now, running, focusBreak);
@@ -178,10 +179,10 @@ function startNextBlock() {
   const assignment = findAssignment(state.focusBreak?.assignmentId ?? "");
   setBreak(null);
   if (!assignment || assignment.done) {
-    showToast("That assignment is done or gone. Press Start on the next one.");
+    showToast(t("msg.focus_gone"));
     return;
   }
   primeChime();
   updateAssignments(startTimer(state.assignments, assignment.id));
-  showToast(`Next block on "${assignment.title}".`);
+  showToast(t("msg.next_block", { title: assignment.title }));
 }

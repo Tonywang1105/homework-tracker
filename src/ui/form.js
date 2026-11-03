@@ -11,13 +11,13 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { createSeries, validateRepeat } from "../repeat.js?v=8dd2ac6b";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=8dd2ac6b";
-import { findAssignment, state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+} from "../assignments.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { createSeries, validateRepeat } from "../repeat.js?v=76f0b296";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=76f0b296";
+import { findAssignment, state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -51,7 +51,7 @@ export function startCopying(assignment) {
   elements.form.elements.dueDate.value = "";
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.form.elements.dueDate.focus({ preventScroll: true });
-  showToast(`Copying "${assignment.title}". Pick a due date, then Add.`);
+  showToast(t("msg.copying", { title: assignment.title }));
 }
 
 export function startAddingOn(dateKey) {
@@ -63,7 +63,7 @@ export function startAddingOn(dateKey) {
   showErrors({});
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.form.elements.title.focus({ preventScroll: true });
-  showToast(`New assignment due ${formatDay(dateKey)}. Type a name.`);
+  showToast(t("msg.new_on_day", { day: formatDay(dateKey) }));
 }
 
 function readForm() {
@@ -118,13 +118,13 @@ export function handleSubmit(event) {
     setFormOpen(false);
     resetForm();
     if (added.length === 1) {
-      showToast(`Added "${added[0].title}".`);
+      showToast(t("msg.added", { title: added[0].title }));
     } else {
       const [first, last] = [added[0], added.at(-1)];
       const summary =
         first.title === last.title
-          ? `Added "${first.title}" ${added.length} times, ${formatDay(first.dueDate)} to ${formatDay(last.dueDate)}.`
-          : `Added ${countAssignments(added.length)}, "${first.title}" to "${last.title}".`;
+          ? t("msg.added_times", { title: first.title, n: added.length, first: formatDay(first.dueDate), last: formatDay(last.dueDate) })
+          : t("msg.added_series", { count: countAssignments(added.length), first: first.title, last: last.title });
       // Undo takes back the whole series, in case the dates or the end date were wrong.
       showToast(summary, () => updateAssignments(previous));
     }
@@ -134,12 +134,12 @@ export function handleSubmit(event) {
 /** "Extended "MP3" to Sat, 10/31.", "Removed the extension on "MP3".", or "Saved changes to "MP3"." */
 function savedMessage(before, after) {
   if (after.originalDueDate && after.dueDate !== before.dueDate) {
-    return `Extended "${after.title}" to ${formatDay(after.dueDate)}.`;
+    return t("msg.extended", { title: after.title, day: formatDay(after.dueDate) });
   }
   if (before.originalDueDate && !after.originalDueDate) {
-    return `Removed the extension on "${after.title}".`;
+    return t("msg.extension_removed", { title: after.title });
   }
-  return `Saved changes to "${after.title}".`;
+  return t("msg.saved", { title: after.title });
 }
 
 /** For an exam (chosen, or guessed from a title like "Midterm 2"), the steps are the topics to study. */
@@ -241,7 +241,7 @@ export function startExtending(assignment) {
   state.extending = true;
   renderFormMode();
   elements.form.elements.dueDate.focus({ preventScroll: true });
-  showToast(`Pick the new due date for "${assignment.title}", then Save new date.`);
+  showToast(t("msg.pick_extend_date", { title: assignment.title }));
 }
 
 export function stopEditing() {

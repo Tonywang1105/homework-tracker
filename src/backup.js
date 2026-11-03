@@ -1,9 +1,10 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=8dd2ac6b";
-import { toDateKey } from "./calendar.js?v=8dd2ac6b";
-import { readSpentSeconds } from "./timer.js?v=8dd2ac6b";
+import { validateAssignmentInput } from "./assignments.js?v=76f0b296";
+import { toDateKey } from "./calendar.js?v=76f0b296";
+import { t } from "./i18n.js?v=76f0b296";
+import { readSpentSeconds } from "./timer.js?v=76f0b296";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -29,13 +30,13 @@ export function readBackup(text) {
   try {
     backup = JSON.parse(text);
   } catch {
-    return { ok: false, error: "That file isn't a Homework Tracker backup." };
+    return { ok: false, error: t("err.not_backup") };
   }
   if (backup?.format !== BACKUP_FORMAT || !Array.isArray(backup.assignments)) {
-    return { ok: false, error: "That file isn't a Homework Tracker backup." };
+    return { ok: false, error: t("err.not_backup") };
   }
   if (typeof backup.version !== "number" || backup.version > BACKUP_VERSION) {
-    return { ok: false, error: "That backup was made by a newer version of Homework Tracker. Reload the page and try again." };
+    return { ok: false, error: t("err.newer_backup") };
   }
 
   const assignments = [];

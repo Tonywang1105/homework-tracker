@@ -1,27 +1,28 @@
 // The Agenda view: overdue work, then the next two weeks day by day, made for reading on a phone.
 // Tapping an assignment opens the same details box as the calendar.
 
-import { formatHours, toDueDate, totalHours } from "../assignments.js?v=8dd2ac6b";
-import { buildAgenda } from "../calendar.js?v=8dd2ac6b";
-import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=8dd2ac6b";
-import { renderTags } from "./list.js?v=8dd2ac6b";
-import { state } from "./store.js?v=8dd2ac6b";
+import { formatHours, toDueDate, totalHours } from "../assignments.js?v=76f0b296";
+import { buildAgenda } from "../calendar.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=76f0b296";
+import { renderTags } from "./list.js?v=76f0b296";
+import { state } from "./store.js?v=76f0b296";
 
 const AGENDA_DAYS = 14;
 
 export function renderAgenda(assignments, now) {
   const { overdue, days, laterCount } = buildAgenda(assignments, now, AGENDA_DAYS);
-  const sections = days.map((day) => renderAgendaDay(dayHeading(day), day.assignments, "Nothing due"));
+  const sections = days.map((day) => renderAgendaDay(dayHeading(day), day.assignments, t("agenda.nothing_due")));
   if (overdue.length > 0) {
-    sections.unshift(renderAgendaDay("Overdue", overdue, "", { overdue: true }));
+    sections.unshift(renderAgendaDay(t("agenda.overdue"), overdue, "", { overdue: true }));
   }
   elements.agendaList.replaceChildren(...sections);
 
   const lastDay = formatDay(days.at(-1).key);
   elements.agendaLater.textContent =
     laterCount === 1
-      ? `1 more assignment is due after ${lastDay}. See List or Calendar.`
-      : `${laterCount} more assignments are due after ${lastDay}. See List or Calendar.`;
+      ? t("agenda.later.one", { day: lastDay })
+      : t("agenda.later.other", { n: laterCount, day: lastDay });
   elements.agendaLater.hidden = laterCount === 0;
 }
 
@@ -29,9 +30,9 @@ export function renderAgenda(assignments, now) {
 function dayHeading(day) {
   const date = formatDay(day.key);
   if (day.isToday) {
-    return `Today · ${date}`;
+    return t("agenda.today", { date });
   }
-  return day.isTomorrow ? `Tomorrow · ${date}` : date;
+  return day.isTomorrow ? t("agenda.tomorrow", { date }) : date;
 }
 
 function renderAgendaDay(heading, assignments, emptyText, { overdue = false } = {}) {

@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { t, tCount } from "./i18n.js?v=8dd2ac6b";
-import { withTimerStopped } from "./timer.js?v=8dd2ac6b";
+import { t, tCount } from "./i18n.js?v=76f0b296";
+import { withTimerStopped } from "./timer.js?v=76f0b296";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -84,35 +84,35 @@ export function validateAssignmentInput(input) {
   const errors = {};
 
   if (title === "") {
-    errors.title = "Give the assignment a name.";
+    errors.title = t("err.title_empty");
   } else if (title.length > MAX_TITLE_LENGTH) {
-    errors.title = `Keep the name under ${MAX_TITLE_LENGTH} characters.`;
+    errors.title = t("err.title_long", { n: MAX_TITLE_LENGTH });
   }
   if (!DATE_PATTERN.test(dueDate) || Number.isNaN(toDueDate(dueDate, DEFAULT_DUE_TIME).getTime())) {
-    errors.dueDate = "Pick a due date.";
+    errors.dueDate = t("err.date");
   }
   if (!TIME_PATTERN.test(dueTime)) {
-    errors.dueTime = "Pick a time, or leave it empty for 11:59 PM.";
+    errors.dueTime = t("err.time");
   }
   if (!PRIORITIES.includes(priority)) {
-    errors.priority = "Choose big, regular or small.";
+    errors.priority = t("err.priority");
   }
   if (notes.length > MAX_NOTES_LENGTH) {
-    errors.notes = `Keep notes under ${MAX_NOTES_LENGTH} characters.`;
+    errors.notes = t("err.notes_long", { n: MAX_NOTES_LENGTH });
   }
   if (chosenType !== AUTO_TYPE && chosenType !== "" && !TYPES.includes(chosenType)) {
-    errors.type = "Choose a type from the list.";
+    errors.type = t("err.type");
   }
   if (hours !== null && !(hours >= MIN_HOURS && hours <= MAX_HOURS)) {
-    errors.hours = `Enter hours between ${MIN_HOURS} and ${MAX_HOURS}, or leave it empty.`;
+    errors.hours = t("err.hours", { min: MIN_HOURS, max: MAX_HOURS });
   }
   if (platform !== "" && !PLATFORMS.includes(platform)) {
-    errors.platform = "Choose a place from the list.";
+    errors.platform = t("err.platform");
   }
   if (steps.length > MAX_STEPS) {
-    errors.steps = `Keep it to ${MAX_STEPS} steps or fewer.`;
+    errors.steps = t("err.steps_many", { n: MAX_STEPS });
   } else if (steps.some((step) => step.text.length > MAX_STEP_LENGTH)) {
-    errors.steps = `Keep each step under ${MAX_STEP_LENGTH} characters.`;
+    errors.steps = t("err.step_long", { n: MAX_STEP_LENGTH });
   }
 
   if (Object.keys(errors).length > 0) {
@@ -362,6 +362,11 @@ export function dueSoon(assignments, now = new Date(), hours = 24) {
 /** "~3 h", "~1.5 h", or "~30 min" for under an hour. */
 export function formatHours(hours) {
   return hours < 1 ? t("hours.min", { n: Math.round(hours * 60) }) : t("hours.h", { n: Math.round(hours * 10) / 10 });
+}
+
+/** "9 h" or "30 min", without the "~", for sentences that already say "about". */
+export function formatHoursPlain(hours) {
+  return hours < 1 ? t("hours.min_plain", { n: Math.round(hours * 60) }) : t("hours.h_plain", { n: Math.round(hours * 10) / 10 });
 }
 
 /** Total estimated hours of the unfinished assignments given (those without an estimate count as 0). */

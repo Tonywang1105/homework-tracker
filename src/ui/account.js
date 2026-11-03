@@ -2,16 +2,17 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=8dd2ac6b";
-import { firebaseConfig } from "../firebase-config.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { saveAssignments } from "../storage.js?v=8dd2ac6b";
-import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=8dd2ac6b";
-import { splitDeleted } from "../trash.js?v=8dd2ac6b";
-import { applyCourseLinks } from "./coursePage.js?v=8dd2ac6b";
-import { elements } from "./dom.js?v=8dd2ac6b";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=76f0b296";
+import { firebaseConfig } from "../firebase-config.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { saveAssignments } from "../storage.js?v=76f0b296";
+import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=76f0b296";
+import { splitDeleted } from "../trash.js?v=76f0b296";
+import { applyCourseLinks } from "./coursePage.js?v=76f0b296";
+import { countAssignments, elements } from "./dom.js?v=76f0b296";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
@@ -41,8 +42,8 @@ export function startAccount() {
     elements.signIn.addEventListener(eventName, () => connect().catch(() => {}), { once: true, passive: true });
   }
   if (loadText(SYNCED_ACCOUNT_KEY)) {
-    showAccount({ status: "Connecting…" });
-    connect().catch(() => showAccount({ status: "Offline: showing this device's copy", signedIn: true }));
+    showAccount({ status: t("sync.connecting") });
+    connect().catch(() => showAccount({ status: t("sync.offline_copy"), signedIn: true }));
   } else {
     showAccount({ signedIn: false });
   }
@@ -107,7 +108,7 @@ async function signIn() {
   try {
     await connect();
   } catch {
-    showToast("Couldn't reach Google to sign in. Check your internet connection and try again.");
+    showToast(t("msg.signin_unreachable"));
     return;
   }
   const { authApi, auth } = firebase;
@@ -115,9 +116,9 @@ async function signIn() {
     await authApi.signInWithPopup(auth, new authApi.GoogleAuthProvider());
   } catch (error) {
     if (error.code === "auth/popup-blocked") {
-      showToast("Your browser blocked the Google sign-in window. Click Sign in again.");
+      showToast(t("msg.signin_blocked"));
     } else if (error.code !== "auth/popup-closed-by-user" && error.code !== "auth/cancelled-popup-request") {
-      showToast(`Couldn't sign in (${error.code ?? error.message}).`);
+      showToast(t("msg.signin_failed", { code: error.code ?? error.message }));
     }
   }
 }
@@ -129,7 +130,7 @@ async function handleSignOut() {
   if (firebase) {
     await firebase.authApi.signOut(firebase.auth);
   }
-  showToast("Signed out. Your list stays on this device, but changes won't sync until you sign in again.");
+  showToast(t("msg.signed_out"));
 }
 
 async function handleUser(user) {
@@ -144,7 +145,7 @@ async function handleUser(user) {
     return;
   }
   stopSyncing();
-  showAccount({ status: "Syncing…", signedIn: true });
+  showAccount({ status: t("sync.syncing"), signedIn: true });
   const { dbApi, db } = firebase;
   const assignmentsRef = dbApi.collection(db, "users", user.uid, "assignments");
   const linksRef = dbApi.doc(db, "users", user.uid, "settings", "courseLinks");
@@ -174,8 +175,8 @@ async function handleUser(user) {
     saveChoice(SYNCED_ACCOUNT_KEY, user.uid);
     showToast(
       addedCount > 0
-        ? `Signed in. Added ${addedCount} assignment${addedCount === 1 ? "" : "s"} from this device to your account.`
-        : "Signed in. Your list now syncs with your account.",
+        ? t("msg.signed_in_added", { count: countAssignments(addedCount) })
+        : t("msg.signed_in"),
     );
   }
 
@@ -218,10 +219,10 @@ function showRemoteList(user, snapshot) {
     saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
   }
   const status = snapshot.metadata.hasPendingWrites
-    ? "Saving…"
+    ? t("sync.saving")
     : snapshot.metadata.fromCache
-      ? "Offline: changes will sync later"
-      : "Synced";
+      ? t("sync.offline_later")
+      : t("sync.synced");
   showAccount({ status, email: user.email, signedIn: true });
   render();
 }
@@ -259,14 +260,14 @@ function stopSyncing() {
 
 function handleSyncError(error) {
   console.error("Sync failed:", error.code ?? error.message);
-  showAccount({ status: "Sync failed: changes are saved on this device only", signedIn: true });
-  showToast(`Couldn't sync with your account (${error.code ?? error.message}). Try reloading the page.`);
+  showAccount({ status: t("sync.failed"), signedIn: true });
+  showToast(t("msg.sync_failed", { code: error.code ?? error.message }));
 }
 
 /** Course links failing to sync leaves the assignments syncing; the links stay saved on this device. */
 function handleLinksError(error) {
   console.error("Course links sync failed:", error.code ?? error.message);
-  showToast(`Couldn't sync course links (${error.code ?? error.message}). They're saved on this device.`);
+  showToast(t("msg.links_sync_failed", { code: error.code ?? error.message }));
 }
 
 /** Shows the sign-in button, or who is signed in and whether the list is synced. */

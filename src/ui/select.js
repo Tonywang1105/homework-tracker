@@ -2,13 +2,13 @@
 // once (for example after a Canvas import, which brings everything in as big). Every action has Undo, and then
 // select mode ends.
 
-import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { countAssignments, elements } from "./dom.js?v=8dd2ac6b";
-import { stopEditing } from "./form.js?v=8dd2ac6b";
-import { state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { countAssignments, elements } from "./dom.js?v=76f0b296";
+import { stopEditing } from "./form.js?v=76f0b296";
+import { state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const select = {
   toggle: document.getElementById("select-toggle"),
@@ -90,12 +90,12 @@ function handleBarClick(event) {
     endSelect();
   } else if (action === "done") {
     const { assignments, changed } = markManyDone(state.assignments, state.selectedIds);
-    applyBulk(assignments, changed === 0 ? "They were already done." : `Marked ${countAssignments(changed)} done.`);
+    applyBulk(assignments, changed === 0 ? t("msg.already_done") : t("msg.marked_done", { count: countAssignments(changed) }));
   } else if (action === "delete") {
     if (state.selectedIds.has(state.editingId)) {
       stopEditing();
     }
-    applyBulk(removeAssignmentsById(state.assignments, state.selectedIds), `Deleted ${countAssignments(state.selectedIds.size)}.`);
+    applyBulk(removeAssignmentsById(state.assignments, state.selectedIds), t("msg.deleted_many", { count: countAssignments(state.selectedIds.size) }));
   }
 }
 
@@ -105,7 +105,7 @@ function handleSizeChange() {
   if (!PRIORITY_LABELS[priority]) {
     return;
   }
-  const message = `Changed ${countAssignments(state.selectedIds.size)} to ${PRIORITY_LABELS[priority]}.`;
+  const message = t("msg.changed_size", { count: countAssignments(state.selectedIds.size), size: PRIORITY_LABELS[priority] });
   applyBulk(changeAssignments(state.assignments, state.selectedIds, { priority }), message);
 }
 

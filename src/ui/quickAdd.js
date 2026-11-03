@@ -8,12 +8,12 @@ import {
   PRIORITY_LABELS,
   toDueDate,
   validateAssignmentInput,
-} from "../assignments.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { parseQuickAdd } from "../quickadd.js?v=8dd2ac6b";
-import { elements, formatDay, timeFormatter } from "./dom.js?v=8dd2ac6b";
-import { state, updateAssignments } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+} from "../assignments.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { parseQuickAdd } from "../quickadd.js?v=76f0b296";
+import { elements, formatDay, timeFormatter } from "./dom.js?v=76f0b296";
+import { state, updateAssignments } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 
 /** What the line would add, as a short line under the box, updated as you type. */
@@ -25,9 +25,9 @@ export function handleQuickAddInput() {
   }
   const parsed = readLine(text);
   if (!parsed.title) {
-    showPreview("Add a title, like MP4.", true);
+    showPreview(t("msg.quick_need_title"), true);
   } else if (!parsed.dueDate) {
-    showPreview(`${parsed.title}: add a day, like fri, tomorrow or 10/30.`, true);
+    showPreview(t("msg.quick_need_day", { title: parsed.title }), true);
   } else {
     showPreview(describe(parsed));
   }
@@ -49,7 +49,7 @@ export function handleQuickAddSubmit(event) {
   }
   const added = createAssignment(result.fields);
   updateAssignments([...state.assignments, added]);
-  showToast(`Added "${added.title}", due ${formatDay(added.dueDate)}.`);
+  showToast(t("msg.quick_added", { title: added.title, day: formatDay(added.dueDate) }));
   // Ready for the next one, since several are often added together.
   elements.quickAddText.value = "";
   showPreview(t("quick.help"));
@@ -66,7 +66,7 @@ function describe({ title, course, dueDate, dueTime, priority, hours }) {
   if (hours) {
     parts.push(formatHours(hours));
   }
-  return `Adds: ${parts.filter(Boolean).join(" · ")}`;
+  return t("msg.quick_adds", { parts: parts.filter(Boolean).join(" · ") });
 }
 
 function showPreview(text, isProblem = false) {

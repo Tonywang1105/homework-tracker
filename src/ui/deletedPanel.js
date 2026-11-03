@@ -1,11 +1,11 @@
 // Recently deleted, in Settings: what was deleted in the last 30 days, each with Restore, and Delete all now.
 // The rules are in src/trash.js; store.js keeps the list up to date as assignments are deleted.
 
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { deletedAgo, restoreDeleted } from "../trash.js?v=8dd2ac6b";
-import { countAssignments, makeButton } from "./dom.js?v=8dd2ac6b";
-import { state, updateDeleted } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=76f0b296";
+import { deletedAgo, restoreDeleted } from "../trash.js?v=76f0b296";
+import { countAssignments, makeButton } from "./dom.js?v=76f0b296";
+import { state, updateDeleted } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 const settingsPanel = document.getElementById("settings-panel");
 const list = document.getElementById("deleted-list");
@@ -54,16 +54,16 @@ function handleRestore(event) {
   const title = state.deleted.find((a) => a.id === id)?.title;
   const { live, deleted } = restoreDeleted(state.assignments, state.deleted, id);
   updateDeleted(live, deleted);
-  showToast(`Restored "${title}".`);
+  showToast(t("msg.restored_one", { title }));
   // The row is gone, so move focus to the next Restore button, or to Close if that was the last one.
   (list.querySelector("[data-restore]") ?? document.getElementById("settings-panel-close")).focus();
 }
 
 function handleEmpty() {
   const how = countAssignments(state.deleted.length);
-  if (!window.confirm(`Delete ${how} for good? This can't be undone.`)) {
+  if (!window.confirm(t("msg.confirm_delete_forever", { count: how }))) {
     return;
   }
   updateDeleted(state.assignments, []);
-  showToast(`Deleted ${how} for good.`);
+  showToast(t("msg.deleted_forever", { count: how }));
 }

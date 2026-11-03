@@ -1,17 +1,16 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=8dd2ac6b";
-import { toDateKey } from "../calendar.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=8dd2ac6b";
-import { formatSpent } from "../timer.js?v=8dd2ac6b";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=8dd2ac6b";
-import { panels, setPanelOpen } from "./panels.js?v=8dd2ac6b";
-import { setView } from "./settings.js?v=8dd2ac6b";
-import { state } from "./store.js?v=8dd2ac6b";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=76f0b296";
+import { toDateKey } from "../calendar.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=76f0b296";
+import { formatSpent } from "../timer.js?v=76f0b296";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=76f0b296";
+import { panels, setPanelOpen } from "./panels.js?v=76f0b296";
+import { setView } from "./settings.js?v=76f0b296";
+import { state } from "./store.js?v=76f0b296";
 
-const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;
 const summaryLine = document.getElementById("today-summary");
@@ -42,7 +41,7 @@ export function renderReview(now) {
   renderFinished(now);
   reviewElements.big.replaceChildren(
     ...thisWeek.big.map(({ assignment, status }) =>
-      listItem(`${assignment.title}: ${STATUS_TEXT[status]}`, `review-${status}`),
+      listItem(t(`review.status_${status}`, { title: assignment.title }), `review-${status}`),
     ),
   );
   reviewElements.big.hidden = thisWeek.big.length === 0;
@@ -50,7 +49,7 @@ export function renderReview(now) {
   reviewElements.nextDates.textContent = dateRange(nextWeek);
   reviewElements.nextSummary.textContent = nextWeekText(nextWeek);
   reviewElements.startList.replaceChildren(
-    ...startThisWeek.map((a) => listItem(`${a.title}: start by ${formatDay(state.startPlan.get(a.id).startDate)}`)),
+    ...startThisWeek.map((a) => listItem(t("review.start_by", { title: a.title, day: formatDay(state.startPlan.get(a.id).startDate) }))),
   );
   reviewElements.start.hidden = startThisWeek.length === 0;
 }
@@ -59,9 +58,9 @@ export function renderReview(now) {
 function renderFinished(now) {
   const { total, big, byDay } = finishedThisWeek(state.assignments, now);
   const streak = doneStreak(state.assignments, now);
-  const bigText = big > 0 ? ` (${big} big)` : "";
-  const streakText = streak > 0 ? ` · ${streak}-day streak` : "";
-  reviewElements.finished.textContent = `Finished ${total} this week${bigText}${streakText}.`;
+  const bigText = big > 0 ? t("review.finished_big", { n: big }) : "";
+  const streakText = streak > 0 ? t("review.finished_streak", { n: streak }) : "";
+  reviewElements.finished.textContent = t("review.finished", { n: total, big: bigText, streak: streakText });
   const today = byDay.find(({ date }) => date === toDateKey(now));
   reviewElements.days.replaceChildren(
     ...byDay.map((day) => {
@@ -81,23 +80,23 @@ function renderFinished(now) {
 }
 
 function dateRange({ start, end }) {
-  return `${formatDay(start)} to ${formatDay(end)}`;
+  return t("review.range", { start: formatDay(start), end: formatDay(end) });
 }
 
 /** "6 due: 4 done, 1 overdue, 1 still to come. About 9 h of finished work. Tracked 6 h: ..." */
 function thisWeekText({ due, done, overdue, coming, hoursDone, tracked }) {
   if (due === 0) {
-    return "Nothing was due this week.";
+    return t("review.nothing_was_due");
   }
-  const parts = [`${done} done`];
+  const parts = [t("review.done", { n: done })];
   if (overdue > 0) {
-    parts.push(`${overdue} overdue`);
+    parts.push(t("review.overdue", { n: overdue }));
   }
   if (coming > 0) {
-    parts.push(`${coming} still to come`);
+    parts.push(t("review.coming", { n: coming }));
   }
-  const finished = hoursDone > 0 ? ` About ${formatHours(hoursDone).slice(1)} of finished work.` : "";
-  return `${due} due: ${parts.join(", ")}.${finished}${trackedText(tracked)}`;
+  const finished = hoursDone > 0 ? t("review.finished_hours", { hours: formatHoursPlain(hoursDone) }) : "";
+  return `${t("review.this_week_summary", { due, parts: parts.join(", ") })}${finished}${trackedText(tracked)}`;
 }
 
 /** " Tracked 6 h; finished work took about 40% longer than you estimated." (empty if nothing was timed) */
@@ -105,26 +104,26 @@ function trackedText({ seconds, ratio }) {
   if (seconds === 0) {
     return "";
   }
-  const tracked = ` Tracked ${formatSpent(seconds)}`;
+  const tracked = t("review.tracked", { spent: formatSpent(seconds) });
   if (ratio === null) {
-    return `${tracked}.`;
+    return `${tracked}${t("review.tracked_end")}`;
   }
   const percent = Math.round(Math.abs(ratio - 1) * 100);
   if (percent < 10) {
-    return `${tracked}; finished work took about as long as you estimated.`;
+    return `${tracked}${t("review.as_estimated")}`;
   }
-  return `${tracked}; finished work took about ${percent}% ${ratio > 1 ? "longer" : "less time"} than you estimated.`;
+  return `${tracked}${t(ratio > 1 ? "review.longer" : "review.shorter", { percent })}`;
 }
 
 /** "5 due, about 6 h of work (1 without an estimate). Busiest: Thu, 11/5 (~4 h)." */
 function nextWeekText({ due, hours, unestimated, busiest }) {
   if (due === 0) {
-    return "Nothing due yet.";
+    return t("review.nothing_due_yet");
   }
-  const work = hours > 0 ? `, about ${formatHours(hours).slice(1)} of work` : "";
-  const missing = unestimated > 0 ? ` (${unestimated} without an estimate)` : "";
-  const busy = busiest ? ` Busiest: ${formatDay(busiest.dueDate)} (${formatHours(busiest.hours)}).` : "";
-  return `${due} due${work}${missing}.${busy}`;
+  const work = hours > 0 ? t("review.next_work", { hours: formatHoursPlain(hours) }) : "";
+  const missing = unestimated > 0 ? t("review.next_missing", { n: unestimated }) : "";
+  const busy = busiest ? t("review.next_busiest", { day: formatDay(busiest.dueDate), hours: formatHours(busiest.hours) }) : "";
+  return t("review.next_summary", { due, work, missing, busy });
 }
 
 function listItem(text, className = "") {

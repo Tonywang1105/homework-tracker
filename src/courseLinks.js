@@ -1,7 +1,8 @@
 // Course pages' links (Canvas, PrairieLearn, Gradescope, slides…): checking them, and combining two lists of
 // them when signing in. No DOM, so it can be unit-tested with Node. Each link is { course, label, url }.
 
-import { isWebAddress, shortLinkLabel } from "./links.js?v=8dd2ac6b";
+import { t } from "./i18n.js?v=76f0b296";
+import { isWebAddress, shortLinkLabel } from "./links.js?v=76f0b296";
 
 export const MAX_LINKS_PER_COURSE = 12;
 // Also the limit in firestore.rules, which keeps the synced list to one small document.
@@ -17,18 +18,18 @@ const MAX_URL_LENGTH = 500;
 export function validateLink({ course, label = "", url = "" }, existing = []) {
   const trimmedUrl = url.trim();
   if (trimmedUrl === "") {
-    return { ok: false, error: "Enter the link's web address." };
+    return { ok: false, error: t("err.link_empty") };
   }
   const fullUrl = /^[a-z][a-z0-9+.-]*:/i.test(trimmedUrl) ? trimmedUrl : `https://${trimmedUrl}`;
   if (fullUrl.length > MAX_URL_LENGTH || !isWebAddress(fullUrl) || !new URL(fullUrl).hostname.includes(".")) {
-    return { ok: false, error: "That doesn't look like a web address. Try something like cs124.org." };
+    return { ok: false, error: t("err.link_bad") };
   }
   const forCourse = linksFor(existing, course);
   if (forCourse.some((link) => link.url === fullUrl)) {
-    return { ok: false, error: "That link is already here." };
+    return { ok: false, error: t("err.link_dup") };
   }
   if (forCourse.length >= MAX_LINKS_PER_COURSE || existing.length >= MAX_LINKS) {
-    return { ok: false, error: `A course can have up to ${MAX_LINKS_PER_COURSE} links. Remove one first.` };
+    return { ok: false, error: t("err.link_many", { n: MAX_LINKS_PER_COURSE }) };
   }
   return { ok: true, link: { course, label: cleanLabel(label, fullUrl), url: fullUrl } };
 }

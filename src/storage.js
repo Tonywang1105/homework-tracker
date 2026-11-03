@@ -1,5 +1,7 @@
 // Saves the assignment list in the browser's localStorage as JSON.
 
+import { t } from "./i18n.js?v=76f0b296";
+
 export const STORAGE_KEY = "homework-tracker.assignments.v1";
 
 /**
@@ -14,11 +16,11 @@ export function loadAssignments(storage) {
     }
     const parsed = JSON.parse(saved);
     if (!Array.isArray(parsed)) {
-      return { ok: false, error: "Saved data is not a list of assignments." };
+      return { ok: false, error: t("err.saved_not_list") };
     }
     return { ok: true, assignments: parsed };
   } catch (error) {
-    return { ok: false, error: `Could not read saved assignments (${error.message}).` };
+    return { ok: false, error: t("err.saved_unreadable", { detail: error.message }) };
   }
 }
 

@@ -1,13 +1,13 @@
 // Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them (src/shortcuts.js says which key is which).
 
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=8dd2ac6b";
-import { elements } from "./dom.js?v=8dd2ac6b";
-import { panels, setPanelOpen } from "./panels.js?v=8dd2ac6b";
-import { setView, VIEWS } from "./settings.js?v=8dd2ac6b";
-import { state } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=76f0b296";
+import { elements } from "./dom.js?v=76f0b296";
+import { panels, setPanelOpen } from "./panels.js?v=76f0b296";
+import { setView, VIEWS } from "./settings.js?v=76f0b296";
+import { state } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 // The shortcuts are listed in Settings, so ? opens Settings at that section.
 const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");
@@ -74,7 +74,7 @@ function focusSearch() {
   }
   render();
   if (elements.search.offsetParent === null) {
-    showToast("Nothing to search yet. Add an assignment first.");
+    showToast(t("msg.nothing_to_search"));
     return;
   }
   elements.search.focus();

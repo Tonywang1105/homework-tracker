@@ -1,13 +1,13 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=8dd2ac6b";
-import { t } from "../i18n.js?v=8dd2ac6b";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=8dd2ac6b";
-import { render } from "../main.js?v=8dd2ac6b";
-import { parseDailyHours } from "../plan.js?v=8dd2ac6b";
-import { countAssignments, elements, formatDay } from "./dom.js?v=8dd2ac6b";
-import { removeChoice, saveChoice, state } from "./store.js?v=8dd2ac6b";
-import { showToast } from "./toast.js?v=8dd2ac6b";
+import { formatHours, workload } from "../assignments.js?v=76f0b296";
+import { t } from "../i18n.js?v=76f0b296";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=76f0b296";
+import { render } from "../main.js?v=76f0b296";
+import { parseDailyHours } from "../plan.js?v=76f0b296";
+import { countAssignments, elements, formatDay } from "./dom.js?v=76f0b296";
+import { removeChoice, saveChoice, state } from "./store.js?v=76f0b296";
+import { showToast } from "./toast.js?v=76f0b296";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -129,12 +129,12 @@ export function renderWorkload(now) {
 export function handleDailyHoursChange() {
   const hours = parseDailyHours(elements.dailyHours.value);
   if (hours === null) {
-    showToast("Plan for between 0.5 and 16 hours a day.");
+    showToast(t("msg.daily_range"));
     elements.dailyHours.value = state.dailyHours;
     return;
   }
   state.dailyHours = hours;
   saveChoice(DAILY_HOURS_KEY, String(hours));
   render();
-  showToast(`Start dates now plan for ${hours} h of homework a day.`);
+  showToast(t("msg.daily_set", { hours }));
 }
