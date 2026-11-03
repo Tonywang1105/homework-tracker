@@ -1,10 +1,11 @@
 // Recently deleted, in Settings: what was deleted in the last 30 days, each with Restore, and Delete all now.
 // The rules are in src/trash.js; store.js keeps the list up to date as assignments are deleted.
 
-import { deletedAgo, restoreDeleted } from "../trash.js?v=d1d78528";
-import { countAssignments, makeButton } from "./dom.js?v=d1d78528";
-import { state, updateDeleted } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { deletedAgo, restoreDeleted } from "../trash.js?v=8dd2ac6b";
+import { countAssignments, makeButton } from "./dom.js?v=8dd2ac6b";
+import { state, updateDeleted } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 const settingsPanel = document.getElementById("settings-panel");
 const list = document.getElementById("deleted-list");
@@ -24,7 +25,7 @@ export function renderDeleted(now) {
   count.textContent = state.deleted.length > 0 ? `(${state.deleted.length})` : "";
   emptyButton.hidden = state.deleted.length === 0;
   if (state.deleted.length === 0) {
-    list.replaceChildren(Object.assign(document.createElement("li"), { className: "deleted-none", textContent: "Nothing deleted in the last 30 days." }));
+    list.replaceChildren(Object.assign(document.createElement("li"), { className: "deleted-none", textContent: t("settings.deleted_none") }));
     return;
   }
   list.replaceChildren(
@@ -35,8 +36,8 @@ export function renderDeleted(now) {
       const title = document.createElement("strong");
       title.textContent = assignment.title;
       const course = assignment.course ? ` · ${assignment.course}` : "";
-      text.append(title, `${course} · deleted ${deletedAgo(assignment.deletedAt, now)}`);
-      const restore = makeButton("button", "Restore");
+      text.append(title, `${course} · ${t("settings.deleted_row", { ago: deletedAgo(assignment.deletedAt, now) })}`);
+      const restore = makeButton("button", t("settings.restore"));
       restore.dataset.restore = assignment.id;
       restore.setAttribute("aria-label", `Restore "${assignment.title}"`);
       item.append(text, restore);

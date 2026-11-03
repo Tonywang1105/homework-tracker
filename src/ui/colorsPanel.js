@@ -1,9 +1,10 @@
 // Course colors, in Settings: each course with its tag's color, which can be changed (saved in this browser).
 
-import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=d1d78528";
-import { render } from "../main.js?v=d1d78528";
-import { makeOption, makeTag } from "./dom.js?v=d1d78528";
-import { loadText, saveChoice, state } from "./store.js?v=d1d78528";
+import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { makeOption, makeTag } from "./dom.js?v=8dd2ac6b";
+import { loadText, saveChoice, state } from "./store.js?v=8dd2ac6b";
 
 const CHOSEN_COLORS_KEY = "homework-tracker.courseColors";
 const AUTOMATIC = "";
@@ -26,14 +27,14 @@ export function updateCourseColors(courses) {
       const select = document.createElement("select");
       select.dataset.course = course;
       select.setAttribute("aria-label", `Color for ${course}`);
-      select.append(makeOption(AUTOMATIC, "Automatic"), ...COURSE_COLORS.map((color) => makeOption(color, capitalized(color))));
+      select.append(makeOption(AUTOMATIC, t("settings.automatic")), ...COURSE_COLORS.map((color) => makeOption(color, t(`color.${color}`))));
       select.value = state.chosenColors[course] ?? AUTOMATIC;
       item.append(makeTag(course, `course-tag course-color-${state.courseColors.get(course)}`), select);
       return item;
     }),
   );
   if (courses.length === 0) {
-    colorList.append(Object.assign(document.createElement("li"), { textContent: "No courses yet." }));
+    colorList.append(Object.assign(document.createElement("li"), { textContent: t("settings.no_courses") }));
   }
 }
 
@@ -53,6 +54,3 @@ export function handleCourseColorChange(event) {
   colorList.querySelector(`select[data-course="${CSS.escape(course)}"]`)?.focus();
 }
 
-function capitalized(word) {
-  return word[0].toUpperCase() + word.slice(1);
-}

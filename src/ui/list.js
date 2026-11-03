@@ -19,30 +19,31 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=d1d78528";
-import { toDateKey } from "../calendar.js?v=d1d78528";
-import { timerTagText } from "../focus.js?v=d1d78528";
-import { render } from "../main.js?v=d1d78528";
-import { stepDays } from "../plan.js?v=d1d78528";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=d1d78528";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=d1d78528";
-import { primeChime } from "./focus.js?v=d1d78528";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=d1d78528";
-import { toggleSelected } from "./select.js?v=d1d78528";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+} from "../assignments.js?v=8dd2ac6b";
+import { toDateKey } from "../calendar.js?v=8dd2ac6b";
+import { timerTagText } from "../focus.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { stepDays } from "../plan.js?v=8dd2ac6b";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=8dd2ac6b";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=8dd2ac6b";
+import { primeChime } from "./focus.js?v=8dd2ac6b";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=8dd2ac6b";
+import { toggleSelected } from "./select.js?v=8dd2ac6b";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
 // stays in Recently deleted.
 const DELETE_UNDO_MS = 7000;
 
-/** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
+/** "start by Mon, 10/19", "start today", or "behind: ~2 h short" (in the chosen language). */
 function startText({ startDate, status, shortHours }) {
   if (status === "behind") {
-    return `behind: ${formatHours(shortHours)} short`;
+    return t("tag.behind", { hours: formatHours(shortHours) });
   }
-  return status === "today" ? "start today" : `start by ${formatDay(startDate)}`;
+  return status === "today" ? t("tag.start_today") : t("tag.start_by", { day: formatDay(startDate) });
 }
 
 /** Typing in the search box: while searching, Completed is opened so finished matches show; clearing it restores it. */
@@ -63,20 +64,21 @@ export function emptyMessageText({ course, platform, hideSmall, search }, finish
   if (searchWords(search).length > 0) {
     const searched = `“${search.trim()}”`;
     return finishedMatches > 0
-      ? `Nothing left to do matches ${searched}. Finished work that matches is below.`
-      : `Nothing matches ${searched}.${course ? ` Only ${course} is searched.` : ""}${hideSmall ? " Small reminders are hidden." : ""}`;
+      ? t("empty.search_done", { search: searched })
+      : `${t("empty.search_none", { search: searched })}${course ? t("empty.search_course", { course }) : ""}${hideSmall ? t("empty.small_hidden") : ""}`;
   }
   if (!state.assignments.some((a) => !a.done)) {
-    return "All caught up. Nothing left to do.";
+    return t("empty.caught_up");
   }
-  const smallHidden = hideSmall ? " Small reminders are hidden." : "";
+  const smallHidden = hideSmall ? t("empty.small_hidden") : "";
   if (platform) {
-    return `Nothing left to do on ${PLATFORM_LABELS[platform]}${course ? ` for ${course}` : ""}.${smallHidden}`;
+    const place = course ? `${PLATFORM_LABELS[platform]} (${course})` : PLATFORM_LABELS[platform];
+    return `${t("empty.platform", { place })}${smallHidden}`;
   }
   if (course) {
-    return `Nothing left to do for ${course}.${smallHidden}`;
+    return `${t("empty.course", { course })}${smallHidden}`;
   }
-  return `Nothing left but small reminders.${smallHidden}`;
+  return `${t("empty.only_small")}${smallHidden}`;
 }
 
 /** One to-do row; a series' first row also gets its "+N more in this series" link, later rows are indented. */
@@ -89,7 +91,7 @@ export function renderTodoRow({ assignment, laterInSeries, inSeries }, now, soon
   const expanded = state.expandedSeries.has(assignment.seriesId);
   const toggleItem = document.createElement("li");
   toggleItem.className = "series-toggle";
-  const toggle = makeButton("link-button", expanded ? `Hide the ${laterInSeries} later ones` : `+${laterInSeries} more in this series`);
+  const toggle = makeButton("link-button", t(expanded ? "list.series_hide" : "list.series_more", { n: laterInSeries }));
   toggle.dataset.seriesToggle = assignment.seriesId;
   toggle.setAttribute("aria-expanded", String(expanded));
   toggleItem.append(toggle);
@@ -154,11 +156,11 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   actions.className = "item-actions";
   actions.append(
     ...(assignment.done ? [] : [timerButton(assignment)]),
-    ...(canSnooze(assignment, now) ? [makeActionButton("Tomorrow", "snooze", assignment.title)] : []),
-    ...(canExtend(assignment, now) ? [makeActionButton("Extend…", "extend", assignment.title)] : []),
-    makeActionButton("Edit", "edit", assignment.title),
-    makeActionButton("Copy", "copy", assignment.title),
-    makeActionButton("Delete", "delete", assignment.title),
+    ...(canSnooze(assignment, now) ? [makeActionButton(t("action.tomorrow"), "snooze", assignment.title)] : []),
+    ...(canExtend(assignment, now) ? [makeActionButton(t("action.extend"), "extend", assignment.title)] : []),
+    makeActionButton(t("action.edit"), "edit", assignment.title),
+    makeActionButton(t("action.copy"), "copy", assignment.title),
+    makeActionButton(t("action.delete"), "delete", assignment.title),
   );
 
   item.append(checkbox, body, actions);
@@ -168,7 +170,7 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 /** Start, or Stop while this assignment's timer is running (on list rows and in Today's plan). */
 export function timerButton(assignment) {
   const running = Boolean(assignment.timerStartedAt);
-  const button = makeActionButton(running ? "Stop" : "Start", running ? "timer-stop" : "timer-start", assignment.title);
+  const button = makeActionButton(t(running ? "action.stop" : "action.start"), running ? "timer-stop" : "timer-start", assignment.title);
   button.classList.add("action-timer");
   button.title = running ? "Stop the timer and add this time to the total" : "Time how long this takes";
   return button;
@@ -196,7 +198,7 @@ export function renderTags(assignment, { courseButton = true } = {}) {
   const tags = [];
   // Unfinished work whose deadline has passed is labelled, in words as well as color, wherever its tags appear.
   if (!assignment.done && describeDue(assignment).urgency === "overdue") {
-    tags.push(makeTag("Overdue", "overdue-tag"));
+    tags.push(makeTag(t("tag.overdue"), "overdue-tag"));
   }
   const platform = assignmentPlatform(assignment);
   if (platform) {
@@ -228,12 +230,12 @@ export function renderTags(assignment, { courseButton = true } = {}) {
     tags.push(makeTag(formatHours(assignment.hours), "hours-tag"));
   }
   if (assignment.originalDueDate) {
-    tags.push(makeTag(`extended from ${formatDay(assignment.originalDueDate)}`, "extended-tag"));
+    tags.push(makeTag(t("tag.extended", { day: formatDay(assignment.originalDueDate) }), "extended-tag"));
   }
   const progress = stepProgress(assignment);
   if (progress) {
     const allDone = progress.done === progress.total;
-    tags.push(makeTag(`${progress.done} of ${progress.total} steps`, `steps-tag${allDone ? " steps-tag-done" : ""}`));
+    tags.push(makeTag(t("tag.steps", { done: progress.done, total: progress.total }), `steps-tag${allDone ? " steps-tag-done" : ""}`));
   }
   const start = state.startPlan.get(assignment.id);
   if (start) {
@@ -262,7 +264,7 @@ export function renderSteps(assignment, list = document.createElement("ul")) {
   const needsEstimate = !assignment.done && !assignment.hours && assignment.steps.some((step) => !step.done) && describeDue(assignment, now).urgency !== "overdue";
   const hint = document.createElement("li");
   hint.className = "steps-hint";
-  hint.textContent = 'Add "Time needed" to spread these over days.';
+  hint.textContent = t("steps.hint");
   list.replaceChildren(
     ...assignment.steps.map((step, index) => {
       const item = document.createElement("li");
@@ -278,7 +280,7 @@ export function renderSteps(assignment, list = document.createElement("ul")) {
       if (schedule[index]) {
         const day = document.createElement("span");
         day.className = `step-day${schedule[index] === today ? " is-today" : ""}`;
-        day.textContent = schedule[index] === today ? "today" : formatDay(schedule[index]);
+        day.textContent = schedule[index] === today ? t("step.today") : formatDay(schedule[index]);
         label.append(day);
       }
       item.classList.toggle("is-done", step.done);
@@ -338,7 +340,7 @@ export function renderCourseFilter(courses) {
     state.courseFilter = "";
     saveFilters();
   }
-  elements.courseFilter.replaceChildren(makeOption("", "All courses"), ...courses.map((course) => makeOption(course, course)));
+  elements.courseFilter.replaceChildren(makeOption("", t("filter.all_courses")), ...courses.map((course) => makeOption(course, course)));
   elements.courseFilter.value = courses.includes(state.courseFilter) ? state.courseFilter : "";
 }
 
@@ -380,7 +382,7 @@ function saveFilters() {
 export function renderShowOlder(count) {
   const item = document.createElement("li");
   item.className = "show-older";
-  const button = makeButton("link-button", `Show ${count} older`);
+  const button = makeButton("link-button", t("list.show_older", { n: count }));
   button.dataset.showOlder = "";
   item.append(button);
   return item;

@@ -8,19 +8,19 @@ import {
   PRIORITY_LABELS,
   toDueDate,
   validateAssignmentInput,
-} from "../assignments.js?v=d1d78528";
-import { parseQuickAdd } from "../quickadd.js?v=d1d78528";
-import { elements, formatDay, timeFormatter } from "./dom.js?v=d1d78528";
-import { state, updateAssignments } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+} from "../assignments.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { parseQuickAdd } from "../quickadd.js?v=8dd2ac6b";
+import { elements, formatDay, timeFormatter } from "./dom.js?v=8dd2ac6b";
+import { state, updateAssignments } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
-const HINT = "Type a title, a day (fri, tomorrow, 10/30) and, if you like, a course, time, size (big, small) or hours (2h).";
 
 /** What the line would add, as a short line under the box, updated as you type. */
 export function handleQuickAddInput() {
   const text = elements.quickAddText.value;
   if (text.trim() === "") {
-    showPreview(HINT);
+    showPreview(t("quick.help"));
     return;
   }
   const parsed = readLine(text);
@@ -52,7 +52,7 @@ export function handleQuickAddSubmit(event) {
   showToast(`Added "${added.title}", due ${formatDay(added.dueDate)}.`);
   // Ready for the next one, since several are often added together.
   elements.quickAddText.value = "";
-  showPreview(HINT);
+  showPreview(t("quick.help"));
 }
 
 function readLine(text) {

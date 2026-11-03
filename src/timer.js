@@ -3,6 +3,8 @@
 // Saving the start time rather than a ticking count is what lets a timer survive a reload or show on another device.
 
 // A timer left running overnight shouldn't add a whole night, so one session counts for at most 12 hours.
+import { t } from "./i18n.js?v=8dd2ac6b";
+
 export const MAX_SESSION_SECONDS = 12 * 60 * 60;
 
 /** Seconds since this assignment's timer started (0 if it isn't running), at most MAX_SESSION_SECONDS. */
@@ -45,12 +47,12 @@ export function formatClock(seconds) {
 /** "under 1 min", "25 min" or "1.5 h": a total of time spent. */
 export function formatSpent(seconds) {
   if (seconds < 60) {
-    return "under 1 min";
+    return t("spent.under_minute");
   }
   if (seconds < 60 * 60) {
-    return `${Math.round(seconds / 60)} min`;
+    return t("spent.minutes", { n: Math.round(seconds / 60) });
   }
-  return `${Math.round(seconds / 360) / 10} h`;
+  return t("spent.hours", { n: Math.round(seconds / 360) / 10 });
 }
 
 /**
@@ -62,8 +64,8 @@ export function spentText(assignment) {
   if (seconds <= 0) {
     return null;
   }
-  const estimate = assignment.hours ? ` of ~${formatSpent(assignment.hours * 3600)}` : "";
-  return `${assignment.done ? "took" : "spent"} ${formatSpent(seconds)}${estimate}`;
+  const estimate = assignment.hours ? t("spent.estimate", { hours: formatSpent(assignment.hours * 3600) }) : "";
+  return t(assignment.done ? "spent.done" : "spent.unfinished", { spent: formatSpent(seconds), estimate });
 }
 
 /** A saved spentSeconds, or undefined if it isn't a sensible number (used when restoring a backup). */

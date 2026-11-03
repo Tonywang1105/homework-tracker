@@ -1,17 +1,17 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours } from "../assignments.js?v=d1d78528";
-import { toDateKey } from "../calendar.js?v=d1d78528";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=d1d78528";
-import { formatSpent } from "../timer.js?v=d1d78528";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=d1d78528";
-import { panels, setPanelOpen } from "./panels.js?v=d1d78528";
-import { setView } from "./settings.js?v=d1d78528";
-import { state } from "./store.js?v=d1d78528";
+import { formatHours } from "../assignments.js?v=8dd2ac6b";
+import { toDateKey } from "../calendar.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=8dd2ac6b";
+import { formatSpent } from "../timer.js?v=8dd2ac6b";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=8dd2ac6b";
+import { panels, setPanelOpen } from "./panels.js?v=8dd2ac6b";
+import { setView } from "./settings.js?v=8dd2ac6b";
+import { state } from "./store.js?v=8dd2ac6b";
 
 const STATUS_TEXT = { done: "done", overdue: "overdue", coming: "still to come" };
-const WEEKDAY_FORMAT = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short" });
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;
 const summaryLine = document.getElementById("today-summary");
@@ -69,7 +69,7 @@ function renderFinished(now) {
       item.className = `review-day${day.count > 0 ? " has-done" : ""}${day === today ? " is-today" : ""}`;
       const name = document.createElement("span");
       name.className = "review-day-name";
-      name.textContent = WEEKDAY_FORMAT.format(new Date(`${day.date}T12:00`));
+      name.textContent = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short" }).format(new Date(`${day.date}T12:00`));
       const count = document.createElement("span");
       count.className = "review-day-count";
       count.textContent = String(day.count);
@@ -146,19 +146,20 @@ export function renderTodaySummary(now) {
     return;
   }
   const { dueToday, overdue, weekDone, weekDue, streak } = todaySummary(state.assignments, now);
-  const parts = [label("Today:"), ` ${todayText(dueToday)}`];
+  const parts = [label(t("summary.today")), ` ${todayText(dueToday)}`];
   if (overdue > 0) {
     const late = document.createElement("span");
     late.className = "today-summary-overdue";
-    late.textContent = `${overdue} overdue`;
+    late.textContent = t("summary.overdue", { n: overdue });
     parts.push(" · ", late);
   }
-  parts.push(" · ", label("This week:"), weekDue === 0 ? " nothing due" : ` ${weekDone} of ${weekDue} done`);
+  const week = weekDue === 0 ? t("summary.nothing_due") : t("summary.week_done", { done: weekDone, due: weekDue });
+  parts.push(" · ", label(t("summary.week")), ` ${week}`);
   // A single day isn't a streak yet, so it only shows from two days in a row.
   if (streak >= 2) {
-    parts.push(` · ${streak}-day streak`);
+    parts.push(` · ${t("summary.streak", { n: streak })}`);
   }
-  parts.push(" · ", summaryLink("Agenda", "agenda"), " · ", summaryLink("Weekly review", "review"));
+  parts.push(" · ", summaryLink(t("view.agenda"), "agenda"), " · ", summaryLink(t("summary.review"), "review"));
   summaryLine.replaceChildren(...parts);
 }
 
@@ -175,11 +176,11 @@ export function handleTodaySummaryClick(event) {
 
 function todayText(dueToday) {
   if (dueToday.length === 0) {
-    return "nothing due";
+    return t("summary.nothing_due");
   }
   const names = dueToday.slice(0, MAX_NAMED_TODAY).map((a) => a.title);
-  const more = dueToday.length > MAX_NAMED_TODAY ? `, +${dueToday.length - MAX_NAMED_TODAY} more` : "";
-  return `${dueToday.length} due (${names.join(", ")}${more})`;
+  const more = dueToday.length > MAX_NAMED_TODAY ? t("summary.more", { n: dueToday.length - MAX_NAMED_TODAY }) : "";
+  return t("summary.due", { n: dueToday.length, names: names.join(", "), more });
 }
 
 function summaryLink(text, target) {

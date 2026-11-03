@@ -1,12 +1,13 @@
 // Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them (src/shortcuts.js says which key is which).
 
-import { render } from "../main.js?v=d1d78528";
-import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=d1d78528";
-import { elements } from "./dom.js?v=d1d78528";
-import { panels, setPanelOpen } from "./panels.js?v=d1d78528";
-import { setView, VIEWS } from "./settings.js?v=d1d78528";
-import { state } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=8dd2ac6b";
+import { elements } from "./dom.js?v=8dd2ac6b";
+import { panels, setPanelOpen } from "./panels.js?v=8dd2ac6b";
+import { setView, VIEWS } from "./settings.js?v=8dd2ac6b";
+import { state } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 // The shortcuts are listed in Settings, so ? opens Settings at that section.
 const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");
@@ -16,6 +17,12 @@ const guide = document.getElementById("guide");
 const TYPING_SELECTOR = 'input:not([type="checkbox"], [type="radio"], [type="button"], [type="file"]), textarea, select, [contenteditable]';
 
 export function startShortcuts() {
+  renderShortcutList();
+  document.addEventListener("keydown", handleShortcutKey);
+}
+
+/** The list of shortcuts in Settings, in the chosen language. */
+export function renderShortcutList() {
   document.getElementById("shortcut-list").replaceChildren(
     ...SHORTCUTS.flatMap(({ key, description }) => {
       const term = document.createElement("dt");
@@ -23,11 +30,10 @@ export function startShortcuts() {
       keyCap.textContent = key;
       term.append(keyCap);
       const definition = document.createElement("dd");
-      definition.textContent = description;
+      definition.textContent = t(description);
       return [term, definition];
     }),
   );
-  document.addEventListener("keydown", handleShortcutKey);
 }
 
 function handleShortcutKey(event) {

@@ -1,11 +1,12 @@
 // Today's plan, at the top of the list: what's overdue, what's due today, and the hours the start-date
 // plan (src/plan.js) fits into today, each with Start, so "what should I do now?" has one answer.
 
-import { assignmentType, describeDue, formatHours } from "../assignments.js?v=d1d78528";
-import { toDateKey } from "../calendar.js?v=d1d78528";
-import { makeTag } from "./dom.js?v=d1d78528";
-import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=d1d78528";
-import { state } from "./store.js?v=d1d78528";
+import { assignmentType, describeDue, formatHours } from "../assignments.js?v=8dd2ac6b";
+import { toDateKey } from "../calendar.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { makeTag } from "./dom.js?v=8dd2ac6b";
+import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=8dd2ac6b";
+import { state } from "./store.js?v=8dd2ac6b";
 
 const box = document.getElementById("today-plan");
 const total = document.getElementById("today-plan-total");
@@ -21,14 +22,14 @@ export function renderTodayPlan(now) {
   }
   const entries = state.todayPlan;
   const hours = entries.reduce((sum, entry) => sum + entry.todayHours, 0);
-  total.textContent = hours > 0 ? `${formatHours(hours)} of work` : "";
+  total.textContent = hours > 0 ? t("plan.total", { hours: formatHours(hours) }) : "";
   list.replaceChildren(...entries.map((entry) => renderEntry(entry, now)));
 
   emptyMessage.hidden = entries.some((entry) => entry.todayHours > 0);
   if (!emptyMessage.hidden) {
     // With no estimates on upcoming work the plan has nothing to fit into the day, so say how to give it some.
-    const nothing = entries.length === 0 ? "Nothing planned for today." : "Nothing else planned for today.";
-    const hint = state.startPlan.size === 0 ? ' Add "Time needed" to assignments so the plan can fit them into your days.' : "";
+    const nothing = t(entries.length === 0 ? "plan.nothing" : "plan.nothing_else");
+    const hint = state.startPlan.size === 0 ? t("plan.add_estimates") : "";
     emptyMessage.textContent = nothing + hint;
   }
 }
@@ -56,16 +57,16 @@ function renderEntry({ assignment, reason, todayHours, hoursLeft }, now) {
     body.append(makeTag(text, `relative-due urgency-${urgency}`));
   }
   if (todayHours > 0) {
-    const ofLeft = hoursLeft > todayHours ? ` of ${formatHours(hoursLeft)} left` : "";
-    const ahead = reason === "ahead" ? " · getting ahead" : "";
-    body.append(makeTag(`${formatHours(todayHours)} today${ofLeft}${ahead}`, "today-plan-hours"));
+    const ofLeft = hoursLeft > todayHours ? t("plan.of_left", { hours: formatHours(hoursLeft) }) : "";
+    const ahead = reason === "ahead" ? t("plan.ahead") : "";
+    body.append(makeTag(`${t("plan.today_hours", { hours: formatHours(todayHours) })}${ofLeft}${ahead}`, "today-plan-hours"));
   }
   // Today's share of its steps (an exam's topics): "Study: Eigenvalues, Diagonalization".
   const today = toDateKey(now);
   const todaySteps = (assignment.steps ?? []).filter((_, index) => stepSchedule(assignment, now)[index] === today);
   if (todaySteps.length > 0) {
-    const label = assignmentType(assignment) === "exam" ? "Study" : "Steps";
-    body.append(makeTag(`${label}: ${todaySteps.map((step) => step.text).join(", ")}`, "today-plan-steps"));
+    const list = todaySteps.map((step) => step.text).join(", ");
+    body.append(makeTag(t(assignmentType(assignment) === "exam" ? "plan.study" : "plan.steps", { list }), "today-plan-steps"));
   }
   if (assignment.timerStartedAt) {
     body.append(makeTimerClock(assignment, now));

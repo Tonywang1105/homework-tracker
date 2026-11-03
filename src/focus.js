@@ -1,7 +1,8 @@
 // Focus blocks: the timer in blocks of work with breaks in between (25 and 5 minutes unless changed).
 // No DOM, so it can be unit-tested with Node; src/ui/focus.js chimes and shows the focus bar.
 
-import { formatClock, sessionSeconds, stopTimer } from "./timer.js?v=d1d78528";
+import { t } from "./i18n.js?v=8dd2ac6b";
+import { formatClock, sessionSeconds, stopTimer } from "./timer.js?v=8dd2ac6b";
 
 export const DEFAULT_FOCUS = { on: false, workMinutes: 25, breakMinutes: 5 };
 const WORK_LIMITS = [1, 120];
@@ -49,9 +50,9 @@ export function blockSecondsLeft(assignment, focus, now = new Date()) {
 /** The running timer's tag: "Focus 18:42 left" in focus blocks, "Working… 4:05" otherwise. */
 export function timerTagText(assignment, focus, now = new Date()) {
   if (focus.on) {
-    return `Focus ${formatClock(Math.max(blockSecondsLeft(assignment, focus, now), 0))} left`;
+    return t("timer.focus", { clock: formatClock(Math.max(blockSecondsLeft(assignment, focus, now), 0)) });
   }
-  return `Working… ${formatClock(sessionSeconds(assignment, now))}`;
+  return t("timer.working", { clock: formatClock(sessionSeconds(assignment, now)) });
 }
 
 /**

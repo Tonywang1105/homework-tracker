@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/form.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/list.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/calendar.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/agenda.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/types.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/panels.css?v=d1d78528" />
-    <link rel="stylesheet" href="styles/messages.css?v=d1d78528" />
-    <script type="module" src="src/main.js?v=d1d78528"></script>
+    <link rel="stylesheet" href="styles/base.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/form.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/list.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/calendar.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/agenda.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/types.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/panels.css?v=8dd2ac6b" />
+    <link rel="stylesheet" href="styles/messages.css?v=8dd2ac6b" />
+    <script type="module" src="src/main.js?v=8dd2ac6b"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -41,15 +41,21 @@
     <header class="page-header">
       <div>
         <h1>Homework Tracker</h1>
-        <p class="tagline">Everything due, soonest first, with your own notes.</p>
+        <p class="tagline" data-i18n="header.tagline">Everything due, soonest first, with your own notes.</p>
       </div>
       <div class="header-controls">
         <div class="account">
           <span id="account-status" class="account-status" role="status" hidden></span>
-          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone">
+          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n="account.sign_in">
             Sign in to sync
           </button>
           <button type="button" id="sign-out" class="button account-button" hidden>Sign out</button>
+        </div>
+        <!-- The app's language, at the top so it's easy to find from any view (src/ui/language.js). Each name is in its own language. -->
+        <div class="segmented language-switch" role="group" aria-label="Language / 语言 / Idioma">
+          <button type="button" class="segmented-button language-button" data-language="en" aria-pressed="true" lang="en">English</button>
+          <button type="button" class="segmented-button language-button" data-language="zh" aria-pressed="false" lang="zh-CN">中文</button>
+          <button type="button" class="segmented-button language-button" data-language="es" aria-pressed="false" lang="es">Español</button>
         </div>
       </div>
     </header>
@@ -61,38 +67,38 @@
     <main class="layout">
       <section id="form-panel" class="panel form-panel" aria-labelledby="form-heading">
         <!-- Shown only on phones, where the form stays folded until needed so the To do list is visible first. -->
-        <button type="button" id="add-toggle" class="button button-primary add-toggle" aria-expanded="false" aria-controls="assignment-form">
+        <button type="button" id="add-toggle" class="button button-primary add-toggle" aria-expanded="false" aria-controls="assignment-form" data-i18n="form.add_toggle">
           + Add assignment
         </button>
         <h2 id="form-heading">Add an assignment</h2>
         <!-- A first-time user (Julia, 10/27) couldn't tell what she could skip. Shown while adding only. -->
-        <p id="form-hint" class="form-hint">Only a name and a due date are needed. Everything else is optional.</p>
+        <p id="form-hint" class="form-hint" data-i18n="form.hint">Only a name and a due date are needed. Everything else is optional.</p>
         <form id="assignment-form" novalidate>
           <div class="field">
-            <label for="title">Assignment <span class="required" aria-hidden="true">required</span></label>
-            <input id="title" name="title" type="text" placeholder="e.g. MP2: Checkpoint 1" autocomplete="off" required />
+            <label for="title"><span data-i18n="form.assignment">Assignment</span> <span class="required" aria-hidden="true" data-i18n="form.required">required</span></label>
+            <input id="title" name="title" type="text" placeholder="e.g. MP2: Checkpoint 1" data-i18n-placeholder="form.title_ph" autocomplete="off" required />
             <p class="field-error" id="title-error"></p>
           </div>
 
           <div class="field">
-            <label for="course">Course <span class="optional">optional</span></label>
-            <input id="course" name="course" type="text" placeholder="e.g. CS 124" autocomplete="off" list="course-suggestions" />
+            <label for="course"><span data-i18n="form.course">Course</span> <span class="optional" data-i18n="form.optional">optional</span></label>
+            <input id="course" name="course" type="text" placeholder="e.g. CS 124" data-i18n-placeholder="form.course_ph" autocomplete="off" list="course-suggestions" />
             <datalist id="course-suggestions"></datalist>
           </div>
 
           <div class="field-row">
             <div class="field">
-              <label for="dueDate">Due date <span class="required" aria-hidden="true">required</span></label>
+              <label for="dueDate"><span data-i18n="form.due_date">Due date</span> <span class="required" aria-hidden="true" data-i18n="form.required">required</span></label>
               <div class="date-field">
                 <input id="dueDate" name="dueDate" type="date" required />
                 <!-- The browser draws the empty date box in the computer's language (年/月/日); this English
                      label covers it until a date is chosen. Screen readers use the field's label instead. -->
-                <span class="date-placeholder" aria-hidden="true">yyyy/mm/dd</span>
+                <span class="date-placeholder" aria-hidden="true" data-i18n="form.date_ph">yyyy/mm/dd</span>
               </div>
               <p class="field-error" id="dueDate-error"></p>
             </div>
             <div class="field">
-              <label for="dueTime">Time</label>
+              <label for="dueTime" data-i18n="form.time">Time</label>
               <!-- Starts at 11:59 PM; after adding, it keeps the time just used (see handleSubmit). -->
               <input id="dueTime" name="dueTime" type="time" value="23:59" />
               <p class="field-error" id="dueTime-error"></p>
@@ -100,83 +106,83 @@
           </div>
 
           <fieldset class="field priority-picker">
-            <legend>Size</legend>
+            <legend data-i18n="form.size">Size</legend>
             <label class="priority-option">
               <input type="radio" name="priority" value="big" checked />
-              <span><strong>Big</strong> assignment</span>
+              <span><strong data-i18n="size.big">Big</strong> <span data-i18n="form.size_assignment">assignment</span></span>
             </label>
             <label class="priority-option">
               <input type="radio" name="priority" value="regular" />
-              <span><strong>Regular</strong> assignment</span>
+              <span><strong data-i18n="size.regular">Regular</strong> <span data-i18n="form.size_assignment">assignment</span></span>
             </label>
             <label class="priority-option">
               <input type="radio" name="priority" value="small" />
-              <span><strong>Small</strong> reminder</span>
+              <span><strong data-i18n="size.small">Small</strong> <span data-i18n="form.size_reminder">reminder</span></span>
             </label>
             <p class="field-error" id="priority-error"></p>
           </fieldset>
 
           <div class="field">
-            <label for="type">Type</label>
+            <label for="type" data-i18n="form.type">Type</label>
             <select id="type" name="type">
-              <option value="auto">Guess from title</option>
-              <option value="">None</option>
+              <option value="auto" data-i18n="form.type_guess">Guess from title</option>
+              <option value="" data-i18n="form.type_none">None</option>
               <!-- main.js adds one option per type, from the same list the rest of the app uses. -->
             </select>
             <p class="field-error" id="type-error"></p>
           </div>
 
           <div class="field">
-            <label for="platform">Where <span class="optional">optional, where it's done</span></label>
+            <label for="platform"><span data-i18n="form.where">Where</span> <span class="optional" data-i18n="form.where_note">optional, where it's done</span></label>
             <select id="platform" name="platform">
-              <option value="">Not set</option>
+              <option value="" data-i18n="form.not_set">Not set</option>
               <!-- main.js adds one option per place, from the list in src/assignments.js. -->
             </select>
             <p class="field-error" id="platform-error"></p>
           </div>
 
           <div class="field">
-            <label for="hours">Time needed <span class="optional">hours, optional</span></label>
-            <input id="hours" name="hours" type="number" min="0.25" max="40" step="0.25" inputmode="decimal" placeholder="e.g. 2" />
+            <label for="hours"><span data-i18n="form.hours">Time needed</span> <span class="optional" data-i18n="form.hours_note">hours, optional</span></label>
+            <input id="hours" name="hours" type="number" min="0.25" max="40" step="0.25" inputmode="decimal" placeholder="e.g. 2" data-i18n-placeholder="form.hours_ph" />
             <p class="field-error" id="hours-error"></p>
           </div>
 
           <!-- Only when adding: one entry can become a weekly or every-other-week series. -->
           <div id="repeat-fields" class="field-row">
             <div class="field">
-              <label for="repeat">Repeat</label>
+              <label for="repeat" data-i18n="form.repeat">Repeat</label>
               <select id="repeat" name="repeat">
-                <option value="">Doesn't repeat</option>
-                <option value="weekly">Weekly</option>
-                <option value="biweekly">Every 2 weeks</option>
+                <option value="" data-i18n="form.repeat_none">Doesn't repeat</option>
+                <option value="weekly" data-i18n="form.repeat_weekly">Weekly</option>
+                <option value="biweekly" data-i18n="form.repeat_biweekly">Every 2 weeks</option>
               </select>
               <p class="field-error" id="repeat-error"></p>
             </div>
             <div class="field" id="until-field" hidden>
-              <label for="untilDate">Until</label>
+              <label for="untilDate" data-i18n="form.until">Until</label>
               <div class="date-field">
                 <input id="untilDate" name="untilDate" type="date" />
-                <span class="date-placeholder" aria-hidden="true">yyyy/mm/dd</span>
+                <span class="date-placeholder" aria-hidden="true" data-i18n="form.date_ph">yyyy/mm/dd</span>
               </div>
               <p class="field-error" id="untilDate-error"></p>
             </div>
           </div>
 
           <div class="field">
-            <label for="steps"><span id="steps-label-text">Steps</span> <span class="optional">optional, one per line</span></label>
+            <label for="steps"><span id="steps-label-text">Steps</span> <span class="optional" data-i18n="form.steps_note">optional, one per line</span></label>
             <textarea id="steps" name="steps" rows="3" placeholder="e.g. Checkpoint 1 (then Checkpoint 2 on the next line)"></textarea>
             <p class="field-error" id="steps-error"></p>
           </div>
 
           <div class="field">
-            <label for="notes">Notes <span class="optional">optional</span></label>
-            <textarea id="notes" name="notes" rows="4" placeholder="Slides to review, hints, links…"></textarea>
+            <label for="notes"><span data-i18n="form.notes">Notes</span> <span class="optional" data-i18n="form.optional">optional</span></label>
+            <textarea id="notes" name="notes" rows="4" placeholder="Slides to review, hints, links…" data-i18n-placeholder="form.notes_ph"></textarea>
             <p class="field-error" id="notes-error"></p>
           </div>
 
           <div class="form-actions">
             <button type="submit" id="submit-button" class="button button-primary">Add assignment</button>
-            <button type="button" id="cancel-edit" class="button" hidden>Cancel</button>
+            <button type="button" id="cancel-edit" class="button" hidden data-i18n="form.cancel">Cancel</button>
           </div>
         </form>
       </section>
@@ -195,11 +201,11 @@
 
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="list-header">
-          <h2 id="list-heading" tabindex="-1">To do <span id="todo-count" class="count"></span></h2>
+          <h2 id="list-heading" tabindex="-1"><span data-i18n="list.todo">To do</span> <span id="todo-count" class="count"></span></h2>
           <div class="segmented" role="group" aria-label="View">
-            <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true">List</button>
-            <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false">Calendar</button>
-            <button type="button" class="segmented-button view-button" data-view="agenda" aria-pressed="false">Agenda</button>
+            <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true" data-i18n="view.list">List</button>
+            <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false" data-i18n="view.calendar">Calendar</button>
+            <button type="button" class="segmented-button view-button" data-view="agenda" aria-pressed="false" data-i18n="view.agenda">Agenda</button>
           </div>
         </div>
 
@@ -246,14 +252,14 @@
 
         <!-- Overdue work, work due today, and what the start-date plan fits into today; filled in by src/ui/todayPlan.js. -->
         <section id="today-plan" class="today-plan" aria-labelledby="today-plan-heading" hidden>
-          <h3 id="today-plan-heading" class="today-plan-heading">Today's plan <span id="today-plan-total" class="today-plan-total"></span></h3>
+          <h3 id="today-plan-heading" class="today-plan-heading"><span data-i18n="plan.heading">Today's plan</span> <span id="today-plan-total" class="today-plan-total"></span></h3>
           <ul id="today-plan-list" class="today-plan-list"></ul>
           <p id="today-plan-empty" class="today-plan-empty" hidden></p>
         </section>
 
         <!-- One line instead of the whole form: the words it recognizes are shown below before adding. -->
         <form id="quick-add" class="quick-add" novalidate>
-          <label for="quick-add-text" class="quick-add-label">Quick add</label>
+          <label for="quick-add-text" class="quick-add-label" data-i18n="quick.label">Quick add</label>
           <div class="quick-add-row">
             <input
               type="text"
@@ -264,7 +270,7 @@
               enterkeyhint="done"
               aria-describedby="quick-add-preview"
             />
-            <button type="submit" class="button button-primary">Add</button>
+            <button type="submit" class="button button-primary" data-i18n="quick.add">Add</button>
           </div>
           <p id="quick-add-preview" class="quick-add-preview" aria-live="polite"></p>
         </form>
@@ -273,36 +279,36 @@
           <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->
           <!-- The word "Search" is in the box's hint rather than beside it, so the filters fit on one line. -->
           <label id="search-field" class="filter-search">
-            <span class="visually-hidden">Search</span>
-            <input type="search" id="search" placeholder="Search" title="Searches titles, courses and notes" autocomplete="off" />
+            <span class="visually-hidden" data-i18n="filter.search">Search</span>
+            <input type="search" id="search" placeholder="Search" data-i18n-placeholder="filter.search" title="Searches titles, courses and notes" autocomplete="off" />
           </label>
           <label class="filter-course">
-            Course
+            <span data-i18n="filter.course">Course</span>
             <select id="course-filter">
               <option value="">All courses</option>
             </select>
           </label>
           <!-- Hidden until an assignment has a place, so it isn't clutter before then. -->
           <label id="platform-field" class="filter-course" hidden>
-            Where
+            <span data-i18n="filter.where">Where</span>
             <select id="platform-filter">
-              <option value="">Anywhere</option>
+              <option value="" data-i18n="filter.anywhere">Anywhere</option>
             </select>
           </label>
           <label class="toggle">
             <input type="checkbox" id="show-small" checked />
-            Show small reminders
+            <span data-i18n="filter.show_small">Show small reminders</span>
           </label>
           <label class="toggle">
             <input type="checkbox" id="hide-done" />
-            Hide completed
+            <span data-i18n="filter.hide_done">Hide completed</span>
           </label>
           <button type="button" id="select-toggle" class="link-button" aria-pressed="false">Select</button>
         </div>
 
         <div id="getting-started" class="getting-started" hidden>
-          <p>No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.</p>
-          <button type="button" id="try-examples" class="button button-primary">Try with example assignments</button>
+          <p data-i18n="start.empty">No assignments yet. Add one with the form, use Import from Canvas below, or see how the app works with some examples.</p>
+          <button type="button" id="try-examples" class="button button-primary" data-i18n="start.try">Try with example assignments</button>
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>
           <span id="canvas-reminder-text"></span>
@@ -310,8 +316,8 @@
           <button type="button" id="canvas-reminder-snooze" class="link-button">Not now</button>
         </div>
         <div id="example-bar" class="notice-bar" hidden>
-          <span>You're looking at example assignments.</span>
-          <button type="button" id="remove-examples" class="link-button">Remove them</button>
+          <span data-i18n="examples.notice">You're looking at example assignments.</span>
+          <button type="button" id="remove-examples" class="link-button" data-i18n="examples.remove">Remove them</button>
         </div>
 
         <div id="workload" class="workload" hidden>
@@ -330,7 +336,7 @@
             <ul id="todo-list" class="assignment-list"></ul>
 
             <details id="done-section" class="done-section" hidden>
-              <summary>Completed <span id="done-count" class="count"></span></summary>
+              <summary><span data-i18n="list.completed">Completed</span> <span id="done-count" class="count"></span></summary>
               <ul id="done-list" class="assignment-list"></ul>
             </details>
           </div>
@@ -375,36 +381,36 @@
         <!-- Select mode's actions, stuck to the bottom of the screen while the list is in view (src/ui/select.js). -->
         <div id="select-bar" class="select-bar" role="toolbar" aria-label="Selected assignments" hidden>
           <span id="select-count" class="select-count" aria-live="polite"></span>
-          <button type="button" class="button button-primary" data-bulk="done">Mark done</button>
+          <button type="button" class="button button-primary" data-bulk="done" data-i18n="select.mark_done">Mark done</button>
           <label class="select-size">
             <span class="visually-hidden">Change size of the selected</span>
             <select id="select-size">
-              <option value="">Size…</option>
-              <option value="big">Big</option>
-              <option value="regular">Regular</option>
-              <option value="small">Small</option>
+              <option value="" data-i18n="select.size">Size…</option>
+              <option value="big" data-i18n="size.big">Big</option>
+              <option value="regular" data-i18n="size.regular">Regular</option>
+              <option value="small" data-i18n="size.small">Small</option>
             </select>
           </label>
-          <button type="button" class="button" data-bulk="delete">Delete</button>
-          <button type="button" class="link-button" data-bulk="all">Select all shown</button>
-          <button type="button" class="link-button" data-bulk="cancel">Cancel</button>
+          <button type="button" class="button" data-bulk="delete" data-i18n="select.delete">Delete</button>
+          <button type="button" class="link-button" data-bulk="all" data-i18n="select.all">Select all shown</button>
+          <button type="button" class="link-button" data-bulk="cancel" data-i18n="select.cancel">Cancel</button>
         </div>
 
         <div class="import-section">
           <div class="import-links">
-            <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel">
+            <button type="button" id="review-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="review-panel" data-i18n="links.review">
               Weekly review…
             </button>
-            <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel">
+            <button type="button" id="canvas-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="import-panel" data-i18n="links.canvas">
               Import from Canvas…
             </button>
-            <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel">
+            <button type="button" id="export-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="export-panel" data-i18n="links.export">
               Export to calendar…
             </button>
-            <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel">
+            <button type="button" id="backup-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="backup-panel" data-i18n="links.backup">
               Backup &amp; restore…
             </button>
-            <button type="button" id="settings-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="settings-panel">
+            <button type="button" id="settings-panel-toggle" class="link-button import-toggle" aria-expanded="false" aria-controls="settings-panel" data-i18n="links.settings">
               Settings…
             </button>
           </div>
@@ -447,53 +453,53 @@
           <!-- Settings, all kept on this device (Course colors' list and the shortcuts are filled in by their modules). -->
           <div id="settings-panel" class="import-panel settings-panel" hidden>
             <section class="settings-section" aria-labelledby="settings-planning">
-              <h3 id="settings-planning">Planning</h3>
+              <h3 id="settings-planning" data-i18n="settings.planning">Planning</h3>
               <label class="settings-row">
-                Plan for
+                <span data-i18n="settings.plan_for">Plan for</span>
                 <input id="daily-hours" type="number" min="0.5" max="16" step="0.5" inputmode="decimal" />
-                hours of homework a day
+                <span data-i18n="settings.hours_a_day">hours of homework a day</span>
               </label>
-              <p class="import-help">Start-by dates and Today's plan fit work into this many hours a day.</p>
+              <p class="import-help" data-i18n="settings.plan_help">Start-by dates and Today's plan fit work into this many hours a day.</p>
             </section>
             <section class="settings-section" aria-labelledby="settings-focus">
-              <h3 id="settings-focus">Focus blocks</h3>
-              <label class="settings-row"><input type="checkbox" id="focus-on" /> Run the timer in blocks with breaks</label>
+              <h3 id="settings-focus" data-i18n="settings.focus">Focus blocks</h3>
+              <label class="settings-row"><input type="checkbox" id="focus-on" /> <span data-i18n="settings.focus_on">Run the timer in blocks with breaks</span></label>
               <span id="focus-lengths" class="focus-lengths" hidden>
-                <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> min work,</label>
-                <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> min break</label>
+                <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> <span data-i18n="settings.min_work">min work,</span></label>
+                <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> <span data-i18n="settings.min_break">min break</span></label>
               </span>
             </section>
             <section class="settings-section" aria-labelledby="settings-colors">
-              <h3 id="settings-colors">Course colors</h3>
-              <p class="import-help">Each course's tag has its own color, picked automatically. Choose a different one here.</p>
+              <h3 id="settings-colors" data-i18n="settings.colors">Course colors</h3>
+              <p class="import-help" data-i18n="settings.colors_help">Each course's tag has its own color, picked automatically. Choose a different one here.</p>
               <ul id="course-color-list" class="course-color-list"></ul>
             </section>
             <section class="settings-section" aria-labelledby="settings-appearance">
-              <h3 id="settings-appearance">Appearance</h3>
+              <h3 id="settings-appearance" data-i18n="settings.appearance">Appearance</h3>
               <div class="segmented theme-switch" role="group" aria-label="Color theme">
-                <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true">System</button>
-                <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false">Light</button>
-                <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+                <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true" data-i18n="theme.system">System</button>
+                <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false" data-i18n="theme.light">Light</button>
+                <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false" data-i18n="theme.dark">Dark</button>
               </div>
             </section>
             <section id="settings-shortcuts" class="settings-section keyboard-only" aria-labelledby="settings-shortcuts-heading">
-              <h3 id="settings-shortcuts-heading">Keyboard shortcuts</h3>
-              <p class="import-help">Press these keys anywhere except while typing in a box.</p>
+              <h3 id="settings-shortcuts-heading" data-i18n="settings.shortcuts">Keyboard shortcuts</h3>
+              <p class="import-help" data-i18n="settings.shortcuts_help">Press these keys anywhere except while typing in a box.</p>
               <dl id="shortcut-list" class="shortcut-list"></dl>
             </section>
             <!-- Filled in by src/ui/deletedPanel.js while Settings is open. -->
             <section class="settings-section" aria-labelledby="settings-deleted">
-              <h3 id="settings-deleted">Recently deleted <span id="deleted-count" class="count"></span></h3>
-              <p class="import-help">Deleted assignments are kept here for 30 days, on all your devices, then removed for good.</p>
+              <h3 id="settings-deleted"><span data-i18n="settings.deleted">Recently deleted</span> <span id="deleted-count" class="count"></span></h3>
+              <p class="import-help" data-i18n="settings.deleted_help">Deleted assignments are kept here for 30 days, on all your devices, then removed for good.</p>
               <ul id="deleted-list" class="deleted-list"></ul>
-              <button type="button" id="deleted-empty" class="link-button action-delete">Delete all now</button>
+              <button type="button" id="deleted-empty" class="link-button action-delete" data-i18n="settings.delete_all">Delete all now</button>
             </section>
             <section class="settings-section" aria-labelledby="settings-help">
-              <h3 id="settings-help">Help</h3>
-              <button type="button" id="guide-start" class="button">Show the tour again</button>
+              <h3 id="settings-help" data-i18n="settings.help">Help</h3>
+              <button type="button" id="guide-start" class="button" data-i18n="settings.tour">Show the tour again</button>
             </section>
             <div class="import-actions">
-              <button type="button" id="settings-panel-close" class="button">Close</button>
+              <button type="button" id="settings-panel-close" class="button" data-i18n="settings.close">Close</button>
             </div>
           </div>
           <!-- Counted by due date, Monday to Sunday; filled in by src/ui/reviewPanel.js. -->

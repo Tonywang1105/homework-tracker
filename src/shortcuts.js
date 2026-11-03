@@ -1,10 +1,11 @@
 // Keyboard shortcuts: which key does what. No DOM, so it can be unit-tested with Node; src/ui/shortcuts.js acts on it.
 
+// Each description is a phrase key in src/i18n.js, shown in the chosen language.
 export const SHORTCUTS = [
-  { key: "n", action: "add", description: "Add an assignment" },
-  { key: "/", action: "search", description: "Search" },
-  { key: "t", action: "view", description: "Switch between List, Calendar and Agenda" },
-  { key: "?", action: "help", description: "Show these shortcuts" },
+  { key: "n", action: "add", description: "shortcut.add" },
+  { key: "/", action: "search", description: "shortcut.search" },
+  { key: "t", action: "view", description: "shortcut.view" },
+  { key: "?", action: "help", description: "shortcut.help" },
 ];
 
 /**

@@ -1,8 +1,9 @@
 // Page elements and small helpers for building the page: buttons, tags, notes, dates, downloads.
 
-import { dueSoon, toDueDate, workload } from "../assignments.js?v=d1d78528";
-import { removeExamples } from "../examples.js?v=d1d78528";
-import { splitLinks } from "../links.js?v=d1d78528";
+import { dueSoon, toDueDate, workload } from "../assignments.js?v=8dd2ac6b";
+import { removeExamples } from "../examples.js?v=8dd2ac6b";
+import { tCount } from "../i18n.js?v=8dd2ac6b";
+import { splitLinks } from "../links.js?v=8dd2ac6b";
 
 export const elements = {
   form: document.getElementById("assignment-form"),
@@ -93,22 +94,25 @@ export const elements = {
   detailsDone: document.getElementById("details-done"),
 };
 
-// Dates always read like "Fri, 10/16, 11:59 PM" and the calendar in English, whatever language the browser uses.
-export const DATE_LOCALE = "en-US";
+// Dates follow the app's language (Settings… → Language), not the browser's: "Fri, 10/16, 11:59 PM" in English.
+// These are rebuilt by setDateLocale, and every module that imports them sees the new ones.
+export let DATE_LOCALE = "en-US";
+export let dueFormatter;
+export let monthFormatter;
+export let timeFormatter;
+let dayFormatter;
 
-export const dueFormatter = new Intl.DateTimeFormat(DATE_LOCALE, {
-  weekday: "short",
-  month: "numeric",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
+export function setDateLocale(locale) {
+  DATE_LOCALE = locale;
+  // Chinese writes the month as a word ("11月2日周一"); in English and Spanish a number reads naturally ("Mon, 11/2").
+  const month = locale.startsWith("zh") ? "long" : "numeric";
+  dueFormatter = new Intl.DateTimeFormat(locale, { weekday: "short", month, day: "numeric", hour: "numeric", minute: "2-digit" });
+  monthFormatter = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
+  timeFormatter = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" });
+  dayFormatter = new Intl.DateTimeFormat(locale, { weekday: "short", month, day: "numeric" });
+}
 
-export const monthFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { month: "long", year: "numeric" });
-
-export const timeFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { hour: "numeric", minute: "2-digit" });
-
-const dayFormatter = new Intl.DateTimeFormat(DATE_LOCALE, { weekday: "short", month: "numeric", day: "numeric" });
+setDateLocale(DATE_LOCALE);
 
 /** "Wed, 10/21" for a "YYYY-MM-DD" date. */
 export function formatDay(dateKey) {
@@ -164,7 +168,7 @@ export function makeOption(value, text) {
 
 /** "1 assignment", "12 assignments" */
 export function countAssignments(count) {
-  return `${count} assignment${count === 1 ? "" : "s"}`;
+  return tCount("count.assignments", count);
 }
 
 /** Hands the browser a file to download, made from text in memory. */

@@ -1,12 +1,13 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=d1d78528";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=d1d78528";
-import { render } from "../main.js?v=d1d78528";
-import { parseDailyHours } from "../plan.js?v=d1d78528";
-import { countAssignments, elements, formatDay } from "./dom.js?v=d1d78528";
-import { removeChoice, saveChoice, state } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+import { formatHours, workload } from "../assignments.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { parseDailyHours } from "../plan.js?v=8dd2ac6b";
+import { countAssignments, elements, formatDay } from "./dom.js?v=8dd2ac6b";
+import { removeChoice, saveChoice, state } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -110,17 +111,17 @@ export function renderWorkload(now) {
     return;
   }
   const heading = document.createElement("strong");
-  heading.textContent = "Next 7 days: ";
+  heading.textContent = t("work.next7");
   if (hours === 0) {
-    elements.workloadText.replaceChildren(heading, `${countAssignments(count)} · add "Time needed" to see how much work that is.`);
+    elements.workloadText.replaceChildren(heading, t("work.no_hours", { count: countAssignments(count) }));
     return;
   }
-  const parts = [`${formatHours(hours)} of work`];
+  const parts = [t("work.of_work", { hours: formatHours(hours) })];
   if (busiest) {
-    parts.push(`busiest: ${formatDay(busiest.dueDate)} (${formatHours(busiest.hours)})`);
+    parts.push(t("work.busiest", { day: formatDay(busiest.dueDate), hours: formatHours(busiest.hours) }));
   }
   if (unestimated > 0) {
-    parts.push(`${unestimated} without an estimate`);
+    parts.push(t("work.unestimated", { n: unestimated }));
   }
   elements.workloadText.replaceChildren(heading, parts.join(" · "));
 }

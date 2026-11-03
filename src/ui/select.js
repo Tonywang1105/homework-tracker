@@ -2,12 +2,13 @@
 // once (for example after a Canvas import, which brings everything in as big). Every action has Undo, and then
 // select mode ends.
 
-import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=d1d78528";
-import { render } from "../main.js?v=d1d78528";
-import { countAssignments, elements } from "./dom.js?v=d1d78528";
-import { stopEditing } from "./form.js?v=d1d78528";
-import { state, updateAssignments } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { countAssignments, elements } from "./dom.js?v=8dd2ac6b";
+import { stopEditing } from "./form.js?v=8dd2ac6b";
+import { state, updateAssignments } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 const select = {
   toggle: document.getElementById("select-toggle"),
@@ -66,9 +67,9 @@ export function renderSelect() {
   select.bar.hidden = !state.selecting;
   select.panel.classList.toggle("is-selecting", state.selecting);
   document.body.classList.toggle("is-selecting", state.selecting);
-  select.toggle.textContent = state.selecting ? "Done selecting" : "Select";
+  select.toggle.textContent = t(state.selecting ? "filter.done_selecting" : "filter.select");
   select.toggle.setAttribute("aria-pressed", String(state.selecting));
-  select.count.textContent = count === 0 ? "Tick the ones to change" : `${count} selected`;
+  select.count.textContent = count === 0 ? t("select.none") : t("select.count", { n: count });
   for (const button of select.bar.querySelectorAll("[data-bulk=done], [data-bulk=delete]")) {
     button.disabled = count === 0;
   }

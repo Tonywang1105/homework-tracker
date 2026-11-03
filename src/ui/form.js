@@ -11,17 +11,25 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=d1d78528";
-import { render } from "../main.js?v=d1d78528";
-import { createSeries, validateRepeat } from "../repeat.js?v=d1d78528";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=d1d78528";
-import { findAssignment, state, updateAssignments } from "./store.js?v=d1d78528";
-import { showToast } from "./toast.js?v=d1d78528";
+} from "../assignments.js?v=8dd2ac6b";
+import { t } from "../i18n.js?v=8dd2ac6b";
+import { render } from "../main.js?v=8dd2ac6b";
+import { createSeries, validateRepeat } from "../repeat.js?v=8dd2ac6b";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=8dd2ac6b";
+import { findAssignment, state, updateAssignments } from "./store.js?v=8dd2ac6b";
+import { showToast } from "./toast.js?v=8dd2ac6b";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
 
 export function renderTypeOptions() {
-  elements.form.elements.type.append(...TYPES.map((type) => makeOption(type, TYPE_LABELS[type])));
+  // Marked for translation, so a language change renames them too (see src/ui/language.js).
+  elements.form.elements.type.append(
+    ...TYPES.map((type) => {
+      const option = makeOption(type, TYPE_LABELS[type]);
+      option.dataset.i18n = `type.${type}`;
+      return option;
+    }),
+  );
   // The Where choices, in the form and in the filter row.
   elements.form.elements.platform.append(...PLATFORMS.map((place) => makeOption(place, PLATFORM_LABELS[place])));
   elements.platformFilter.append(...PLATFORMS.map((place) => makeOption(place, PLATFORM_LABELS[place])));
@@ -139,8 +147,22 @@ export function updateStepsLabel() {
   const fields = elements.form.elements;
   const type = fields.type.value === AUTO_TYPE ? guessType(fields.title.value) : fields.type.value;
   const exam = type === "exam";
-  document.getElementById("steps-label-text").textContent = exam ? "Topics to study" : "Steps";
-  fields.steps.placeholder = exam ? "e.g. Eigenvalues (then the next topic on the next line)" : "e.g. Checkpoint 1 (then Checkpoint 2 on the next line)";
+  document.getElementById("steps-label-text").textContent = t(exam ? "form.topics" : "form.steps");
+  fields.steps.placeholder = t(exam ? "form.topics_ph" : "form.steps_ph");
+}
+
+/** The heading and the main button for what the form is doing: adding, editing, or extending (Extend…). */
+export function renderFormMode() {
+  const editing = state.editingId !== null;
+  const title = editing ? (findAssignment(state.editingId)?.title ?? "") : "";
+  if (state.extending) {
+    elements.formHeading.textContent = t("form.heading_extend", { title });
+    elements.submitButton.textContent = t("form.submit_extend");
+  } else {
+    elements.formHeading.textContent = t(editing ? "form.heading_edit" : "form.heading_add");
+    elements.submitButton.textContent = t(editing ? "form.submit_save" : "form.submit_add");
+  }
+  updateStepsLabel();
 }
 
 /** The Until date only matters (and is only required) when the assignment repeats. */
@@ -205,9 +227,8 @@ export function startEditing(assignment) {
   const fields = elements.form.elements;
   fillFormFrom(assignment);
   elements.repeatFields.hidden = true;
-  elements.formHeading.textContent = "Edit assignment";
   elements.formHint.hidden = true;
-  elements.submitButton.textContent = "Save changes";
+  renderFormMode();
   elements.cancelEdit.hidden = false;
   render();
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -218,8 +239,7 @@ export function startEditing(assignment) {
 export function startExtending(assignment) {
   startEditing(assignment);
   state.extending = true;
-  elements.formHeading.textContent = `Extend "${assignment.title}"`;
-  elements.submitButton.textContent = "Save new date";
+  renderFormMode();
   elements.form.elements.dueDate.focus({ preventScroll: true });
   showToast(`Pick the new due date for "${assignment.title}", then Save new date.`);
 }
@@ -228,8 +248,7 @@ export function stopEditing() {
   state.editingId = null;
   state.extending = false;
   elements.repeatFields.hidden = false;
-  elements.formHeading.textContent = "Add an assignment";
-  elements.submitButton.textContent = "Add assignment";
+  renderFormMode();
   elements.cancelEdit.hidden = true;
   resetForm();
   render();

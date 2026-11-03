@@ -1,16 +1,27 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { withTimerStopped } from "./timer.js?v=d1d78528";
+import { t, tCount } from "./i18n.js?v=8dd2ac6b";
+import { withTimerStopped } from "./timer.js?v=8dd2ac6b";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
-export const PRIORITY_LABELS = { big: "Big", regular: "Regular", small: "Small" };
+// Names in the chosen language (src/i18n.js), read each time they're used, so a language change shows everywhere.
+export const PRIORITY_LABELS = translatedNames(PRIORITIES, "size");
 export const DEFAULT_DUE_TIME = "23:59";
 
 // Assignment types, each with its own color. "" means no type. The form also offers AUTO_TYPE.
 export const TYPES = ["exam", "quiz", "mp", "lab", "homework", "reading"];
-export const TYPE_LABELS = { exam: "Exam", quiz: "Quiz", mp: "MP", lab: "Lab", homework: "Homework", reading: "Reading" };
+export const TYPE_LABELS = translatedNames(TYPES, "type");
 export const AUTO_TYPE = "auto";
+
+/** { key: name } where each name is looked up in the chosen language when read, e.g. TYPE_LABELS.exam. */
+function translatedNames(keys, prefix) {
+  const names = {};
+  for (const key of keys) {
+    Object.defineProperty(names, key, { get: () => t(`${prefix}.${key}`), enumerable: true });
+  }
+  return names;
+}
 
 // Checked in order, so "Midterm quiz review" counts as an exam. Each matches whole words only.
 const TYPE_PATTERNS = [
@@ -350,7 +361,7 @@ export function dueSoon(assignments, now = new Date(), hours = 24) {
 
 /** "~3 h", "~1.5 h", or "~30 min" for under an hour. */
 export function formatHours(hours) {
-  return hours < 1 ? `~${Math.round(hours * 60)} min` : `~${Math.round(hours * 10) / 10} h`;
+  return hours < 1 ? t("hours.min", { n: Math.round(hours * 60) }) : t("hours.h", { n: Math.round(hours * 10) / 10 });
 }
 
 /** Total estimated hours of the unfinished assignments given (those without an estimate count as 0). */
@@ -402,20 +413,17 @@ export function describeDue(assignment, now = new Date()) {
   const remaining = toDueDate(assignment.dueDate, assignment.dueTime) - now;
   const urgency = remaining < 0 ? "overdue" : remaining <= 2 * DAY ? "soon" : "later";
   const amount = formatDuration(Math.abs(remaining));
-  const text = remaining < 0 ? `overdue by ${amount}` : `due in ${amount}`;
+  const text = t(remaining < 0 ? "due.overdue" : "due.in", { amount });
   return { text, urgency };
 }
 
 function formatDuration(milliseconds) {
   if (milliseconds < HOUR) {
-    return plural(Math.max(1, Math.round(milliseconds / MINUTE)), "minute");
+    return tCount("unit.minute", Math.max(1, Math.round(milliseconds / MINUTE)));
   }
   if (milliseconds < DAY) {
-    return plural(Math.round(milliseconds / HOUR), "hour");
+    return tCount("unit.hour", Math.round(milliseconds / HOUR));
   }
-  return plural(Math.round(milliseconds / DAY), "day");
+  return tCount("unit.day", Math.round(milliseconds / DAY));
 }
 
-function plural(count, unit) {
-  return `${count} ${unit}${count === 1 ? "" : "s"}`;
-}

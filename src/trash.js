@@ -2,6 +2,8 @@
 // right. They stay in the saved and synced list with a deletedAt time, and the app splits them off where it loads
 // and saves, so every screen sees only the live ones. No DOM, so it can be unit-tested with Node.
 
+import { t, tCount } from "./i18n.js?v=8dd2ac6b";
+
 export const KEEP_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -51,12 +53,11 @@ export function deletedCanvasUids(deleted) {
 export function deletedAgo(deletedAt, now = new Date()) {
   const minutes = Math.floor((now - new Date(deletedAt)) / 60000);
   if (minutes < 60) {
-    return "just now";
+    return t("ago.now");
   }
   const hours = Math.floor(minutes / 60);
   if (hours < 24) {
-    return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    return tCount("ago.hours", hours);
   }
-  const days = Math.floor(hours / 24);
-  return `${days} day${days === 1 ? "" : "s"} ago`;
+  return tCount("ago.days", Math.floor(hours / 24));
 }
