@@ -777,3 +777,18 @@ button.course-tag:hover {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
+/* Where it's done (PrairieLearn, Canvas…): a plain outlined tag, so it doesn't compete with the course color. */
+.platform-tag {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+#platform-field[hidden] {
+  display: none;
+}

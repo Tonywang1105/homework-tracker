@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/form.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/list.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/calendar.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/agenda.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/types.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/panels.css?v=03cdcd76" />
-    <link rel="stylesheet" href="styles/messages.css?v=03cdcd76" />
-    <script type="module" src="src/main.js?v=03cdcd76"></script>
+    <link rel="stylesheet" href="styles/base.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/form.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/list.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/calendar.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/agenda.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/types.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/panels.css?v=09af533d" />
+    <link rel="stylesheet" href="styles/messages.css?v=09af533d" />
+    <script type="module" src="src/main.js?v=09af533d"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -122,6 +122,15 @@
               <!-- main.js adds one option per type, from the same list the rest of the app uses. -->
             </select>
             <p class="field-error" id="type-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="platform">Where <span class="optional">optional, where it's done</span></label>
+            <select id="platform" name="platform">
+              <option value="">Not set</option>
+              <!-- main.js adds one option per place, from the list in src/assignments.js. -->
+            </select>
+            <p class="field-error" id="platform-error"></p>
           </div>
 
           <div class="field">
@@ -269,6 +278,13 @@
             Course
             <select id="course-filter">
               <option value="">All courses</option>
+            </select>
+          </label>
+          <!-- Hidden until an assignment has a place, so it isn't clutter before then. -->
+          <label id="platform-field" class="filter-course" hidden>
+            Where
+            <select id="platform-filter">
+              <option value="">Anywhere</option>
             </select>
           </label>
           <label class="toggle">

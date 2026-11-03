@@ -1,16 +1,30 @@
 // The Add / Edit assignment form, including Repeat and folding it on phones.
 
-import { AUTO_TYPE, guessType, keepStepTicks, TYPE_LABELS, TYPES, validateAssignmentInput, withExtension } from "../assignments.js?v=03cdcd76";
-import { render } from "../main.js?v=03cdcd76";
-import { createSeries, validateRepeat } from "../repeat.js?v=03cdcd76";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=03cdcd76";
-import { findAssignment, state, updateAssignments } from "./store.js?v=03cdcd76";
-import { showToast } from "./toast.js?v=03cdcd76";
+import {
+  assignmentPlatform,
+  AUTO_TYPE,
+  guessType,
+  keepStepTicks,
+  PLATFORM_LABELS,
+  PLATFORMS,
+  TYPE_LABELS,
+  TYPES,
+  validateAssignmentInput,
+  withExtension,
+} from "../assignments.js?v=09af533d";
+import { render } from "../main.js?v=09af533d";
+import { createSeries, validateRepeat } from "../repeat.js?v=09af533d";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=09af533d";
+import { findAssignment, state, updateAssignments } from "./store.js?v=09af533d";
+import { showToast } from "./toast.js?v=09af533d";
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
 
 export function renderTypeOptions() {
   elements.form.elements.type.append(...TYPES.map((type) => makeOption(type, TYPE_LABELS[type])));
+  // The Where choices, in the form and in the filter row.
+  elements.form.elements.platform.append(...PLATFORMS.map((place) => makeOption(place, PLATFORM_LABELS[place])));
+  elements.platformFilter.append(...PLATFORMS.map((place) => makeOption(place, PLATFORM_LABELS[place])));
 }
 
 /** Starts a new assignment due on the clicked calendar day. */
@@ -44,7 +58,7 @@ export function startAddingOn(dateKey) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "hours", "repeat", "untilDate", "steps", "notes"];
+  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
   return Object.fromEntries(names.map((name) => [name, data.get(name) ?? ""]));
 }
 
@@ -174,6 +188,7 @@ function fillFormFrom(assignment) {
   // Assignments saved before types existed have none stored, so the form offers the guess again.
   fields.type.value = assignment.type ?? AUTO_TYPE;
   fields.notes.value = assignment.notes;
+  fields.platform.value = assignmentPlatform(assignment);
   fields.hours.value = assignment.hours ?? "";
   fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
   updateStepsLabel();

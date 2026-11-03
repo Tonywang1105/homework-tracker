@@ -1,12 +1,14 @@
 // The to-do and completed lists: drawing rows and tags, and the row actions (done, timer, tomorrow, extend, edit, delete).
 
 import {
+  assignmentPlatform,
   assignmentType,
   canExtend,
   canSnooze,
   describeDue,
   formatHours,
   parseSavedFilters,
+  PLATFORM_LABELS,
   PRIORITY_LABELS,
   removeAssignment,
   searchWords,
@@ -17,20 +19,23 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=03cdcd76";
-import { toDateKey } from "../calendar.js?v=03cdcd76";
-import { timerTagText } from "../focus.js?v=03cdcd76";
-import { render } from "../main.js?v=03cdcd76";
-import { stepDays } from "../plan.js?v=03cdcd76";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=03cdcd76";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=03cdcd76";
-import { primeChime } from "./focus.js?v=03cdcd76";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=03cdcd76";
-import { toggleSelected } from "./select.js?v=03cdcd76";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=03cdcd76";
-import { showToast } from "./toast.js?v=03cdcd76";
+} from "../assignments.js?v=09af533d";
+import { toDateKey } from "../calendar.js?v=09af533d";
+import { timerTagText } from "../focus.js?v=09af533d";
+import { render } from "../main.js?v=09af533d";
+import { stepDays } from "../plan.js?v=09af533d";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=09af533d";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=09af533d";
+import { primeChime } from "./focus.js?v=09af533d";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=09af533d";
+import { toggleSelected } from "./select.js?v=09af533d";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=09af533d";
+import { showToast } from "./toast.js?v=09af533d";
 
 const FILTERS_KEY = "homework-tracker.filters";
+// How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
+// stays in Recently deleted.
+const DELETE_UNDO_MS = 7000;
 
 /** "start by Mon, 10/19", "start today", or "behind: ~2 h short". */
 function startText({ startDate, status, shortHours }) {
@@ -54,7 +59,7 @@ export function handleSearchInput() {
 }
 
 /** Why the to-do list is empty, naming any filter that hides work so it never looks like lost data. */
-export function emptyMessageText({ course, hideSmall, search }, finishedMatches) {
+export function emptyMessageText({ course, platform, hideSmall, search }, finishedMatches) {
   if (searchWords(search).length > 0) {
     const searched = `“${search.trim()}”`;
     return finishedMatches > 0
@@ -65,6 +70,9 @@ export function emptyMessageText({ course, hideSmall, search }, finishedMatches)
     return "All caught up. Nothing left to do.";
   }
   const smallHidden = hideSmall ? " Small reminders are hidden." : "";
+  if (platform) {
+    return `Nothing left to do on ${PLATFORM_LABELS[platform]}${course ? ` for ${course}` : ""}.${smallHidden}`;
+  }
   if (course) {
     return `Nothing left to do for ${course}.${smallHidden}`;
   }
@@ -189,6 +197,10 @@ export function renderTags(assignment, { courseButton = true } = {}) {
   // Unfinished work whose deadline has passed is labelled, in words as well as color, wherever its tags appear.
   if (!assignment.done && describeDue(assignment).urgency === "overdue") {
     tags.push(makeTag("Overdue", "overdue-tag"));
+  }
+  const platform = assignmentPlatform(assignment);
+  if (platform) {
+    tags.push(makeTag(PLATFORM_LABELS[platform], "platform-tag"));
   }
   if (assignment.course) {
     const className = `course-tag course-color-${state.courseColors.get(assignment.course) ?? "slate"}`;
@@ -330,10 +342,19 @@ export function renderCourseFilter(courses) {
   elements.courseFilter.value = courses.includes(state.courseFilter) ? state.courseFilter : "";
 }
 
+/**
+ * The Where filter shows once any assignment has a place (or one is chosen), so it isn't clutter before then.
+ * Canvas imports count, since they're done on Canvas.
+ */
+export function renderPlatformFilter() {
+  elements.platformField.hidden = elements.platformFilter.value === "" && !state.assignments.some((a) => assignmentPlatform(a) !== "");
+}
+
 /** Sets the filters to the ones saved in this browser, before the first render. */
 export function applySavedFilters() {
   const saved = parseSavedFilters(loadText(FILTERS_KEY));
   state.courseFilter = saved.course;
+  elements.platformFilter.value = saved.platform;
   elements.showSmall.checked = saved.showSmall;
   elements.hideDone.checked = saved.hideDone;
 }
@@ -346,7 +367,12 @@ export function handleFilterChange() {
 }
 
 function saveFilters() {
-  const filters = { course: state.courseFilter, showSmall: elements.showSmall.checked, hideDone: elements.hideDone.checked };
+  const filters = {
+    course: state.courseFilter,
+    platform: elements.platformFilter.value,
+    showSmall: elements.showSmall.checked,
+    hideDone: elements.hideDone.checked,
+  };
   saveChoice(FILTERS_KEY, JSON.stringify(filters));
 }
 
@@ -448,7 +474,7 @@ export function handleListClick(event) {
         stopEditing();
       }
       updateAssignments(removeAssignment(previous, assignment.id));
-      showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous));
+      showToast(`Deleted "${assignment.title}".`, () => updateAssignments(previous), "Undo", DELETE_UNDO_MS);
       focusRowAt(list, position, "delete");
       break;
     }

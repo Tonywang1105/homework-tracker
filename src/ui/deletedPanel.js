@@ -1,10 +1,10 @@
 // Recently deleted, in Settings: what was deleted in the last 30 days, each with Restore, and Delete all now.
 // The rules are in src/trash.js; store.js keeps the list up to date as assignments are deleted.
 
-import { deletedAgo, restoreDeleted } from "../trash.js?v=03cdcd76";
-import { countAssignments, makeButton } from "./dom.js?v=03cdcd76";
-import { state, updateDeleted } from "./store.js?v=03cdcd76";
-import { showToast } from "./toast.js?v=03cdcd76";
+import { deletedAgo, restoreDeleted } from "../trash.js?v=09af533d";
+import { countAssignments, makeButton } from "./dom.js?v=09af533d";
+import { state, updateDeleted } from "./store.js?v=09af533d";
+import { showToast } from "./toast.js?v=09af533d";
 
 const settingsPanel = document.getElementById("settings-panel");
 const list = document.getElementById("deleted-list");

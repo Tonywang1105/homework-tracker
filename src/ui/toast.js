@@ -1,7 +1,7 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { elements } from "./dom.js?v=03cdcd76";
-import { state } from "./store.js?v=03cdcd76";
+import { elements } from "./dom.js?v=09af533d";
+import { state } from "./store.js?v=09af533d";
 
 // A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
 // enough to read, and one with Undo stays long enough to use it.
@@ -9,15 +9,18 @@ const MIN_DURATION_MS = 3000;
 const MS_PER_CHARACTER = 60;
 const MAX_DURATION_MS = 8000;
 
-/** Shows a message, optionally with a button (labelled Undo unless `actionLabel` says otherwise) that runs `undoAction`. */
-export function showToast(message, undoAction = null, actionLabel = "Undo") {
+/**
+ * Shows a message, optionally with a button (labelled Undo unless `actionLabel` says otherwise) that runs `undoAction`.
+ * `durationMs` overrides how long it stays (deleting a row gives 7 seconds to Undo).
+ */
+export function showToast(message, undoAction = null, actionLabel = "Undo", durationMs = null) {
   clearTimeout(state.toastTimer);
   state.undoAction = undoAction;
   elements.toastMessage.textContent = message;
   elements.toastUndo.textContent = actionLabel;
   elements.toastUndo.hidden = undoAction === null;
   elements.toast.hidden = false;
-  state.toastTimer = setTimeout(hideToast, toastDuration(message, undoAction !== null));
+  state.toastTimer = setTimeout(hideToast, durationMs ?? toastDuration(message, undoAction !== null));
 }
 
 /** How long a message stays, in milliseconds. */

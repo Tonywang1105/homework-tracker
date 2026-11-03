@@ -1,16 +1,16 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=03cdcd76";
-import { currentMonth, shiftMonth } from "./calendar.js?v=03cdcd76";
-import { hasExamples } from "./examples.js?v=03cdcd76";
-import { parseSavedWidth } from "./layout.js?v=03cdcd76";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=03cdcd76";
-import { combineSeries } from "./repeat.js?v=03cdcd76";
-import { loadAssignments } from "./storage.js?v=03cdcd76";
-import { splitDeleted } from "./trash.js?v=03cdcd76";
-import { startAccount } from "./ui/account.js?v=03cdcd76";
-import { renderAgenda } from "./ui/agendaView.js?v=03cdcd76";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=03cdcd76";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=09af533d";
+import { currentMonth, shiftMonth } from "./calendar.js?v=09af533d";
+import { hasExamples } from "./examples.js?v=09af533d";
+import { parseSavedWidth } from "./layout.js?v=09af533d";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=09af533d";
+import { combineSeries } from "./repeat.js?v=09af533d";
+import { loadAssignments } from "./storage.js?v=09af533d";
+import { splitDeleted } from "./trash.js?v=09af533d";
+import { startAccount } from "./ui/account.js?v=09af533d";
+import { renderAgenda } from "./ui/agendaView.js?v=09af533d";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=09af533d";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -23,12 +23,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=03cdcd76";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=03cdcd76";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=03cdcd76";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=03cdcd76";
-import { elements } from "./ui/dom.js?v=03cdcd76";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=03cdcd76";
+} from "./ui/calendarView.js?v=09af533d";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=09af533d";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=09af533d";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=09af533d";
+import { elements } from "./ui/dom.js?v=09af533d";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=09af533d";
 import {
   closeForm,
   focusForm,
@@ -39,8 +39,8 @@ import {
   startEditing,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=03cdcd76";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=03cdcd76";
+} from "./ui/form.js?v=09af533d";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=09af533d";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -50,11 +50,12 @@ import {
   renderAssignment,
   renderCourseFilter,
   renderCourseSuggestions,
+  renderPlatformFilter,
   renderShowOlder,
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=03cdcd76";
+} from "./ui/list.js?v=09af533d";
 import {
   addExamples,
   canvasPanel,
@@ -67,10 +68,10 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=03cdcd76";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=03cdcd76";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=03cdcd76";
-import { renderSelect, startSelect } from "./ui/select.js?v=03cdcd76";
+} from "./ui/panels.js?v=09af533d";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=09af533d";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=09af533d";
+import { renderSelect, startSelect } from "./ui/select.js?v=09af533d";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -86,20 +87,22 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=03cdcd76";
-import { startShortcuts } from "./ui/shortcuts.js?v=03cdcd76";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=03cdcd76";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=03cdcd76";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=03cdcd76";
+} from "./ui/settings.js?v=09af533d";
+import { startShortcuts } from "./ui/shortcuts.js?v=09af533d";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=09af533d";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=09af533d";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=09af533d";
 
 export function render() {
   const courses = courseNames(state.assignments);
   updateCourseColors(courses);
   renderCourseFilter(courses);
+  renderPlatformFilter();
   renderCourseSuggestions(courses);
 
   const filters = {
     course: elements.courseFilter.value,
+    platform: elements.platformFilter.value,
     hideSmall: !elements.showSmall.checked,
     hideDone: elements.hideDone.checked,
   };
@@ -210,6 +213,7 @@ function start() {
   elements.showSmall.addEventListener("change", handleFilterChange);
   elements.hideDone.addEventListener("change", handleFilterChange);
   elements.courseFilter.addEventListener("change", handleFilterChange);
+  elements.platformFilter.addEventListener("change", handleFilterChange);
   elements.search.addEventListener("input", handleSearchInput);
   elements.todoList.addEventListener("click", handleListClick);
   elements.doneList.addEventListener("click", handleListClick);
@@ -289,12 +293,13 @@ function start() {
   elements.dailyHours.addEventListener("change", handleDailyHoursChange);
 
   state.view = loadChoice(VIEW_STORAGE_KEY, VIEWS, "list");
+  // The Type and Where choices go in first, so a saved Where filter has its option to select.
+  renderTypeOptions();
   applySavedFilters();
   loadChosenColors();
   applyTheme(loadChoice(THEME_STORAGE_KEY, THEMES, "system"));
   renderWeekdayHeadings();
   renderTypeLegend();
-  renderTypeOptions();
 
   // Refresh the "due in …" text every minute so it stays accurate if the tab stays open.
   setInterval(render, 60 * 1000);

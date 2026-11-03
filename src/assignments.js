@@ -1,6 +1,6 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { withTimerStopped } from "./timer.js?v=03cdcd76";
+import { withTimerStopped } from "./timer.js?v=09af533d";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -25,6 +25,15 @@ const TYPE_PATTERNS = [
 /** A type guessed from the title, e.g. "MP3: Checkpoint 1" is "mp"; "" when nothing matches. */
 export function guessType(title) {
   return TYPE_PATTERNS.find(([, pattern]) => pattern.test(title))?.[0] ?? "";
+}
+
+// Where an assignment is done and handed in, since CS 124 work alone is spread over several sites. "" means not said.
+export const PLATFORMS = ["prairielearn", "canvas", "gradescope", "cs124"];
+export const PLATFORM_LABELS = { prairielearn: "PrairieLearn", canvas: "Canvas", gradescope: "Gradescope", cs124: "cs124.org" };
+
+/** Where it's done; Canvas imports count as Canvas, including ones imported before this existed. */
+export function assignmentPlatform(assignment) {
+  return assignment.platform || (assignment.canvasUid ? "canvas" : "");
 }
 
 /** The assignment's type; ones saved before types existed get one guessed from their title. */
@@ -60,6 +69,7 @@ export function validateAssignmentInput(input) {
   const hoursText = String(input.hours ?? "").trim();
   const hours = hoursText === "" ? null : Number(hoursText);
   const steps = readSteps(input.steps);
+  const platform = input.platform ?? "";
   const errors = {};
 
   if (title === "") {
@@ -85,6 +95,9 @@ export function validateAssignmentInput(input) {
   if (hours !== null && !(hours >= MIN_HOURS && hours <= MAX_HOURS)) {
     errors.hours = `Enter hours between ${MIN_HOURS} and ${MAX_HOURS}, or leave it empty.`;
   }
+  if (platform !== "" && !PLATFORMS.includes(platform)) {
+    errors.platform = "Choose a place from the list.";
+  }
   if (steps.length > MAX_STEPS) {
     errors.steps = `Keep it to ${MAX_STEPS} steps or fewer.`;
   } else if (steps.some((step) => step.text.length > MAX_STEP_LENGTH)) {
@@ -96,7 +109,7 @@ export function validateAssignmentInput(input) {
   }
   // "Guess from title" is saved as the guess, so renaming the assignment later doesn't change its type.
   const type = chosenType === AUTO_TYPE ? guessType(title) : chosenType;
-  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours, steps } };
+  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours, steps, platform } };
 }
 
 /**
@@ -285,12 +298,13 @@ export function splitRecentDone(done, now = new Date(), days = 14) {
  * search: words that must all appear in the title, course or notes (the list only). While searching,
  * finished work that matches is shown even if hideDone is set, since finding old work is what search is for.
  */
-export function filterAssignments(assignments, { course = "", hideSmall = false, hideDone = false, search = "" } = {}) {
+export function filterAssignments(assignments, { course = "", platform = "", hideSmall = false, hideDone = false, search = "" } = {}) {
   const words = searchWords(search);
   const searching = words.length > 0;
   return assignments.filter(
     (a) =>
       (course === "" || a.course === course) &&
+      (platform === "" || assignmentPlatform(a) === platform) &&
       (!hideSmall || a.priority !== "small") &&
       (searching || !hideDone || !a.done) &&
       words.every((word) => searchableText(a).includes(word)),
@@ -299,14 +313,15 @@ export function filterAssignments(assignments, { course = "", hideSmall = false,
 
 /**
  * The filters saved in this browser (as JSON), or the usual ones if nothing is saved or it can't be read:
- * { course: "" for all courses, showSmall: true, hideDone: false }.
+ * { course: "" for all courses, platform: "" for anywhere, showSmall: true, hideDone: false }.
  */
 export function parseSavedFilters(text) {
-  const defaults = { course: "", showSmall: true, hideDone: false };
+  const defaults = { course: "", platform: "", showSmall: true, hideDone: false };
   try {
     const saved = JSON.parse(text ?? "null");
     return {
       course: typeof saved?.course === "string" ? saved.course : defaults.course,
+      platform: PLATFORMS.includes(saved?.platform) ? saved.platform : defaults.platform,
       showSmall: typeof saved?.showSmall === "boolean" ? saved.showSmall : defaults.showSmall,
       hideDone: typeof saved?.hideDone === "boolean" ? saved.hideDone : defaults.hideDone,
     };
