@@ -1,7 +1,7 @@
 // Focus blocks: the timer in blocks of work with breaks in between (25 and 5 minutes unless changed).
 // No DOM, so it can be unit-tested with Node; src/ui/focus.js chimes and shows the focus bar.
 
-import { formatClock, sessionSeconds, stopTimer } from "./timer.js?v=fcdb9735";
+import { formatClock, sessionSeconds, stopTimer } from "./timer.js?v=d1d78528";
 
 export const DEFAULT_FOCUS = { on: false, workMinutes: 25, breakMinutes: 5 };
 const WORK_LIMITS = [1, 120];

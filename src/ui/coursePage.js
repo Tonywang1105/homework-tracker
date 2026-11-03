@@ -1,14 +1,14 @@
 // Course pages: clicking a course tag shows the List for that course (the Course filter) with the course's links
 // above it, such as Canvas, PrairieLearn and Gradescope. Links are saved in this browser and synced when signed in.
 
-import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=fcdb9735";
-import { render } from "../main.js?v=fcdb9735";
-import { syncCourseLinks } from "./account.js?v=fcdb9735";
-import { elements, makeButton } from "./dom.js?v=fcdb9735";
-import { handleFilterChange } from "./list.js?v=fcdb9735";
-import { setView } from "./settings.js?v=fcdb9735";
-import { loadText, saveChoice, state } from "./store.js?v=fcdb9735";
-import { showToast } from "./toast.js?v=fcdb9735";
+import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=d1d78528";
+import { render } from "../main.js?v=d1d78528";
+import { syncCourseLinks } from "./account.js?v=d1d78528";
+import { elements, makeButton } from "./dom.js?v=d1d78528";
+import { handleFilterChange } from "./list.js?v=d1d78528";
+import { setView } from "./settings.js?v=d1d78528";
+import { loadText, saveChoice, state } from "./store.js?v=d1d78528";
+import { showToast } from "./toast.js?v=d1d78528";
 
 const COURSE_LINKS_KEY = "homework-tracker.courseLinks";
 

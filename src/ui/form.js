@@ -11,12 +11,12 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=fcdb9735";
-import { render } from "../main.js?v=fcdb9735";
-import { createSeries, validateRepeat } from "../repeat.js?v=fcdb9735";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=fcdb9735";
-import { findAssignment, state, updateAssignments } from "./store.js?v=fcdb9735";
-import { showToast } from "./toast.js?v=fcdb9735";
+} from "../assignments.js?v=d1d78528";
+import { render } from "../main.js?v=d1d78528";
+import { createSeries, validateRepeat } from "../repeat.js?v=d1d78528";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=d1d78528";
+import { findAssignment, state, updateAssignments } from "./store.js?v=d1d78528";
+import { showToast } from "./toast.js?v=d1d78528";
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
 
@@ -38,6 +38,8 @@ export function startCopying(assignment) {
   }
   setFormOpen(true);
   fillFormFrom(assignment);
+  // A copy is already filled in, so the hint about what's needed would only be in the way.
+  elements.formHint.hidden = true;
   elements.form.elements.dueDate.value = "";
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.form.elements.dueDate.focus({ preventScroll: true });
@@ -150,6 +152,8 @@ export function updateRepeatFields() {
 
 function resetForm() {
   elements.form.reset();
+  // Back to adding (after adding, a copy, or an edit), so say again what's needed.
+  elements.formHint.hidden = state.editingId !== null;
   updateRepeatFields();
   updateStepsLabel();
   showErrors({});
@@ -202,6 +206,7 @@ export function startEditing(assignment) {
   fillFormFrom(assignment);
   elements.repeatFields.hidden = true;
   elements.formHeading.textContent = "Edit assignment";
+  elements.formHint.hidden = true;
   elements.submitButton.textContent = "Save changes";
   elements.cancelEdit.hidden = false;
   render();

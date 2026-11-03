@@ -119,3 +119,14 @@ textarea {
 .date-field input:focus ~ .date-placeholder {
   display: none;
 }
+
+/* "Only a name and a due date are needed…", under the form's heading while adding. */
+.form-hint {
+  margin: -6px 0 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.form-hint[hidden] {
+  display: none;
+}

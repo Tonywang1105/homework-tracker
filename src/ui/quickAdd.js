@@ -8,11 +8,11 @@ import {
   PRIORITY_LABELS,
   toDueDate,
   validateAssignmentInput,
-} from "../assignments.js?v=fcdb9735";
-import { parseQuickAdd } from "../quickadd.js?v=fcdb9735";
-import { elements, formatDay, timeFormatter } from "./dom.js?v=fcdb9735";
-import { state, updateAssignments } from "./store.js?v=fcdb9735";
-import { showToast } from "./toast.js?v=fcdb9735";
+} from "../assignments.js?v=d1d78528";
+import { parseQuickAdd } from "../quickadd.js?v=d1d78528";
+import { elements, formatDay, timeFormatter } from "./dom.js?v=d1d78528";
+import { state, updateAssignments } from "./store.js?v=d1d78528";
+import { showToast } from "./toast.js?v=d1d78528";
 
 const HINT = "Type a title, a day (fri, tomorrow, 10/30) and, if you like, a course, time, size (big, small) or hours (2h).";
 
