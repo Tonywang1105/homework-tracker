@@ -19,18 +19,18 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=09af533d";
-import { toDateKey } from "../calendar.js?v=09af533d";
-import { timerTagText } from "../focus.js?v=09af533d";
-import { render } from "../main.js?v=09af533d";
-import { stepDays } from "../plan.js?v=09af533d";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=09af533d";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=09af533d";
-import { primeChime } from "./focus.js?v=09af533d";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=09af533d";
-import { toggleSelected } from "./select.js?v=09af533d";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=09af533d";
-import { showToast } from "./toast.js?v=09af533d";
+} from "../assignments.js?v=fcdb9735";
+import { toDateKey } from "../calendar.js?v=fcdb9735";
+import { timerTagText } from "../focus.js?v=fcdb9735";
+import { render } from "../main.js?v=fcdb9735";
+import { stepDays } from "../plan.js?v=fcdb9735";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=fcdb9735";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=fcdb9735";
+import { primeChime } from "./focus.js?v=fcdb9735";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=fcdb9735";
+import { toggleSelected } from "./select.js?v=fcdb9735";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=fcdb9735";
+import { showToast } from "./toast.js?v=fcdb9735";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it

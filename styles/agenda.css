@@ -93,8 +93,10 @@
   opacity: 0.7;
 }
 
+/* Grey as well as crossed out, like finished work in the List and Calendar, so it reads as done at a glance. */
 .agenda-item.is-done .agenda-title {
   font-weight: 400;
+  color: var(--muted);
   text-decoration: line-through;
 }
 

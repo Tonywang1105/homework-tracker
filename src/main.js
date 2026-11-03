@@ -1,16 +1,16 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=09af533d";
-import { currentMonth, shiftMonth } from "./calendar.js?v=09af533d";
-import { hasExamples } from "./examples.js?v=09af533d";
-import { parseSavedWidth } from "./layout.js?v=09af533d";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=09af533d";
-import { combineSeries } from "./repeat.js?v=09af533d";
-import { loadAssignments } from "./storage.js?v=09af533d";
-import { splitDeleted } from "./trash.js?v=09af533d";
-import { startAccount } from "./ui/account.js?v=09af533d";
-import { renderAgenda } from "./ui/agendaView.js?v=09af533d";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=09af533d";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=fcdb9735";
+import { currentMonth, shiftMonth } from "./calendar.js?v=fcdb9735";
+import { hasExamples } from "./examples.js?v=fcdb9735";
+import { parseSavedWidth } from "./layout.js?v=fcdb9735";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=fcdb9735";
+import { combineSeries } from "./repeat.js?v=fcdb9735";
+import { loadAssignments } from "./storage.js?v=fcdb9735";
+import { splitDeleted } from "./trash.js?v=fcdb9735";
+import { startAccount } from "./ui/account.js?v=fcdb9735";
+import { renderAgenda } from "./ui/agendaView.js?v=fcdb9735";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=fcdb9735";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -23,12 +23,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=09af533d";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=09af533d";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=09af533d";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=09af533d";
-import { elements } from "./ui/dom.js?v=09af533d";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=09af533d";
+} from "./ui/calendarView.js?v=fcdb9735";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=fcdb9735";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=fcdb9735";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=fcdb9735";
+import { elements } from "./ui/dom.js?v=fcdb9735";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=fcdb9735";
 import {
   closeForm,
   focusForm,
@@ -39,8 +39,8 @@ import {
   startEditing,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=09af533d";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=09af533d";
+} from "./ui/form.js?v=fcdb9735";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=fcdb9735";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -55,7 +55,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=09af533d";
+} from "./ui/list.js?v=fcdb9735";
 import {
   addExamples,
   canvasPanel,
@@ -68,10 +68,10 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=09af533d";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=09af533d";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=09af533d";
-import { renderSelect, startSelect } from "./ui/select.js?v=09af533d";
+} from "./ui/panels.js?v=fcdb9735";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=fcdb9735";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=fcdb9735";
+import { renderSelect, startSelect } from "./ui/select.js?v=fcdb9735";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -87,11 +87,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=09af533d";
-import { startShortcuts } from "./ui/shortcuts.js?v=09af533d";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=09af533d";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=09af533d";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=09af533d";
+} from "./ui/settings.js?v=fcdb9735";
+import { startShortcuts } from "./ui/shortcuts.js?v=fcdb9735";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=fcdb9735";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=fcdb9735";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=fcdb9735";
 
 export function render() {
   const courses = courseNames(state.assignments);
