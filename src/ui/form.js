@@ -12,16 +12,16 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=0164f23d";
-import { suggestHours } from "../estimates.js?v=0164f23d";
-import { t } from "../i18n.js?v=0164f23d";
-import { latestLesson } from "../lessons.js?v=0164f23d";
-import { render } from "../main.js?v=0164f23d";
-import { createSeries, validateRepeat } from "../repeat.js?v=0164f23d";
-import { formatSpent } from "../timer.js?v=0164f23d";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=0164f23d";
-import { findAssignment, state, updateAssignments } from "./store.js?v=0164f23d";
-import { showToast } from "./toast.js?v=0164f23d";
+} from "../assignments.js?v=da45906c";
+import { suggestHours } from "../estimates.js?v=da45906c";
+import { t } from "../i18n.js?v=da45906c";
+import { latestLesson } from "../lessons.js?v=da45906c";
+import { render } from "../main.js?v=da45906c";
+import { createSeries, validateRepeat } from "../repeat.js?v=da45906c";
+import { formatSpent } from "../timer.js?v=da45906c";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=da45906c";
+import { findAssignment, state, updateAssignments } from "./store.js?v=da45906c";
+import { showToast } from "./toast.js?v=da45906c";
 
 const lessonHint = document.getElementById("lesson-hint");
 const hoursSuggestion = {

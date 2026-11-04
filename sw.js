@@ -49,6 +49,7 @@ const APP_FILES = [
   "src/quickadd.js",
   "src/repeat.js",
   "src/review.js",
+  "src/semester.js",
   "src/shortcuts.js",
   "src/storage.js",
   "src/sync.js",

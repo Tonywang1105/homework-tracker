@@ -391,6 +391,32 @@ const PHRASES = {
   "review.finished_big": [" ({n} big)", "（其中大型 {n} 项）", " ({n} grandes)"],
   "review.finished_streak": [" · {n}-day streak", " · 连续 {n} 天", " · racha de {n} días"],
 
+  // The semester wrap-up
+  "semester.heading": ["This semester so far", "本学期至今", "Este semestre hasta ahora"],
+  "semester.term": ["{season} {year}", "{year} {season}", "{season} {year}"],
+  "term.fall": ["Fall", "秋季学期", "Otoño"],
+  "term.spring": ["Spring", "春季学期", "Primavera"],
+  "term.summer": ["Summer", "夏季学期", "Verano"],
+  "semester.finished": ["Finished: {count} ({big} big)", "已完成：{count}（大型 {big} 项）", "Terminadas: {count} ({big} grandes)"],
+  "semester.tracked": ["Time tracked: {total}", "计时：共 {total}", "Tiempo cronometrado: {total}"],
+  "semester.tracked_none": ["Time tracked: none yet", "计时：还没有", "Tiempo cronometrado: nada aún"],
+  "semester.course_time": ["{course}: {time}", "{course}：{time}", "{course}: {time}"],
+  "semester.no_course": ["No course", "无课程", "Sin curso"],
+  "semester.streak_none": ["Longest streak: none yet", "最长连续：还没有", "Racha más larga: aún ninguna"],
+  "semester.streak.one": ["Longest streak: 1 day", "最长连续：1 天", "Racha más larga: 1 día"],
+  "semester.streak.other": ["Longest streak: {n} days in a row", "最长连续：{n} 天", "Racha más larga: {n} días seguidos"],
+  "semester.ratio_same": ["Estimates vs. reality: finished work took about as long as you estimated.", "估计与实际：完成的作业用时和预计差不多。", "Estimado vs. real: lo terminado llevó más o menos lo que estimaste."],
+  "semester.ratio_longer": ["Estimates vs. reality: finished work took about {percent}% longer than you estimated.", "估计与实际：完成的作业比预计多用了约 {percent}%。", "Estimado vs. real: lo terminado llevó un {percent}% más de lo que estimaste."],
+  "semester.ratio_shorter": ["Estimates vs. reality: finished work took about {percent}% less time than you estimated.", "估计与实际：完成的作业比预计少用了约 {percent}%。", "Estimado vs. real: lo terminado llevó un {percent}% menos de lo que estimaste."],
+  "semester.ratio_none": ["Estimates vs. reality: add Time needed and use the timer to see this.", "估计与实际：填写所需时间并使用计时器后即可看到。", "Estimado vs. real: añade Tiempo necesario y usa el temporizador para verlo."],
+  "semester.archive": ["Archive finished work…", "归档已完成的作业…", "Archivar lo terminado…"],
+  "semester.confirm": [
+    "Archive {count} finished in {term}? A backup file of them downloads first, then they leave your list. Recently deleted keeps them for 30 days.",
+    "要归档{term}已完成的{count}吗？会先下载它们的备份文件，然后从列表中移除。最近删除会保留它们 30 天。",
+    "¿Archivar {count} terminadas en {term}? Primero se descarga una copia de seguridad y luego salen de tu lista. Eliminadas recientemente las guarda 30 días.",
+  ],
+  "msg.archived": ["Archived {count}. The backup file is {file}.", "已归档{count}，备份文件是 {file}。", "Se archivaron {count}. La copia es {file}."],
+
   // Panels
   "panel.close": ["Close", "关闭", "Cerrar"],
   "links.import": ["Import…", "导入…", "Importar…"],

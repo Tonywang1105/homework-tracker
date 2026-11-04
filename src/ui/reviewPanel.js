@@ -1,19 +1,28 @@
-// The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
-// and the one-line summary above the list that leads to it.
+// The Weekly review panel: this week (due, done, overdue, still to come), next week (how much, busiest day) and the
+// semester so far (with Archive), and the one-line summary above the list that leads to it.
 
-import { formatHours, formatHoursPlain } from "../assignments.js?v=0164f23d";
-import { toDateKey } from "../calendar.js?v=0164f23d";
-import { t } from "../i18n.js?v=0164f23d";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=0164f23d";
-import { formatSpent } from "../timer.js?v=0164f23d";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=0164f23d";
-import { panels, setPanelOpen } from "./panels.js?v=0164f23d";
-import { setView } from "./settings.js?v=0164f23d";
-import { state } from "./store.js?v=0164f23d";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=da45906c";
+import { createBackup } from "../backup.js?v=da45906c";
+import { toDateKey } from "../calendar.js?v=da45906c";
+import { t, tCount } from "../i18n.js?v=da45906c";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=da45906c";
+import { semesterSummary } from "../semester.js?v=da45906c";
+import { formatSpent } from "../timer.js?v=da45906c";
+import { countAssignments, DATE_LOCALE, downloadFile, formatDay, makeButton } from "./dom.js?v=da45906c";
+import { panels, setPanelOpen } from "./panels.js?v=da45906c";
+import { setView } from "./settings.js?v=da45906c";
+import { state, updateAssignments } from "./store.js?v=da45906c";
+import { showToast } from "./toast.js?v=da45906c";
 
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;
 const summaryLine = document.getElementById("today-summary");
+const semester = {
+  term: document.getElementById("semester-term"),
+  stats: document.getElementById("semester-stats"),
+  archive: document.getElementById("semester-archive"),
+};
+semester.archive.addEventListener("click", handleArchive);
 const reviewPanel = panels.find((panel) => panel.panel.id === "review-panel");
 
 const reviewElements = {
@@ -52,6 +61,7 @@ export function renderReview(now) {
     ...startThisWeek.map((a) => listItem(t("review.start_by", { title: a.title, day: formatDay(state.startPlan.get(a.id).startDate) }))),
   );
   reviewElements.start.hidden = startThisWeek.length === 0;
+  renderSemester(now);
 }
 
 /** "Finished 9 this week (3 big) · 4-day streak", and a Mon–Sun row with how many were finished each day. */
@@ -77,6 +87,54 @@ function renderFinished(now) {
       return item;
     }),
   );
+}
+
+/** The end-of-semester wrap-up at the bottom of Weekly review (src/semester.js). */
+function renderSemester(now) {
+  const summary = semesterSummary(state.assignments, now);
+  semester.term.textContent = termName(summary.term);
+  const items = [t("semester.finished", { count: countAssignments(summary.finished), big: summary.big })];
+  if (summary.trackedSeconds === 0) {
+    items.push(t("semester.tracked_none"));
+  } else {
+    items.push(t("semester.tracked", { total: formatSpent(summary.trackedSeconds) }));
+    items.push(
+      ...summary.perCourse.map(({ course, seconds }) => t("semester.course_time", { course: course || t("semester.no_course"), time: formatSpent(seconds) })),
+    );
+  }
+  items.push(summary.longestStreak === 0 ? t("semester.streak_none") : tCount("semester.streak", summary.longestStreak));
+  if (summary.ratio === null) {
+    items.push(t("semester.ratio_none"));
+  } else {
+    const percent = Math.round(Math.abs(summary.ratio - 1) * 100);
+    items.push(percent < 10 ? t("semester.ratio_same") : t(summary.ratio > 1 ? "semester.ratio_longer" : "semester.ratio_shorter", { percent }));
+  }
+  semester.stats.replaceChildren(...items.map((text) => listItem(text)));
+  semester.archive.hidden = summary.archiveIds.length === 0;
+}
+
+/** "Fall 2026" (or "2026 秋季学期"). */
+function termName(term) {
+  return t("semester.term", { season: t(`term.${term.name}`), year: term.year });
+}
+
+/**
+ * Archive: downloads a backup file of this term's finished work, then takes it out of the list (Recently deleted keeps
+ * it for 30 days, and Undo brings it straight back), so the next term starts clean.
+ */
+function handleArchive() {
+  const now = new Date();
+  const summary = semesterSummary(state.assignments, now);
+  const ids = new Set(summary.archiveIds);
+  const archived = state.assignments.filter((a) => ids.has(a.id));
+  if (archived.length === 0 || !window.confirm(t("semester.confirm", { count: countAssignments(archived.length), term: termName(summary.term) }))) {
+    return;
+  }
+  const fileName = `homework-tracker-${summary.term.name}-${summary.term.year}-finished.json`;
+  downloadFile(fileName, JSON.stringify(createBackup(archived, now), null, 2), "application/json");
+  const previous = state.assignments;
+  updateAssignments(previous.filter((a) => !ids.has(a.id)));
+  showToast(t("msg.archived", { count: countAssignments(archived.length), file: fileName }), () => updateAssignments(previous));
 }
 
 function dateRange({ start, end }) {

@@ -1,17 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=0164f23d";
-import { currentMonth, shiftMonth } from "./calendar.js?v=0164f23d";
-import { hasExamples } from "./examples.js?v=0164f23d";
-import { t } from "./i18n.js?v=0164f23d";
-import { parseSavedWidth } from "./layout.js?v=0164f23d";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=0164f23d";
-import { combineSeries } from "./repeat.js?v=0164f23d";
-import { loadAssignments } from "./storage.js?v=0164f23d";
-import { splitDeleted } from "./trash.js?v=0164f23d";
-import { startAccount } from "./ui/account.js?v=0164f23d";
-import { renderAgenda } from "./ui/agendaView.js?v=0164f23d";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=0164f23d";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=da45906c";
+import { currentMonth, shiftMonth } from "./calendar.js?v=da45906c";
+import { hasExamples } from "./examples.js?v=da45906c";
+import { t } from "./i18n.js?v=da45906c";
+import { parseSavedWidth } from "./layout.js?v=da45906c";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=da45906c";
+import { combineSeries } from "./repeat.js?v=da45906c";
+import { loadAssignments } from "./storage.js?v=da45906c";
+import { splitDeleted } from "./trash.js?v=da45906c";
+import { startAccount } from "./ui/account.js?v=da45906c";
+import { renderAgenda } from "./ui/agendaView.js?v=da45906c";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=da45906c";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -24,12 +24,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=0164f23d";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=0164f23d";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=0164f23d";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=0164f23d";
-import { elements } from "./ui/dom.js?v=0164f23d";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=0164f23d";
+} from "./ui/calendarView.js?v=da45906c";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=da45906c";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=da45906c";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=da45906c";
+import { elements } from "./ui/dom.js?v=da45906c";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=da45906c";
 import {
   closeForm,
   focusForm,
@@ -42,10 +42,10 @@ import {
   updateHoursSuggestion,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=0164f23d";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=0164f23d";
-import { startLanguage } from "./ui/language.js?v=0164f23d";
-import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=0164f23d";
+} from "./ui/form.js?v=da45906c";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=da45906c";
+import { startLanguage } from "./ui/language.js?v=da45906c";
+import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=da45906c";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -60,7 +60,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=0164f23d";
+} from "./ui/list.js?v=da45906c";
 import {
   addExamples,
   canvasPanel,
@@ -73,11 +73,11 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=0164f23d";
-import { renderPrairieLearnPreview, startPrairieLearnPanel } from "./ui/prairieLearnPanel.js?v=0164f23d";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=0164f23d";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=0164f23d";
-import { renderSelect, startSelect } from "./ui/select.js?v=0164f23d";
+} from "./ui/panels.js?v=da45906c";
+import { renderPrairieLearnPreview, startPrairieLearnPanel } from "./ui/prairieLearnPanel.js?v=da45906c";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=da45906c";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=da45906c";
+import { renderSelect, startSelect } from "./ui/select.js?v=da45906c";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -93,11 +93,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=0164f23d";
-import { startShortcuts } from "./ui/shortcuts.js?v=0164f23d";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=0164f23d";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=0164f23d";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=0164f23d";
+} from "./ui/settings.js?v=da45906c";
+import { startShortcuts } from "./ui/shortcuts.js?v=da45906c";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=da45906c";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=da45906c";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=da45906c";
 
 export function render() {
   const courses = courseNames(state.assignments);

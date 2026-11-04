@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/form.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/list.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/calendar.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/agenda.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/types.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/panels.css?v=0164f23d" />
-    <link rel="stylesheet" href="styles/messages.css?v=0164f23d" />
-    <script type="module" src="src/main.js?v=0164f23d"></script>
+    <link rel="stylesheet" href="styles/base.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/form.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/list.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/calendar.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/agenda.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/types.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/panels.css?v=da45906c" />
+    <link rel="stylesheet" href="styles/messages.css?v=da45906c" />
+    <script type="module" src="src/main.js?v=da45906c"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -549,6 +549,14 @@
               <p data-i18n="review.start_these">Start these this week to stay on track:</p>
               <ul id="review-start-list" class="review-list"></ul>
             </div>
+            <!-- The end-of-semester wrap-up, filled in by src/ui/reviewPanel.js from src/semester.js. -->
+            <section id="semester" class="semester" aria-labelledby="semester-heading">
+              <h3 id="semester-heading">
+                <span data-i18n="semester.heading">This semester so far</span> <span id="semester-term" class="review-dates"></span>
+              </h3>
+              <ul id="semester-stats" class="review-list"></ul>
+              <button type="button" id="semester-archive" class="link-button action-delete" data-i18n="semester.archive">Archive finished work…</button>
+            </section>
             <div class="import-actions">
               <button type="button" id="review-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
