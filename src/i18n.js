@@ -433,6 +433,20 @@ const PHRASES = {
     "Abre la página Assessments de un curso en PrairieLearn, pulsa Cmd+A y luego Cmd+C (Ctrl en Windows) y pégala aquí. No se envía nada: la app lee el texto en este dispositivo.",
   ],
   "pl.paste_ph": ["Paste the Assessments page here", "把 Assessments 页面粘贴到这里", "Pega aquí la página Assessments"],
+  "import.gs_heading": ["Paste from Gradescope", "从 Gradescope 粘贴", "Pegar de Gradescope"],
+  "gs.help": [
+    "Open a course's dashboard in Gradescope, press Cmd+A then Cmd+C (Ctrl on Windows), and paste it here. Submitted and graded work is skipped. Nothing is sent anywhere.",
+    "在 Gradescope 里打开一门课的主页，按 Cmd+A 再按 Cmd+C（Windows 上用 Ctrl），然后粘贴到这里。已提交和已评分的作业会被跳过，内容不会发送到任何地方。",
+    "Abre el panel de un curso en Gradescope, pulsa Cmd+A y luego Cmd+C (Ctrl en Windows) y pégalo aquí. Lo entregado y calificado se omite. No se envía nada.",
+  ],
+  "gs.paste_ph": ["Paste the course dashboard here", "把课程主页粘贴到这里", "Pega aquí el panel del curso"],
+  "gs.page": ["Gradescope course dashboard", "Gradescope 课程主页", "Panel del curso de Gradescope"],
+  "gs.none_found": [
+    "No upcoming assignments found. Make sure you copied a Gradescope course dashboard.",
+    "没有找到即将到期的作业。请确认复制的是 Gradescope 的课程主页。",
+    "No se encontraron tareas próximas. Asegúrate de copiar el panel de un curso de Gradescope.",
+  ],
+  "msg.gs_done": ["Gradescope: added {added}, updated {updated}.", "Gradescope：添加 {added} 项，更新 {updated} 项。", "Gradescope: {added} añadidas, {updated} actualizadas."],
   "pl.course": ["Course", "课程", "Curso"],
   "pl.course_ph": ["e.g. CS 124", "例如：CS 124", "p. ej., CS 124"],
   "pl.none_found": [

@@ -1,11 +1,11 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=30d0dcf8";
-import { toDateKey } from "./calendar.js?v=30d0dcf8";
-import { t } from "./i18n.js?v=30d0dcf8";
-import { cleanLesson } from "./lessons.js?v=30d0dcf8";
-import { readSpentSeconds } from "./timer.js?v=30d0dcf8";
+import { validateAssignmentInput } from "./assignments.js?v=ff7901f2";
+import { toDateKey } from "./calendar.js?v=ff7901f2";
+import { t } from "./i18n.js?v=ff7901f2";
+import { cleanLesson } from "./lessons.js?v=ff7901f2";
+import { readSpentSeconds } from "./timer.js?v=ff7901f2";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -90,9 +90,11 @@ function restoreAssignment(saved) {
   if (lesson) {
     restored.lesson = lesson;
   }
-  // Keeps a later Paste from PrairieLearn from adding it again.
-  if (typeof saved.prairieLearnKey === "string") {
-    restored.prairieLearnKey = saved.prairieLearnKey;
+  // Keeps a later Paste from PrairieLearn or Gradescope from adding it again.
+  for (const keyField of ["prairieLearnKey", "gradescopeKey"]) {
+    if (typeof saved[keyField] === "string") {
+      restored[keyField] = saved[keyField];
+    }
   }
   // Keeps a repeating series combined in the list after a backup is restored.
   if (typeof saved.seriesId === "string") {

@@ -1,17 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=30d0dcf8";
-import { currentMonth, shiftMonth } from "./calendar.js?v=30d0dcf8";
-import { hasExamples } from "./examples.js?v=30d0dcf8";
-import { t } from "./i18n.js?v=30d0dcf8";
-import { parseSavedWidth } from "./layout.js?v=30d0dcf8";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=30d0dcf8";
-import { combineSeries } from "./repeat.js?v=30d0dcf8";
-import { loadAssignments } from "./storage.js?v=30d0dcf8";
-import { splitDeleted } from "./trash.js?v=30d0dcf8";
-import { startAccount } from "./ui/account.js?v=30d0dcf8";
-import { renderAgenda } from "./ui/agendaView.js?v=30d0dcf8";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=30d0dcf8";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=ff7901f2";
+import { currentMonth, shiftMonth } from "./calendar.js?v=ff7901f2";
+import { hasExamples } from "./examples.js?v=ff7901f2";
+import { t } from "./i18n.js?v=ff7901f2";
+import { parseSavedWidth } from "./layout.js?v=ff7901f2";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=ff7901f2";
+import { combineSeries } from "./repeat.js?v=ff7901f2";
+import { loadAssignments } from "./storage.js?v=ff7901f2";
+import { splitDeleted } from "./trash.js?v=ff7901f2";
+import { startAccount } from "./ui/account.js?v=ff7901f2";
+import { renderAgenda } from "./ui/agendaView.js?v=ff7901f2";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=ff7901f2";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -24,12 +24,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=30d0dcf8";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=30d0dcf8";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=30d0dcf8";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=30d0dcf8";
-import { elements } from "./ui/dom.js?v=30d0dcf8";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=30d0dcf8";
+} from "./ui/calendarView.js?v=ff7901f2";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=ff7901f2";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=ff7901f2";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=ff7901f2";
+import { elements } from "./ui/dom.js?v=ff7901f2";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=ff7901f2";
 import {
   closeForm,
   focusForm,
@@ -42,10 +42,10 @@ import {
   updateHoursSuggestion,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=30d0dcf8";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=30d0dcf8";
-import { startLanguage } from "./ui/language.js?v=30d0dcf8";
-import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=30d0dcf8";
+} from "./ui/form.js?v=ff7901f2";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=ff7901f2";
+import { startLanguage } from "./ui/language.js?v=ff7901f2";
+import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=ff7901f2";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -60,7 +60,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=30d0dcf8";
+} from "./ui/list.js?v=ff7901f2";
 import {
   addExamples,
   canvasPanel,
@@ -73,12 +73,12 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=30d0dcf8";
-import { renderPrairieLearnPreview, startPrairieLearnPanel } from "./ui/prairieLearnPanel.js?v=30d0dcf8";
-import { startReminders } from "./ui/reminders.js?v=30d0dcf8";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=30d0dcf8";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=30d0dcf8";
-import { renderSelect, startSelect } from "./ui/select.js?v=30d0dcf8";
+} from "./ui/panels.js?v=ff7901f2";
+import { renderPastePreviews, startPastePanels } from "./ui/pastePanel.js?v=ff7901f2";
+import { startReminders } from "./ui/reminders.js?v=ff7901f2";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=ff7901f2";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=ff7901f2";
+import { renderSelect, startSelect } from "./ui/select.js?v=ff7901f2";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -94,11 +94,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=30d0dcf8";
-import { startShortcuts } from "./ui/shortcuts.js?v=30d0dcf8";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=30d0dcf8";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=30d0dcf8";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=30d0dcf8";
+} from "./ui/settings.js?v=ff7901f2";
+import { startShortcuts } from "./ui/shortcuts.js?v=ff7901f2";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=ff7901f2";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=ff7901f2";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=ff7901f2";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -146,7 +146,7 @@ export function render() {
   renderLessonBar();
   renderSelect();
   renderDeleted(now);
-  renderPrairieLearnPreview();
+  renderPastePreviews();
   // Finishing timed work can change what Time needed suggests.
   updateHoursSuggestion();
   offerGuide(state.assignments.length);
@@ -247,7 +247,7 @@ function start() {
   startSelect();
   startCalendarDrag();
   startDeletedPanel();
-  startPrairieLearnPanel();
+  startPastePanels();
   startHoursSuggestion();
   startLessonBar();
   startReminders();

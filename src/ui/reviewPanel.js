@@ -1,18 +1,18 @@
 // The Weekly review panel: this week (due, done, overdue, still to come), next week (how much, busiest day) and the
 // semester so far (with Archive), and the one-line summary above the list that leads to it.
 
-import { formatHours, formatHoursPlain } from "../assignments.js?v=30d0dcf8";
-import { createBackup } from "../backup.js?v=30d0dcf8";
-import { toDateKey } from "../calendar.js?v=30d0dcf8";
-import { t, tCount } from "../i18n.js?v=30d0dcf8";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=30d0dcf8";
-import { semesterSummary } from "../semester.js?v=30d0dcf8";
-import { formatSpent } from "../timer.js?v=30d0dcf8";
-import { countAssignments, DATE_LOCALE, downloadFile, formatDay, makeButton } from "./dom.js?v=30d0dcf8";
-import { panels, setPanelOpen } from "./panels.js?v=30d0dcf8";
-import { setView } from "./settings.js?v=30d0dcf8";
-import { state, updateAssignments } from "./store.js?v=30d0dcf8";
-import { showToast } from "./toast.js?v=30d0dcf8";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=ff7901f2";
+import { createBackup } from "../backup.js?v=ff7901f2";
+import { toDateKey } from "../calendar.js?v=ff7901f2";
+import { t, tCount } from "../i18n.js?v=ff7901f2";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=ff7901f2";
+import { semesterSummary } from "../semester.js?v=ff7901f2";
+import { formatSpent } from "../timer.js?v=ff7901f2";
+import { countAssignments, DATE_LOCALE, downloadFile, formatDay, makeButton } from "./dom.js?v=ff7901f2";
+import { panels, setPanelOpen } from "./panels.js?v=ff7901f2";
+import { setView } from "./settings.js?v=ff7901f2";
+import { state, updateAssignments } from "./store.js?v=ff7901f2";
+import { showToast } from "./toast.js?v=ff7901f2";
 
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;

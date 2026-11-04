@@ -4,15 +4,14 @@
 // "HW12", its title, its available credit ("100% until 23:59, Fri, Nov 7 (CST)") and a score, the cells separated
 // by tabs or each on its own line. If PrairieLearn changes that layout, this is the place to update.
 
-import { toDueDate } from "./assignments.js?v=30d0dcf8";
-import { toDateKey } from "./calendar.js?v=30d0dcf8";
+import { toDueDate } from "./assignments.js?v=ff7901f2";
+import { dateNearNow, pasteKey, planPasted } from "./paste.js?v=ff7901f2";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 // "100% until 23:59, Fri, Nov 7 (CST)", "80% until 11:59pm, Nov 14, 2026": the credit, the time and the date.
 const CREDIT_UNTIL =
   /\b\d{1,3}%\s+until\s+(\d{1,2}):(\d{2})\s*(am|pm)?,?\s+(?:[A-Za-z]{3},?\s+)?([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?/i;
 const COURSE_CODE = /\b([A-Z]{2,4})\s?(\d{3})\b/;
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
  * Reads a pasted Assessments page. Returns { course, items, skippedPast, skippedDone }: course is the first course
@@ -86,10 +85,7 @@ function scoreAfter(line, credit, lines, index) {
   return nextLine ? Number(nextLine[1]) : -1;
 }
 
-/**
- * { dueDate, dueTime } from the credit's date and time. PrairieLearn often leaves out the year, so it's the year
- * that puts the date nearest to now (Nov 7 seen in December is last month, not next November).
- */
+/** { dueDate, dueTime } from the credit's date and time (a missing year is the one nearest to now). */
 function dueFrom(credit, now) {
   const [, hourText, minuteText, meridiem, monthText, dayText, yearText] = credit;
   const month = MONTHS.indexOf(monthText.slice(0, 3).toLowerCase());
@@ -97,55 +93,17 @@ function dueFrom(credit, now) {
   if (meridiem) {
     hour = (hour % 12) + (meridiem.toLowerCase() === "pm" ? 12 : 0);
   }
-  const day = Number(dayText);
-  if (month === -1 || hour > 23 || Number(minuteText) > 59 || day < 1 || day > 31) {
+  if (month === -1 || hour > 23 || Number(minuteText) > 59) {
     return null;
   }
-  let year = yearText ? Number(yearText) : now.getFullYear();
-  if (!yearText) {
-    const candidate = new Date(year, month, day);
-    if (candidate - now > 183 * DAY_MS) {
-      year -= 1;
-    } else if (now - candidate > 183 * DAY_MS) {
-      year += 1;
-    }
-  }
-  const date = new Date(year, month, day);
-  if (date.getMonth() !== month) {
-    return null;
-  }
-  return { dueDate: toDateKey(date), dueTime: `${String(hour).padStart(2, "0")}:${minuteText}` };
+  const dueDate = dateNearNow(month, Number(dayText), yearText ? Number(yearText) : null, now);
+  return dueDate ? { dueDate, dueTime: `${String(hour).padStart(2, "0")}:${minuteText}` } : null;
 }
 
 /** The key that recognizes the same assessment on a later paste: its course and title. */
-export function prairieLearnKey(course, title) {
-  return `${course.trim().toLowerCase()}\n${title.trim().toLowerCase()}`;
-}
+export const prairieLearnKey = pasteKey;
 
-/**
- * What a paste would do: `added` are new assignments to add (marked PrairieLearn, with the course), `updated` are
- * existing ones whose due date changed (matched by course and title), and `unchanged` counts the rest. Assessments
- * in Recently deleted (`deleted`) are left out, so deleting one keeps it deleted.
- */
+/** What a paste would add or update, matching earlier PrairieLearn pastes by their saved key (see planPasted). */
 export function planPrairieLearn(existing, deleted, items, course) {
-  const byKey = new Map(existing.filter((a) => a.prairieLearnKey).map((a) => [a.prairieLearnKey, a]));
-  const deletedKeys = new Set(deleted.filter((a) => a.prairieLearnKey).map((a) => a.prairieLearnKey));
-  const added = [];
-  const updated = [];
-  let unchanged = 0;
-  for (const item of items) {
-    const key = prairieLearnKey(course, item.title);
-    if (deletedKeys.has(key)) {
-      continue;
-    }
-    const current = byKey.get(key);
-    if (!current) {
-      added.push({ ...item, course, key });
-    } else if (current.dueDate !== item.dueDate || current.dueTime !== item.dueTime) {
-      updated.push({ ...current, dueDate: item.dueDate, dueTime: item.dueTime });
-    } else {
-      unchanged += 1;
-    }
-  }
-  return { added, updated, unchanged };
+  return planPasted(existing, deleted, items, course, "prairieLearnKey");
 }

@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/form.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/list.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/calendar.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/agenda.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/types.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/panels.css?v=30d0dcf8" />
-    <link rel="stylesheet" href="styles/messages.css?v=30d0dcf8" />
-    <script type="module" src="src/main.js?v=30d0dcf8"></script>
+    <link rel="stylesheet" href="styles/base.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/form.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/list.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/calendar.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/agenda.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/types.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/panels.css?v=ff7901f2" />
+    <link rel="stylesheet" href="styles/messages.css?v=ff7901f2" />
+    <script type="module" src="src/main.js?v=ff7901f2"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -463,6 +463,21 @@
             <ul id="pl-list" class="review-list"></ul>
             <div class="import-actions">
               <button type="button" id="pl-add" class="button button-primary" disabled>Add</button>
+            </div>
+            <h3 class="import-heading" data-i18n="import.gs_heading">Paste from Gradescope</h3>
+            <p class="import-help" data-i18n="gs.help">
+              Open a course's dashboard in Gradescope, press Cmd+A then Cmd+C (Ctrl on Windows), and paste it here. Submitted and
+              graded work is skipped. Nothing is sent anywhere.
+            </p>
+            <textarea id="gs-text" class="pl-text" rows="5" placeholder="Paste the course dashboard here" data-i18n-placeholder="gs.paste_ph" aria-label="Gradescope course dashboard" data-i18n-aria="gs.page"></textarea>
+            <label class="settings-row pl-course">
+              <span data-i18n="pl.course">Course</span>
+              <input id="gs-course" type="text" maxlength="60" autocomplete="off" placeholder="e.g. CS 124" data-i18n-placeholder="pl.course_ph" />
+            </label>
+            <p id="gs-preview" class="pl-preview" aria-live="polite"></p>
+            <ul id="gs-list" class="review-list"></ul>
+            <div class="import-actions">
+              <button type="button" id="gs-add" class="button button-primary" disabled>Add</button>
               <button type="button" id="canvas-panel-close" class="button" data-i18n="panel.close">Close</button>
             </div>
           </div>
