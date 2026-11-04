@@ -34,6 +34,7 @@ const APP_FILES = [
   "src/canvas.js",
   "src/courseColors.js",
   "src/courseLinks.js",
+  "src/estimates.js",
   "src/examples.js",
   "src/export.js",
   "src/focus.js",

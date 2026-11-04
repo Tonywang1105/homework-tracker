@@ -130,3 +130,19 @@ textarea {
 .form-hint[hidden] {
   display: none;
 }
+
+/* "Your last MP in CS 124 took about 5 h. Use ~5 h", under Time needed. */
+.hours-suggestion {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.hours-suggestion[hidden] {
+  display: none;
+}
+
+.hours-suggestion .link-button {
+  margin-left: 4px;
+  font-weight: 600;
+}

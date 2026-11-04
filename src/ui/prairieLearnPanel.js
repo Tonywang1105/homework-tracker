@@ -1,12 +1,12 @@
 // Paste from PrairieLearn: the panel where a copied Assessments page is pasted, a preview of what it would add or
 // update, and Add (with Undo). Reading the text is in src/prairielearn.js; nothing leaves this device.
 
-import { createAssignment, validateAssignmentInput } from "../assignments.js?v=2d9bfdcf";
-import { t } from "../i18n.js?v=2d9bfdcf";
-import { planPrairieLearn, readPrairieLearn } from "../prairielearn.js?v=2d9bfdcf";
-import { countAssignments, formatDay } from "./dom.js?v=2d9bfdcf";
-import { state, updateAssignments } from "./store.js?v=2d9bfdcf";
-import { showToast } from "./toast.js?v=2d9bfdcf";
+import { createAssignment, validateAssignmentInput } from "../assignments.js?v=1cc930ab";
+import { t } from "../i18n.js?v=1cc930ab";
+import { planPrairieLearn, readPrairieLearn } from "../prairielearn.js?v=1cc930ab";
+import { countAssignments, formatDay } from "./dom.js?v=1cc930ab";
+import { state, updateAssignments } from "./store.js?v=1cc930ab";
+import { showToast } from "./toast.js?v=1cc930ab";
 
 const panel = {
   text: document.getElementById("pl-text"),

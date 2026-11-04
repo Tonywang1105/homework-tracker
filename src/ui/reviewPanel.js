@@ -1,15 +1,15 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours, formatHoursPlain } from "../assignments.js?v=2d9bfdcf";
-import { toDateKey } from "../calendar.js?v=2d9bfdcf";
-import { t } from "../i18n.js?v=2d9bfdcf";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=2d9bfdcf";
-import { formatSpent } from "../timer.js?v=2d9bfdcf";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=2d9bfdcf";
-import { panels, setPanelOpen } from "./panels.js?v=2d9bfdcf";
-import { setView } from "./settings.js?v=2d9bfdcf";
-import { state } from "./store.js?v=2d9bfdcf";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=1cc930ab";
+import { toDateKey } from "../calendar.js?v=1cc930ab";
+import { t } from "../i18n.js?v=1cc930ab";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=1cc930ab";
+import { formatSpent } from "../timer.js?v=1cc930ab";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=1cc930ab";
+import { panels, setPanelOpen } from "./panels.js?v=1cc930ab";
+import { setView } from "./settings.js?v=1cc930ab";
+import { state } from "./store.js?v=1cc930ab";
 
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;

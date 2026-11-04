@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/form.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/list.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/calendar.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/agenda.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/types.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/panels.css?v=2d9bfdcf" />
-    <link rel="stylesheet" href="styles/messages.css?v=2d9bfdcf" />
-    <script type="module" src="src/main.js?v=2d9bfdcf"></script>
+    <link rel="stylesheet" href="styles/base.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/form.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/list.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/calendar.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/agenda.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/types.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/panels.css?v=1cc930ab" />
+    <link rel="stylesheet" href="styles/messages.css?v=1cc930ab" />
+    <script type="module" src="src/main.js?v=1cc930ab"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -144,6 +144,11 @@
           <div class="field">
             <label for="hours"><span data-i18n="form.hours">Time needed</span> <span class="optional" data-i18n="form.hours_note">hours, optional</span></label>
             <input id="hours" name="hours" type="number" min="0.25" max="40" step="0.25" inputmode="decimal" placeholder="e.g. 2" data-i18n-placeholder="form.hours_ph" />
+            <!-- A suggestion from time tracked on similar finished work, while the box is empty (src/ui/form.js). -->
+            <p id="hours-suggestion" class="hours-suggestion" aria-live="polite" hidden>
+              <span id="hours-suggestion-text"></span>
+              <button type="button" id="hours-suggestion-use" class="link-button"></button>
+            </p>
             <p class="field-error" id="hours-error"></p>
           </div>
 

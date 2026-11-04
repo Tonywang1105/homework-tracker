@@ -3,6 +3,7 @@
 import {
   assignmentPlatform,
   AUTO_TYPE,
+  formatHours,
   guessType,
   keepStepTicks,
   PLATFORM_LABELS,
@@ -11,15 +12,30 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=2d9bfdcf";
-import { t } from "../i18n.js?v=2d9bfdcf";
-import { render } from "../main.js?v=2d9bfdcf";
-import { createSeries, validateRepeat } from "../repeat.js?v=2d9bfdcf";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=2d9bfdcf";
-import { findAssignment, state, updateAssignments } from "./store.js?v=2d9bfdcf";
-import { showToast } from "./toast.js?v=2d9bfdcf";
+} from "../assignments.js?v=1cc930ab";
+import { suggestHours } from "../estimates.js?v=1cc930ab";
+import { t } from "../i18n.js?v=1cc930ab";
+import { render } from "../main.js?v=1cc930ab";
+import { createSeries, validateRepeat } from "../repeat.js?v=1cc930ab";
+import { formatSpent } from "../timer.js?v=1cc930ab";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=1cc930ab";
+import { findAssignment, state, updateAssignments } from "./store.js?v=1cc930ab";
+import { showToast } from "./toast.js?v=1cc930ab";
+
+const hoursSuggestion = {
+  box: document.getElementById("hours-suggestion"),
+  text: document.getElementById("hours-suggestion-text"),
+  use: document.getElementById("hours-suggestion-use"),
+};
 
 const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
+
+export function startHoursSuggestion() {
+  for (const name of ["title", "course", "type", "hours"]) {
+    elements.form.elements[name].addEventListener("input", updateHoursSuggestion);
+  }
+  hoursSuggestion.use.addEventListener("click", useHoursSuggestion);
+}
 
 export function renderTypeOptions() {
   // Marked for translation, so a language change renames them too (see src/ui/language.js).
@@ -151,6 +167,38 @@ export function updateStepsLabel() {
   fields.steps.placeholder = t(exam ? "form.topics_ph" : "form.steps_ph");
 }
 
+/**
+ * Under Time needed: what similar finished work took (src/estimates.js), with a button to use it. Shown only while
+ * the box is empty, so it never replaces a number that was typed.
+ */
+export function updateHoursSuggestion() {
+  const fields = elements.form.elements;
+  const type = fields.type.value === AUTO_TYPE ? guessType(fields.title.value) : fields.type.value;
+  const suggestion = fields.hours.value.trim() === "" ? suggestHours(state.assignments, { course: fields.course.value, type }) : null;
+  hoursSuggestion.box.hidden = suggestion === null;
+  if (!suggestion) {
+    return;
+  }
+  const where = suggestion.anyCourse ? "estimate.any" : "estimate.course";
+  const values = {
+    n: suggestion.count,
+    type: TYPE_LABELS[type],
+    course: fields.course.value.trim(),
+    spent: formatSpent(suggestion.seconds),
+    low: formatSpent(suggestion.lowSeconds),
+    high: formatSpent(suggestion.highSeconds),
+  };
+  hoursSuggestion.text.textContent = t(`${where}.${suggestion.count === 1 ? "one" : "other"}`, values);
+  hoursSuggestion.use.textContent = t("estimate.use", { hours: formatHours(suggestion.hours) });
+  hoursSuggestion.use.dataset.hours = String(suggestion.hours);
+}
+
+function useHoursSuggestion() {
+  elements.form.elements.hours.value = hoursSuggestion.use.dataset.hours;
+  updateHoursSuggestion();
+  elements.form.elements.hours.focus();
+}
+
 /** The heading and the main button for what the form is doing: adding, editing, or extending (Extend…). */
 export function renderFormMode() {
   const editing = state.editingId !== null;
@@ -163,6 +211,7 @@ export function renderFormMode() {
     elements.submitButton.textContent = t(editing ? "form.submit_save" : "form.submit_add");
   }
   updateStepsLabel();
+  updateHoursSuggestion();
 }
 
 /** The Until date only matters (and is only required) when the assignment repeats. */
@@ -174,6 +223,7 @@ export function updateRepeatFields() {
 
 function resetForm() {
   elements.form.reset();
+  updateHoursSuggestion();
   // Back to adding (after adding, a copy, or an edit), so say again what's needed.
   elements.formHint.hidden = state.editingId !== null;
   updateRepeatFields();
@@ -218,6 +268,7 @@ function fillFormFrom(assignment) {
   fields.hours.value = assignment.hours ?? "";
   fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
   updateStepsLabel();
+  updateHoursSuggestion();
   showErrors({});
 }
 

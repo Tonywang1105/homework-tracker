@@ -1,17 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=2d9bfdcf";
-import { currentMonth, shiftMonth } from "./calendar.js?v=2d9bfdcf";
-import { hasExamples } from "./examples.js?v=2d9bfdcf";
-import { t } from "./i18n.js?v=2d9bfdcf";
-import { parseSavedWidth } from "./layout.js?v=2d9bfdcf";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=2d9bfdcf";
-import { combineSeries } from "./repeat.js?v=2d9bfdcf";
-import { loadAssignments } from "./storage.js?v=2d9bfdcf";
-import { splitDeleted } from "./trash.js?v=2d9bfdcf";
-import { startAccount } from "./ui/account.js?v=2d9bfdcf";
-import { renderAgenda } from "./ui/agendaView.js?v=2d9bfdcf";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=2d9bfdcf";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=1cc930ab";
+import { currentMonth, shiftMonth } from "./calendar.js?v=1cc930ab";
+import { hasExamples } from "./examples.js?v=1cc930ab";
+import { t } from "./i18n.js?v=1cc930ab";
+import { parseSavedWidth } from "./layout.js?v=1cc930ab";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=1cc930ab";
+import { combineSeries } from "./repeat.js?v=1cc930ab";
+import { loadAssignments } from "./storage.js?v=1cc930ab";
+import { splitDeleted } from "./trash.js?v=1cc930ab";
+import { startAccount } from "./ui/account.js?v=1cc930ab";
+import { renderAgenda } from "./ui/agendaView.js?v=1cc930ab";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=1cc930ab";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -24,12 +24,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=2d9bfdcf";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=2d9bfdcf";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=2d9bfdcf";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=2d9bfdcf";
-import { elements } from "./ui/dom.js?v=2d9bfdcf";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=2d9bfdcf";
+} from "./ui/calendarView.js?v=1cc930ab";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=1cc930ab";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=1cc930ab";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=1cc930ab";
+import { elements } from "./ui/dom.js?v=1cc930ab";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=1cc930ab";
 import {
   closeForm,
   focusForm,
@@ -38,11 +38,13 @@ import {
   setFormOpen,
   startCopying,
   startEditing,
+  startHoursSuggestion,
+  updateHoursSuggestion,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=2d9bfdcf";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=2d9bfdcf";
-import { startLanguage } from "./ui/language.js?v=2d9bfdcf";
+} from "./ui/form.js?v=1cc930ab";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=1cc930ab";
+import { startLanguage } from "./ui/language.js?v=1cc930ab";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -57,7 +59,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=2d9bfdcf";
+} from "./ui/list.js?v=1cc930ab";
 import {
   addExamples,
   canvasPanel,
@@ -70,11 +72,11 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=2d9bfdcf";
-import { renderPrairieLearnPreview, startPrairieLearnPanel } from "./ui/prairieLearnPanel.js?v=2d9bfdcf";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=2d9bfdcf";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=2d9bfdcf";
-import { renderSelect, startSelect } from "./ui/select.js?v=2d9bfdcf";
+} from "./ui/panels.js?v=1cc930ab";
+import { renderPrairieLearnPreview, startPrairieLearnPanel } from "./ui/prairieLearnPanel.js?v=1cc930ab";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=1cc930ab";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=1cc930ab";
+import { renderSelect, startSelect } from "./ui/select.js?v=1cc930ab";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -90,11 +92,11 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=2d9bfdcf";
-import { startShortcuts } from "./ui/shortcuts.js?v=2d9bfdcf";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=2d9bfdcf";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=2d9bfdcf";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=2d9bfdcf";
+} from "./ui/settings.js?v=1cc930ab";
+import { startShortcuts } from "./ui/shortcuts.js?v=1cc930ab";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=1cc930ab";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=1cc930ab";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=1cc930ab";
 
 export function render() {
   const courses = courseNames(state.assignments);
@@ -142,6 +144,8 @@ export function render() {
   renderSelect();
   renderDeleted(now);
   renderPrairieLearnPreview();
+  // Finishing timed work can change what Time needed suggests.
+  updateHoursSuggestion();
   offerGuide(state.assignments.length);
   elements.emptyMessage.textContent = emptyMessageText({ ...filters, search }, done.length);
 
@@ -241,6 +245,7 @@ function start() {
   startCalendarDrag();
   startDeletedPanel();
   startPrairieLearnPanel();
+  startHoursSuggestion();
   elements.detailsClose.addEventListener("click", () => toggleDetails(null));
   // Edit and Copy in the details box close it, then open the form for that assignment.
   for (const [button, openForm] of [
