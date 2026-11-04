@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/form.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/list.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/calendar.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/agenda.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/types.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/panels.css?v=da45906c" />
-    <link rel="stylesheet" href="styles/messages.css?v=da45906c" />
-    <script type="module" src="src/main.js?v=da45906c"></script>
+    <link rel="stylesheet" href="styles/base.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/form.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/list.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/calendar.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/agenda.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/types.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/panels.css?v=9a88d159" />
+    <link rel="stylesheet" href="styles/messages.css?v=9a88d159" />
+    <script type="module" src="src/main.js?v=9a88d159"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -502,6 +502,14 @@
                 <label><input id="focus-work" type="number" min="1" max="120" step="1" inputmode="numeric" /> <span data-i18n="settings.min_work">min work,</span></label>
                 <label><input id="focus-break" type="number" min="1" max="60" step="1" inputmode="numeric" /> <span data-i18n="settings.min_break">min break</span></label>
               </span>
+            </section>
+            <section class="settings-section" aria-labelledby="settings-reminders">
+              <h3 id="settings-reminders" data-i18n="settings.reminders">Reminders</h3>
+              <label class="settings-row"><input type="checkbox" id="reminders-on" /> <span data-i18n="settings.reminders_on">Remind me before work is due</span></label>
+              <p class="import-help" data-i18n="settings.reminders_help">
+                While the app is open, even in a background tab: big work a day before, everything else an hour before. Each device decides for itself.
+              </p>
+              <p id="reminders-status" class="import-help" role="status"></p>
             </section>
             <section class="settings-section" aria-labelledby="settings-colors">
               <h3 id="settings-colors" data-i18n="settings.colors">Course colors</h3>

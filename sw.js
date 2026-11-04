@@ -47,6 +47,7 @@ const APP_FILES = [
   "src/plan.js",
   "src/prairielearn.js",
   "src/quickadd.js",
+  "src/reminders.js",
   "src/repeat.js",
   "src/review.js",
   "src/semester.js",
@@ -72,6 +73,7 @@ const APP_FILES = [
   "src/ui/panels.js",
   "src/ui/prairieLearnPanel.js",
   "src/ui/quickAdd.js",
+  "src/ui/reminders.js",
   "src/ui/reviewPanel.js",
   "src/ui/select.js",
   "src/ui/settings.js",
@@ -169,3 +171,14 @@ function withTimeout(promise, milliseconds) {
     );
   });
 }
+
+// A reminder's notification was clicked (src/ui/reminders.js): show the app, opening it if it isn't open.
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((windows) => {
+      const open = windows.find((client) => client.url.startsWith(self.registration.scope));
+      return open ? open.focus() : self.clients.openWindow(self.registration.scope);
+    }),
+  );
+});
