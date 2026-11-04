@@ -1,10 +1,10 @@
 // Course colors, in Settings: each course with its tag's color, which can be changed (saved in this browser).
 
-import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { makeOption, makeTag } from "./dom.js?v=1cc930ab";
-import { loadText, saveChoice, state } from "./store.js?v=1cc930ab";
+import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { makeOption, makeTag } from "./dom.js?v=5f926fa5";
+import { loadText, saveChoice, state } from "./store.js?v=5f926fa5";
 
 const CHOSEN_COLORS_KEY = "homework-tracker.courseColors";
 const AUTOMATIC = "";
@@ -26,7 +26,7 @@ export function updateCourseColors(courses) {
       const item = document.createElement("li");
       const select = document.createElement("select");
       select.dataset.course = course;
-      select.setAttribute("aria-label", `Color for ${course}`);
+      select.setAttribute("aria-label", t("aria.color_for", { course }));
       select.append(makeOption(AUTOMATIC, t("settings.automatic")), ...COURSE_COLORS.map((color) => makeOption(color, t(`color.${color}`))));
       select.value = state.chosenColors[course] ?? AUTOMATIC;
       item.append(makeTag(course, `course-tag course-color-${state.courseColors.get(course)}`), select);

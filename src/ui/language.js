@@ -1,15 +1,16 @@
 // The app's language (the buttons at the top of the page): English, 中文 or Español. It starts in the language chosen on this
 // device, or the browser's if it's one of these, and changing it redraws every word the app writes. The words
-// themselves are in src/i18n.js; the page's fixed words are marked with data-i18n (and data-i18n-placeholder).
+// themselves are in src/i18n.js; the page's fixed words are marked with data-i18n, and placeholders, screen-reader
+// labels and tooltips with data-i18n-placeholder, data-i18n-aria and data-i18n-title.
 
-import { DATE_LOCALES, getLanguage, HTML_LANGS, pickLanguage, setLanguage, t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { renderTypeLegend, renderWeekdayHeadings } from "./calendarView.js?v=1cc930ab";
-import { setDateLocale } from "./dom.js?v=1cc930ab";
-import { renderFormMode } from "./form.js?v=1cc930ab";
-import { handleQuickAddInput } from "./quickAdd.js?v=1cc930ab";
-import { renderShortcutList } from "./shortcuts.js?v=1cc930ab";
-import { loadText, saveChoice } from "./store.js?v=1cc930ab";
+import { DATE_LOCALES, getLanguage, HTML_LANGS, pickLanguage, setLanguage, t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { renderTypeLegend, renderWeekdayHeadings } from "./calendarView.js?v=5f926fa5";
+import { setDateLocale } from "./dom.js?v=5f926fa5";
+import { renderFormMode } from "./form.js?v=5f926fa5";
+import { handleQuickAddInput } from "./quickAdd.js?v=5f926fa5";
+import { renderShortcutList } from "./shortcuts.js?v=5f926fa5";
+import { loadText, saveChoice } from "./store.js?v=5f926fa5";
 
 const LANGUAGE_KEY = "homework-tracker.language";
 const buttons = document.querySelectorAll(".language-button");
@@ -39,6 +40,12 @@ function applyLanguage(language) {
   }
   for (const element of document.querySelectorAll("[data-i18n-placeholder]")) {
     element.placeholder = t(element.dataset.i18nPlaceholder);
+  }
+  for (const element of document.querySelectorAll("[data-i18n-aria]")) {
+    element.setAttribute("aria-label", t(element.dataset.i18nAria));
+  }
+  for (const element of document.querySelectorAll("[data-i18n-title]")) {
+    element.title = t(element.dataset.i18nTitle);
   }
   for (const button of buttons) {
     button.setAttribute("aria-pressed", String(button.dataset.language === getLanguage()));

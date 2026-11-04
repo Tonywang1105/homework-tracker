@@ -9,12 +9,12 @@ import {
   parseFocusBreak,
   parseFocusSettings,
   parseWorkMinutes,
-} from "../focus.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { formatClock, startTimer } from "../timer.js?v=1cc930ab";
-import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=1cc930ab";
-import { showToast } from "./toast.js?v=1cc930ab";
+} from "../focus.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { formatClock, startTimer } from "../timer.js?v=5f926fa5";
+import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=5f926fa5";
+import { showToast } from "./toast.js?v=5f926fa5";
 
 const FOCUS_KEY = "homework-tracker.focus";
 const BREAK_KEY = "homework-tracker.focusBreak";
@@ -168,10 +168,10 @@ export function renderFocus(now = new Date()) {
 /** "Focus 18:42 · Homework Tracker" or "Break 4:12 · …", so the time shows from another tab. */
 function titleText(now, running, focusBreak) {
   if (state.focus.on && running) {
-    return `Focus ${formatClock(Math.max(blockSecondsLeft(running, state.focus, now), 0))} · ${pageTitle}`;
+    return `${t("title.focus", { clock: formatClock(Math.max(blockSecondsLeft(running, state.focus, now), 0)) })} · ${pageTitle}`;
   }
   const breakLeft = focusBreak ? Math.ceil((new Date(focusBreak.endsAt) - now) / 1000) : 0;
-  return breakLeft > 0 ? `Break ${formatClock(breakLeft)} · ${pageTitle}` : pageTitle;
+  return breakLeft > 0 ? `${t("title.break", { clock: formatClock(breakLeft) })} · ${pageTitle}` : pageTitle;
 }
 
 /** Keep going / Start next block: a new block on the same assignment, if it's still there and not done. */

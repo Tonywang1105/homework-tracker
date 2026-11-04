@@ -1,15 +1,15 @@
 // Course pages: clicking a course tag shows the List for that course (the Course filter) with the course's links
 // above it, such as Canvas, PrairieLearn and Gradescope. Links are saved in this browser and synced when signed in.
 
-import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { syncCourseLinks } from "./account.js?v=1cc930ab";
-import { elements, makeButton } from "./dom.js?v=1cc930ab";
-import { handleFilterChange } from "./list.js?v=1cc930ab";
-import { setView } from "./settings.js?v=1cc930ab";
-import { loadText, saveChoice, state } from "./store.js?v=1cc930ab";
-import { showToast } from "./toast.js?v=1cc930ab";
+import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { syncCourseLinks } from "./account.js?v=5f926fa5";
+import { elements, makeButton } from "./dom.js?v=5f926fa5";
+import { handleFilterChange } from "./list.js?v=5f926fa5";
+import { setView } from "./settings.js?v=5f926fa5";
+import { loadText, saveChoice, state } from "./store.js?v=5f926fa5";
+import { showToast } from "./toast.js?v=5f926fa5";
 
 const COURSE_LINKS_KEY = "homework-tracker.courseLinks";
 
@@ -123,13 +123,13 @@ function renderEditRow(link) {
   const name = document.createElement("input");
   name.value = link.label;
   name.maxLength = 40;
-  name.setAttribute("aria-label", `Name of the link to ${link.url}`);
+  name.setAttribute("aria-label", t("aria.link_name", { url: link.url }));
   const address = document.createElement("span");
   address.className = "course-link-address";
   address.textContent = link.url;
   const remove = makeButton("link-button action-delete", t("course.remove"));
   remove.dataset.removeLink = "";
-  remove.setAttribute("aria-label", `Remove the link "${link.label}"`);
+  remove.setAttribute("aria-label", t("aria.remove_link", { label: link.label }));
   item.append(name, address, remove);
   return item;
 }

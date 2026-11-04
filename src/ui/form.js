@@ -12,15 +12,15 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=1cc930ab";
-import { suggestHours } from "../estimates.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { createSeries, validateRepeat } from "../repeat.js?v=1cc930ab";
-import { formatSpent } from "../timer.js?v=1cc930ab";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=1cc930ab";
-import { findAssignment, state, updateAssignments } from "./store.js?v=1cc930ab";
-import { showToast } from "./toast.js?v=1cc930ab";
+} from "../assignments.js?v=5f926fa5";
+import { suggestHours } from "../estimates.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { createSeries, validateRepeat } from "../repeat.js?v=5f926fa5";
+import { formatSpent } from "../timer.js?v=5f926fa5";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=5f926fa5";
+import { findAssignment, state, updateAssignments } from "./store.js?v=5f926fa5";
+import { showToast } from "./toast.js?v=5f926fa5";
 
 const hoursSuggestion = {
   box: document.getElementById("hours-suggestion"),

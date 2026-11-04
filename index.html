@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/form.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/list.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/calendar.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/agenda.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/types.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/panels.css?v=1cc930ab" />
-    <link rel="stylesheet" href="styles/messages.css?v=1cc930ab" />
-    <script type="module" src="src/main.js?v=1cc930ab"></script>
+    <link rel="stylesheet" href="styles/base.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/form.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/list.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/calendar.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/agenda.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/types.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/panels.css?v=5f926fa5" />
+    <link rel="stylesheet" href="styles/messages.css?v=5f926fa5" />
+    <script type="module" src="src/main.js?v=5f926fa5"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -46,7 +46,7 @@
       <div class="header-controls">
         <div class="account">
           <span id="account-status" class="account-status" role="status" hidden></span>
-          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n="account.sign_in">
+          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n-title="title.sign_in" data-i18n="account.sign_in">
             Sign in to sync
           </button>
           <button type="button" id="sign-out" class="button account-button" hidden data-i18n="sync.sign_out">Sign out</button>
@@ -197,17 +197,17 @@
         class="column-resizer"
         role="separator"
         aria-orientation="vertical"
-        aria-label="Resize the form and the To do list (arrow keys move it, Enter resets)"
+        aria-label="Resize the form and the To do list (arrow keys move it, Enter resets)" data-i18n-aria="aria.resize"
         aria-valuemin="260"
         aria-valuenow="360"
         tabindex="0"
-        title="Drag to resize · double-click to reset"
+        title="Drag to resize · double-click to reset" data-i18n-title="title.resize"
       ></div>
 
       <section class="panel list-panel" aria-labelledby="list-heading">
         <div class="list-header">
           <h2 id="list-heading" tabindex="-1"><span data-i18n="list.todo">To do</span> <span id="todo-count" class="count"></span></h2>
-          <div class="segmented" role="group" aria-label="View">
+          <div class="segmented" role="group" aria-label="View" data-i18n-aria="aria.view">
             <button type="button" class="segmented-button view-button" data-view="list" aria-pressed="true" data-i18n="view.list">List</button>
             <button type="button" class="segmented-button view-button" data-view="calendar" aria-pressed="false" data-i18n="view.calendar">Calendar</button>
             <button type="button" class="segmented-button view-button" data-view="agenda" aria-pressed="false" data-i18n="view.agenda">Agenda</button>
@@ -223,7 +223,7 @@
             <h3 id="course-page-title" class="course-page-title" tabindex="-1"></h3>
             <button type="button" id="course-page-all" class="link-button" data-i18n="course.all">All courses</button>
           </div>
-          <ul id="course-links" class="course-links" aria-label="Course links"></ul>
+          <ul id="course-links" class="course-links" aria-label="Course links" data-i18n-aria="aria.course_links"></ul>
           <p id="course-links-empty" class="course-links-empty" hidden>
             <span data-i18n="course.no_links">No links yet. Add this course's Canvas, PrairieLearn or Gradescope page, or its slides.</span>
           </p>
@@ -231,7 +231,7 @@
             Edit links
           </button>
           <div id="course-links-editor" class="course-links-editor" hidden>
-            <ul id="course-links-edit-list" class="course-links-edit-list" aria-label="Links to rename or remove"></ul>
+            <ul id="course-links-edit-list" class="course-links-edit-list" aria-label="Links to rename or remove" data-i18n-aria="aria.links_edit"></ul>
             <form id="course-link-form" class="course-link-form" novalidate>
               <label class="course-link-field"><span data-i18n="course.link_name">Name</span> <span class="optional" data-i18n="form.optional">optional</span>
                 <input name="label" maxlength="40" placeholder="e.g. Gradescope" data-i18n-placeholder="course.link_name_ph" autocomplete="off" />
@@ -280,12 +280,12 @@
           <p id="quick-add-preview" class="quick-add-preview" aria-live="polite"></p>
         </form>
 
-        <div id="filters" class="filters" role="group" aria-label="Filters">
+        <div id="filters" class="filters" role="group" aria-label="Filters" data-i18n-aria="aria.filters">
           <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->
           <!-- The word "Search" is in the box's hint rather than beside it, so the filters fit on one line. -->
           <label id="search-field" class="filter-search">
             <span class="visually-hidden" data-i18n="filter.search">Search</span>
-            <input type="search" id="search" placeholder="Search" data-i18n-placeholder="filter.search" title="Searches titles, courses and notes" autocomplete="off" />
+            <input type="search" id="search" placeholder="Search" data-i18n-placeholder="filter.search" title="Searches titles, courses and notes" data-i18n-title="title.search" autocomplete="off" />
           </label>
           <label class="filter-course">
             <span data-i18n="filter.course">Course</span>
@@ -348,9 +348,9 @@
 
           <div id="calendar-view" hidden>
             <div class="calendar-nav">
-              <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month">‹</button>
+              <button type="button" id="previous-month" class="button calendar-arrow" aria-label="Previous month" data-i18n-aria="aria.prev_month">‹</button>
               <h3 id="calendar-month" class="calendar-month" aria-live="polite"></h3>
-              <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month">›</button>
+              <button type="button" id="next-month" class="button calendar-arrow" aria-label="Next month" data-i18n-aria="aria.next_month">›</button>
               <button type="button" id="this-month" class="button" data-i18n="cal.today">Today</button>
             </div>
             <table class="calendar">
@@ -359,21 +359,21 @@
               </thead>
               <tbody id="calendar-body"></tbody>
             </table>
-            <ul id="type-legend" class="type-legend" aria-label="Type colors"></ul>
+            <ul id="type-legend" class="type-legend" aria-label="Type colors" data-i18n-aria="aria.type_colors"></ul>
             <p id="calendar-empty" class="empty" hidden></p>
           </div>
 
           <div id="agenda-view" hidden>
-            <ol id="agenda-list" class="agenda" aria-label="Due in the next two weeks"></ol>
+            <ol id="agenda-list" class="agenda" aria-label="Due in the next two weeks" data-i18n-aria="aria.agenda"></ol>
             <p id="agenda-later" class="agenda-later" hidden></p>
           </div>
 
           <div id="calendar-details" class="calendar-details" role="dialog" aria-labelledby="details-title" tabindex="-1" hidden>
-            <button type="button" id="details-close" class="details-close" aria-label="Close details">×</button>
+            <button type="button" id="details-close" class="details-close" aria-label="Close details" data-i18n-aria="aria.close_details">×</button>
             <h3 id="details-title" class="details-title"></h3>
             <div id="details-tags" class="title-line"></div>
             <div id="details-due" class="due-line"></div>
-            <ul id="details-steps" class="steps" aria-label="Steps" hidden></ul>
+            <ul id="details-steps" class="steps" aria-label="Steps" data-i18n-aria="form.steps" hidden></ul>
             <p id="details-notes" class="notes"></p>
             <div class="details-actions">
               <button type="button" id="details-edit" class="button" data-i18n="action.edit">Edit</button>
@@ -384,11 +384,11 @@
         </div>
 
         <!-- Select mode's actions, stuck to the bottom of the screen while the list is in view (src/ui/select.js). -->
-        <div id="select-bar" class="select-bar" role="toolbar" aria-label="Selected assignments" hidden>
+        <div id="select-bar" class="select-bar" role="toolbar" aria-label="Selected assignments" data-i18n-aria="aria.selected" hidden>
           <span id="select-count" class="select-count" aria-live="polite"></span>
           <button type="button" class="button button-primary" data-bulk="done" data-i18n="select.mark_done">Mark done</button>
           <label class="select-size">
-            <span class="visually-hidden">Change size of the selected</span>
+            <span class="visually-hidden" data-i18n="aria.change_size">Change size of the selected</span>
             <select id="select-size">
               <option value="" data-i18n="select.size">Size…</option>
               <option value="big" data-i18n="size.big">Big</option>
@@ -436,7 +436,7 @@
               Open a course's Assessments page in PrairieLearn, press Cmd+A then Cmd+C (Ctrl on Windows), and paste it here.
               Nothing is sent anywhere: the app reads the text on this device.
             </p>
-            <textarea id="pl-text" class="pl-text" rows="5" placeholder="Paste the Assessments page here" data-i18n-placeholder="pl.paste_ph" aria-label="PrairieLearn Assessments page"></textarea>
+            <textarea id="pl-text" class="pl-text" rows="5" placeholder="Paste the Assessments page here" data-i18n-placeholder="pl.paste_ph" aria-label="PrairieLearn Assessments page" data-i18n-aria="aria.pl_page"></textarea>
             <label class="settings-row pl-course">
               <span data-i18n="pl.course">Course</span>
               <input id="pl-course" type="text" maxlength="60" autocomplete="off" placeholder="e.g. CS 124" data-i18n-placeholder="pl.course_ph" />
@@ -498,7 +498,7 @@
             </section>
             <section class="settings-section" aria-labelledby="settings-appearance">
               <h3 id="settings-appearance" data-i18n="settings.appearance">Appearance</h3>
-              <div class="segmented theme-switch" role="group" aria-label="Color theme">
+              <div class="segmented theme-switch" role="group" aria-label="Color theme" data-i18n-aria="aria.theme">
                 <button type="button" class="segmented-button theme-button" data-theme-choice="system" aria-pressed="true" data-i18n="theme.system">System</button>
                 <button type="button" class="segmented-button theme-button" data-theme-choice="light" aria-pressed="false" data-i18n="theme.light">Light</button>
                 <button type="button" class="segmented-button theme-button" data-theme-choice="dark" aria-pressed="false" data-i18n="theme.dark">Dark</button>
@@ -529,8 +529,8 @@
             <h3><span data-i18n="review.this_week">This week</span> <span id="review-this-dates" class="review-dates"></span></h3>
             <p id="review-this-summary"></p>
             <p id="review-finished"></p>
-            <ol id="review-days" class="review-days" aria-label="Finished each day this week"></ol>
-            <ul id="review-big" class="review-list" aria-label="Big assignments this week"></ul>
+            <ol id="review-days" class="review-days" aria-label="Finished each day this week" data-i18n-aria="aria.finished_days"></ol>
+            <ul id="review-big" class="review-list" aria-label="Big assignments this week" data-i18n-aria="aria.big_this_week"></ul>
             <h3><span data-i18n="review.next_week">Next week</span> <span id="review-next-dates" class="review-dates"></span></h3>
             <p id="review-next-summary"></p>
             <div id="review-start" hidden>
@@ -560,7 +560,7 @@
     <div id="toast" class="toast" role="status" aria-live="polite" hidden>
       <span id="toast-message"></span>
       <button type="button" id="toast-undo" class="toast-undo" hidden data-i18n="msg.undo">Undo</button>
-      <button type="button" id="toast-close" class="toast-close" aria-label="Close message">×</button>
+      <button type="button" id="toast-close" class="toast-close" aria-label="Close message" data-i18n-aria="aria.close_message">×</button>
     </div>
 
     <noscript><p class="banner banner-error">This app needs JavaScript turned on.</p></noscript>

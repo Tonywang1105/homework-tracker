@@ -1,11 +1,11 @@
 // Recently deleted, in Settings: what was deleted in the last 30 days, each with Restore, and Delete all now.
 // The rules are in src/trash.js; store.js keeps the list up to date as assignments are deleted.
 
-import { t } from "../i18n.js?v=1cc930ab";
-import { deletedAgo, restoreDeleted } from "../trash.js?v=1cc930ab";
-import { countAssignments, makeButton } from "./dom.js?v=1cc930ab";
-import { state, updateDeleted } from "./store.js?v=1cc930ab";
-import { showToast } from "./toast.js?v=1cc930ab";
+import { t } from "../i18n.js?v=5f926fa5";
+import { deletedAgo, restoreDeleted } from "../trash.js?v=5f926fa5";
+import { countAssignments, makeButton } from "./dom.js?v=5f926fa5";
+import { state, updateDeleted } from "./store.js?v=5f926fa5";
+import { showToast } from "./toast.js?v=5f926fa5";
 
 const settingsPanel = document.getElementById("settings-panel");
 const list = document.getElementById("deleted-list");
@@ -39,7 +39,7 @@ export function renderDeleted(now) {
       text.append(title, `${course} · ${t("settings.deleted_row", { ago: deletedAgo(assignment.deletedAt, now) })}`);
       const restore = makeButton("button", t("settings.restore"));
       restore.dataset.restore = assignment.id;
-      restore.setAttribute("aria-label", `Restore "${assignment.title}"`);
+      restore.setAttribute("aria-label", t("aria.restore", { title: assignment.title }));
       item.append(text, restore);
       return item;
     }),

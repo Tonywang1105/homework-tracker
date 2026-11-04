@@ -1,19 +1,17 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=1cc930ab";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=1cc930ab";
-import { startAddingOn } from "./form.js?v=1cc930ab";
-import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=1cc930ab";
-import { findAssignment, state } from "./store.js?v=1cc930ab";
+import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=5f926fa5";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=5f926fa5";
+import { startAddingOn } from "./form.js?v=5f926fa5";
+import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=5f926fa5";
+import { findAssignment, state } from "./store.js?v=5f926fa5";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
 
-// How screen readers hear each size on the calendar.
-const SIZE_NAMES = { big: "Big assignment", regular: "Regular assignment", small: "Small reminder" };
 
 export function renderCalendar(assignments, course, now) {
   const weeks = buildMonthGrid(state.shownMonth, assignments, now);
@@ -45,15 +43,15 @@ function renderCalendarDay(day) {
   // The day number is a button so the keyboard can add an assignment too; a click anywhere else in the day does the same.
   const dayName = formatDay(day.key);
   const number = makeButton("day-number", day.dayOfMonth);
-  number.setAttribute("aria-label", `Add an assignment due ${dayName}${day.isToday ? " (today)" : ""}`);
-  cell.title = `Add an assignment due ${dayName}`;
+  number.setAttribute("aria-label", `${t("aria.add_on_day", { day: dayName })}${day.isToday ? t("aria.today_suffix") : ""}`);
+  cell.title = t("aria.add_on_day", { day: dayName });
   cell.append(number);
   const dayHours = totalHours(day.assignments);
   if (dayHours > 0) {
     const hoursLabel = document.createElement("span");
     hoursLabel.className = "day-hours";
     hoursLabel.textContent = dayHours < 1 ? `${Math.round(dayHours * 60)}m` : `${Math.round(dayHours * 10) / 10}h`;
-    hoursLabel.title = `About ${formatHoursPlain(dayHours)} of unfinished work due`;
+    hoursLabel.title = t("title.day_hours", { hours: formatHoursPlain(dayHours) });
     cell.append(hoursLabel);
   }
 
@@ -106,19 +104,19 @@ function renderCalendarItem(assignment) {
   button.setAttribute("aria-expanded", String(assignment.id === state.detailsId));
 
   const dueTime = timeFormatter.format(toDueDate(assignment.dueDate, assignment.dueTime));
-  const size = SIZE_NAMES[assignment.priority];
+  const size = t(`aria.size_${assignment.priority}`);
   const course = assignment.course ? ` (${assignment.course})` : "";
   const type = assignmentType(assignment);
-  const typeName = type ? `${TYPE_LABELS[type]}, ` : "";
+  const typeName = type ? t("aria.type_part", { type: TYPE_LABELS[type] }) : "";
   if (type) {
     const dot = document.createElement("span");
     dot.className = `type-dot type-${type}`;
     button.prepend(dot);
   }
   // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
-  button.title = `${assignment.title}${course}, ${typeName}due ${dueTime}`;
-  const status = assignment.done ? ", done" : overdue ? ", overdue" : "";
-  button.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${typeName}${size}, due ${dueTime}${status}`);
+  button.title = t("title.cal_item", { title: assignment.title, course, type: typeName, time: dueTime });
+  const status = assignment.done ? t("aria.status_done") : overdue ? t("aria.status_overdue") : "";
+  button.setAttribute("aria-label", t("aria.cal_item", { title: assignment.title, course, type: typeName, size, time: dueTime, status }));
 
   item.append(button);
   return item;
@@ -284,7 +282,7 @@ function renderDueSoonChip(assignment, now) {
   chip.classList.toggle("is-selected", state.detailsFromChip && assignment.id === state.detailsId);
   chip.setAttribute("aria-haspopup", "dialog");
   const course = assignment.course ? ` (${assignment.course})` : "";
-  chip.setAttribute("aria-label", `Show details: "${assignment.title}"${course}, ${text}`);
+  chip.setAttribute("aria-label", t("aria.chip", { title: assignment.title, course, due: text }));
 
   const type = assignmentType(assignment);
   if (type) {

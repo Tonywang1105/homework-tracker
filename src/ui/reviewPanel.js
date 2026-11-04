@@ -1,15 +1,15 @@
 // The Weekly review panel: this week (due, done, overdue, still to come) and next week (how much, busiest day),
 // and the one-line summary above the list that leads to it.
 
-import { formatHours, formatHoursPlain } from "../assignments.js?v=1cc930ab";
-import { toDateKey } from "../calendar.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=1cc930ab";
-import { formatSpent } from "../timer.js?v=1cc930ab";
-import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=1cc930ab";
-import { panels, setPanelOpen } from "./panels.js?v=1cc930ab";
-import { setView } from "./settings.js?v=1cc930ab";
-import { state } from "./store.js?v=1cc930ab";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=5f926fa5";
+import { toDateKey } from "../calendar.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { doneStreak, finishedThisWeek, todaySummary, weekReview } from "../review.js?v=5f926fa5";
+import { formatSpent } from "../timer.js?v=5f926fa5";
+import { DATE_LOCALE, formatDay, makeButton } from "./dom.js?v=5f926fa5";
+import { panels, setPanelOpen } from "./panels.js?v=5f926fa5";
+import { setView } from "./settings.js?v=5f926fa5";
+import { state } from "./store.js?v=5f926fa5";
 
 // Today's assignments named in the summary line before it says "+N more".
 const MAX_NAMED_TODAY = 3;
@@ -73,7 +73,7 @@ function renderFinished(now) {
       count.className = "review-day-count";
       count.textContent = String(day.count);
       item.append(name, count);
-      item.setAttribute("aria-label", `${name.textContent}: ${day.count} finished`);
+      item.setAttribute("aria-label", t("aria.finished_on", { day: name.textContent, n: day.count }));
       return item;
     }),
   );

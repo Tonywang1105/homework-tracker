@@ -1,12 +1,12 @@
 // The Agenda view: overdue work, then the next two weeks day by day, made for reading on a phone.
 // Tapping an assignment opens the same details box as the calendar.
 
-import { formatHours, toDueDate, totalHours } from "../assignments.js?v=1cc930ab";
-import { buildAgenda } from "../calendar.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=1cc930ab";
-import { renderTags } from "./list.js?v=1cc930ab";
-import { state } from "./store.js?v=1cc930ab";
+import { formatHours, toDueDate, totalHours } from "../assignments.js?v=5f926fa5";
+import { buildAgenda } from "../calendar.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=5f926fa5";
+import { renderTags } from "./list.js?v=5f926fa5";
+import { state } from "./store.js?v=5f926fa5";
 
 const AGENDA_DAYS = 14;
 
@@ -92,7 +92,7 @@ function renderAgendaItem(assignment, { showDate }) {
   tags.append(...renderTags(assignment, { courseButton: false }));
   button.append(time, title, tags);
   if (assignment.done) {
-    button.setAttribute("aria-label", `Show details: "${assignment.title}", done`);
+    button.setAttribute("aria-label", t("aria.details_done", { title: assignment.title }));
   }
 
   item.append(button);

@@ -19,19 +19,19 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=1cc930ab";
-import { toDateKey } from "../calendar.js?v=1cc930ab";
-import { timerTagText } from "../focus.js?v=1cc930ab";
-import { t } from "../i18n.js?v=1cc930ab";
-import { render } from "../main.js?v=1cc930ab";
-import { stepDays } from "../plan.js?v=1cc930ab";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=1cc930ab";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=1cc930ab";
-import { primeChime } from "./focus.js?v=1cc930ab";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=1cc930ab";
-import { toggleSelected } from "./select.js?v=1cc930ab";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=1cc930ab";
-import { showToast } from "./toast.js?v=1cc930ab";
+} from "../assignments.js?v=5f926fa5";
+import { toDateKey } from "../calendar.js?v=5f926fa5";
+import { timerTagText } from "../focus.js?v=5f926fa5";
+import { t } from "../i18n.js?v=5f926fa5";
+import { render } from "../main.js?v=5f926fa5";
+import { stepDays } from "../plan.js?v=5f926fa5";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=5f926fa5";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=5f926fa5";
+import { primeChime } from "./focus.js?v=5f926fa5";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=5f926fa5";
+import { toggleSelected } from "./select.js?v=5f926fa5";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=5f926fa5";
+import { showToast } from "./toast.js?v=5f926fa5";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
@@ -118,13 +118,13 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
     checkbox.className = "done-checkbox select-checkbox";
     checkbox.checked = selected;
     checkbox.dataset.action = "toggle-select";
-    checkbox.setAttribute("aria-label", `Select "${assignment.title}"`);
+    checkbox.setAttribute("aria-label", t("aria.select", { title: assignment.title }));
     item.classList.toggle("is-selected", selected);
   } else {
     checkbox.className = "done-checkbox";
     checkbox.checked = assignment.done;
     checkbox.dataset.action = "toggle-done";
-    checkbox.setAttribute("aria-label", `Mark "${assignment.title}" as ${assignment.done ? "not done" : "done"}`);
+    checkbox.setAttribute("aria-label", t(assignment.done ? "aria.mark_not_done" : "aria.mark_done", { title: assignment.title }));
   }
 
   const body = document.createElement("div");
@@ -172,7 +172,7 @@ export function timerButton(assignment) {
   const running = Boolean(assignment.timerStartedAt);
   const button = makeActionButton(t(running ? "action.stop" : "action.start"), running ? "timer-stop" : "timer-start", assignment.title);
   button.classList.add("action-timer");
-  button.title = running ? "Stop the timer and add this time to the total" : "Time how long this takes";
+  button.title = t(running ? "title.timer_stop" : "title.timer_start");
   return button;
 }
 
@@ -209,7 +209,7 @@ export function renderTags(assignment, { courseButton = true } = {}) {
     if (courseButton) {
       const button = makeButton(className, assignment.course);
       button.dataset.coursePage = assignment.course;
-      button.title = `Show ${assignment.course}'s page`;
+      button.title = t("title.course_page", { course: assignment.course });
       tags.push(button);
     } else {
       tags.push(makeTag(assignment.course, className));
@@ -323,7 +323,7 @@ export function renderDueParts(assignment, now) {
 function makeActionButton(label, action, assignmentTitle) {
   const button = makeButton(`link-button action-${action}`, label);
   button.dataset.action = action;
-  button.setAttribute("aria-label", `${label} "${assignmentTitle}"`);
+  button.setAttribute("aria-label", t("aria.action", { label, title: assignmentTitle }));
   return button;
 }
 
