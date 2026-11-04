@@ -12,16 +12,18 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=5f926fa5";
-import { suggestHours } from "../estimates.js?v=5f926fa5";
-import { t } from "../i18n.js?v=5f926fa5";
-import { render } from "../main.js?v=5f926fa5";
-import { createSeries, validateRepeat } from "../repeat.js?v=5f926fa5";
-import { formatSpent } from "../timer.js?v=5f926fa5";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=5f926fa5";
-import { findAssignment, state, updateAssignments } from "./store.js?v=5f926fa5";
-import { showToast } from "./toast.js?v=5f926fa5";
+} from "../assignments.js?v=0164f23d";
+import { suggestHours } from "../estimates.js?v=0164f23d";
+import { t } from "../i18n.js?v=0164f23d";
+import { latestLesson } from "../lessons.js?v=0164f23d";
+import { render } from "../main.js?v=0164f23d";
+import { createSeries, validateRepeat } from "../repeat.js?v=0164f23d";
+import { formatSpent } from "../timer.js?v=0164f23d";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=0164f23d";
+import { findAssignment, state, updateAssignments } from "./store.js?v=0164f23d";
+import { showToast } from "./toast.js?v=0164f23d";
 
+const lessonHint = document.getElementById("lesson-hint");
 const hoursSuggestion = {
   box: document.getElementById("hours-suggestion"),
   text: document.getElementById("hours-suggestion-text"),
@@ -174,6 +176,7 @@ export function updateStepsLabel() {
 export function updateHoursSuggestion() {
   const fields = elements.form.elements;
   const type = fields.type.value === AUTO_TYPE ? guessType(fields.title.value) : fields.type.value;
+  updateLessonHint(type);
   const suggestion = fields.hours.value.trim() === "" ? suggestHours(state.assignments, { course: fields.course.value, type }) : null;
   hoursSuggestion.box.hidden = suggestion === null;
   if (!suggestion) {
@@ -191,6 +194,16 @@ export function updateHoursSuggestion() {
   hoursSuggestion.text.textContent = t(`${where}.${suggestion.count === 1 ? "one" : "other"}`, values);
   hoursSuggestion.use.textContent = t("estimate.use", { hours: formatHours(suggestion.hours) });
   hoursSuggestion.use.dataset.hours = String(suggestion.hours);
+}
+
+/** "Last time (MP8): start the tests first", from the last finished assignment of this type and course. */
+function updateLessonHint(type) {
+  const fields = elements.form.elements;
+  const last = latestLesson(state.assignments, { course: fields.course.value, type }, state.editingId);
+  lessonHint.hidden = last === null;
+  if (last) {
+    lessonHint.textContent = t("lesson.last", last);
+  }
 }
 
 function useHoursSuggestion() {

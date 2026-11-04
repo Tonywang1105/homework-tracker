@@ -792,3 +792,53 @@ button.course-tag:hover {
 #platform-field[hidden] {
   display: none;
 }
+
+/* "How did MP8 go?": one optional line after finishing big or regular work, like the focus bar. */
+.lesson-bar {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--small-soft);
+  border-left: 4px solid var(--accent);
+}
+
+.lesson-bar[hidden] {
+  display: none;
+}
+
+.lesson-question {
+  margin: 0;
+  font-weight: 600;
+}
+
+.lesson-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.lesson-row input {
+  flex: 1 1 14em;
+  min-width: 0;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.lesson-row .button {
+  padding: 6px 14px;
+}
+
+/* "Last time (MP8): start the tests first" on the next assignment of that kind. */
+.lesson-line {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+}

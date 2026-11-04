@@ -1,13 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=5f926fa5";
-import { t } from "../i18n.js?v=5f926fa5";
-import { render } from "../main.js?v=5f926fa5";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=5f926fa5";
-import { saveAssignments } from "../storage.js?v=5f926fa5";
-import { withDeletions } from "../trash.js?v=5f926fa5";
-import { syncAssignments } from "./account.js?v=5f926fa5";
-import { showToast } from "./toast.js?v=5f926fa5";
+import { currentMonth } from "../calendar.js?v=0164f23d";
+import { t } from "../i18n.js?v=0164f23d";
+import { render } from "../main.js?v=0164f23d";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=0164f23d";
+import { saveAssignments } from "../storage.js?v=0164f23d";
+import { withDeletions } from "../trash.js?v=0164f23d";
+import { syncAssignments } from "./account.js?v=0164f23d";
+import { showToast } from "./toast.js?v=0164f23d";
 
 export const state = {
   // The live assignments; every screen draws from these.
@@ -15,6 +15,8 @@ export const state = {
   // Recently deleted ones (with deletedAt), kept 30 days; saved and synced together with the live ones.
   deleted: [],
   editingId: null,
+  // The finished assignment the "how did it go?" bar is asking about, or null.
+  lessonFor: null,
   // Select mode: whether it's on, and the ids of the assignments picked so far.
   selecting: false,
   selectedIds: new Set(),

@@ -19,19 +19,21 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=5f926fa5";
-import { toDateKey } from "../calendar.js?v=5f926fa5";
-import { timerTagText } from "../focus.js?v=5f926fa5";
-import { t } from "../i18n.js?v=5f926fa5";
-import { render } from "../main.js?v=5f926fa5";
-import { stepDays } from "../plan.js?v=5f926fa5";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=5f926fa5";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=5f926fa5";
-import { primeChime } from "./focus.js?v=5f926fa5";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=5f926fa5";
-import { toggleSelected } from "./select.js?v=5f926fa5";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=5f926fa5";
-import { showToast } from "./toast.js?v=5f926fa5";
+} from "../assignments.js?v=0164f23d";
+import { toDateKey } from "../calendar.js?v=0164f23d";
+import { timerTagText } from "../focus.js?v=0164f23d";
+import { t } from "../i18n.js?v=0164f23d";
+import { latestLesson } from "../lessons.js?v=0164f23d";
+import { render } from "../main.js?v=0164f23d";
+import { stepDays } from "../plan.js?v=0164f23d";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=0164f23d";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=0164f23d";
+import { primeChime } from "./focus.js?v=0164f23d";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=0164f23d";
+import { askForLesson } from "./lessonBar.js?v=0164f23d";
+import { toggleSelected } from "./select.js?v=0164f23d";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=0164f23d";
+import { showToast } from "./toast.js?v=0164f23d";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
@@ -142,6 +144,14 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   dueLine.append(...renderDueParts(assignment, now));
 
   body.append(titleLine, dueLine);
+  // What finishing the last one of these taught (src/lessons.js), while there's still work to do on this one.
+  const lastLesson = assignment.done ? null : latestLesson(state.assignments, { course: assignment.course, type: assignmentType(assignment) }, assignment.id);
+  if (lastLesson) {
+    const line = document.createElement("p");
+    line.className = "lesson-line";
+    line.textContent = t("lesson.last", lastLesson);
+    body.append(line);
+  }
   if (stepProgress(assignment)) {
     body.append(renderSteps(assignment));
   }
@@ -501,6 +511,9 @@ function focusRowAt(list, position, action) {
 export function toggleDone(assignment) {
   // Records when it was finished (for the streak) and stops its timer, so the time so far is kept.
   const markDone = (done) => updateAssignments(setDone(state.assignments, assignment.id, done));
+  if (!assignment.done) {
+    askForLesson(assignment);
+  }
   markDone(!assignment.done);
   if (!assignment.done) {
     showToast(t("msg.done", { title: assignment.title }), () => markDone(false));

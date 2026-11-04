@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { t, tCount } from "./i18n.js?v=5f926fa5";
-import { withTimerStopped } from "./timer.js?v=5f926fa5";
+import { t, tCount } from "./i18n.js?v=0164f23d";
+import { withTimerStopped } from "./timer.js?v=0164f23d";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];

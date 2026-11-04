@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/form.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/list.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/calendar.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/agenda.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/types.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/panels.css?v=5f926fa5" />
-    <link rel="stylesheet" href="styles/messages.css?v=5f926fa5" />
-    <script type="module" src="src/main.js?v=5f926fa5"></script>
+    <link rel="stylesheet" href="styles/base.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/form.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/list.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/calendar.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/agenda.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/types.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/panels.css?v=0164f23d" />
+    <link rel="stylesheet" href="styles/messages.css?v=0164f23d" />
+    <script type="module" src="src/main.js?v=0164f23d"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -145,6 +145,8 @@
             <label for="hours"><span data-i18n="form.hours">Time needed</span> <span class="optional" data-i18n="form.hours_note">hours, optional</span></label>
             <input id="hours" name="hours" type="number" min="0.25" max="40" step="0.25" inputmode="decimal" placeholder="e.g. 2" data-i18n-placeholder="form.hours_ph" />
             <!-- A suggestion from time tracked on similar finished work, while the box is empty (src/ui/form.js). -->
+            <!-- The lesson from the last finished assignment of this type and course (src/ui/form.js). -->
+            <p id="lesson-hint" class="lesson-hint" hidden></p>
             <p id="hours-suggestion" class="hours-suggestion" aria-live="polite" hidden>
               <span id="hours-suggestion-text"></span>
               <button type="button" id="hours-suggestion-use" class="link-button"></button>
@@ -245,6 +247,16 @@
             <button type="button" id="course-links-done" class="button" data-i18n="course.done">Done</button>
           </div>
         </section>
+
+        <!-- After finishing big or regular work: one optional line for next time (src/ui/lessonBar.js). -->
+        <form id="lesson-bar" class="lesson-bar" hidden>
+          <label for="lesson-text" id="lesson-question" class="lesson-question"></label>
+          <span class="lesson-row">
+            <input id="lesson-text" type="text" maxlength="200" autocomplete="off" placeholder="e.g. start the tests first" data-i18n-placeholder="lesson.placeholder" />
+            <button type="submit" class="button button-primary" data-i18n="lesson.save">Save</button>
+            <button type="button" id="lesson-skip" class="link-button" data-i18n="lesson.skip">Skip</button>
+          </span>
+        </form>
 
         <!-- When a focus block ends: the break, then the next block; stays until acted on (src/ui/focus.js). -->
         <div id="focus-bar" class="focus-bar" role="status" hidden>

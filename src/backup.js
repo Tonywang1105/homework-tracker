@@ -1,10 +1,11 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=5f926fa5";
-import { toDateKey } from "./calendar.js?v=5f926fa5";
-import { t } from "./i18n.js?v=5f926fa5";
-import { readSpentSeconds } from "./timer.js?v=5f926fa5";
+import { validateAssignmentInput } from "./assignments.js?v=0164f23d";
+import { toDateKey } from "./calendar.js?v=0164f23d";
+import { t } from "./i18n.js?v=0164f23d";
+import { cleanLesson } from "./lessons.js?v=0164f23d";
+import { readSpentSeconds } from "./timer.js?v=0164f23d";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -82,6 +83,11 @@ function restoreAssignment(saved) {
   };
   if (typeof saved.canvasUid === "string") {
     restored.canvasUid = saved.canvasUid;
+  }
+  // A "how it went" note for next time.
+  const lesson = cleanLesson(saved.lesson);
+  if (lesson) {
+    restored.lesson = lesson;
   }
   // Keeps a later Paste from PrairieLearn from adding it again.
   if (typeof saved.prairieLearnKey === "string") {

@@ -146,3 +146,15 @@ textarea {
   margin-left: 4px;
   font-weight: 600;
 }
+
+/* "Last time (MP8): start the tests first", under Time needed while adding one of that kind. */
+.lesson-hint {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+.lesson-hint[hidden] {
+  display: none;
+}
