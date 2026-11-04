@@ -1,9 +1,9 @@
 // "When to start": using time estimates, the latest day to start each assignment so that no day needs
 // more than a daily limit of homework. No DOM, so it can be unit-tested with Node.
 
-import { toDueDate } from "./assignments.js?v=9a88d159";
-import { toDateKey } from "./calendar.js?v=9a88d159";
-import { sessionSeconds } from "./timer.js?v=9a88d159";
+import { toDueDate } from "./assignments.js?v=30d0dcf8";
+import { toDateKey } from "./calendar.js?v=30d0dcf8";
+import { sessionSeconds } from "./timer.js?v=30d0dcf8";
 
 export const DEFAULT_DAILY_HOURS = 3;
 const MIN_DAILY_HOURS = 0.5;
@@ -82,17 +82,25 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
 
 /**
  * Today's plan, in order: overdue work, work due today, what the plan needs started today ("planned"), and
- * then, if that leaves room under `dailyHours`, the next work in line ("ahead"), soonest start first, so the
- * day is filled rather than only the bare minimum. Each entry is { assignment, reason, todayHours, hoursLeft },
- * the hours being 0 for work the plan doesn't cover (no estimate, or overdue). Finished work is left out.
+ * then, if that leaves room under `dailyHours`, the next work in line ("ahead"), so the day is filled rather than
+ * only the bare minimum. Grade weights decide what comes first among planned work and among work to get ahead on,
+ * and which gets the spare time: heavier first (see weightOf); deadlines still come first, so overdue and due-today
+ * work lead. Each entry is { assignment, reason, todayHours, hoursLeft }, the hours being 0 for work the plan
+ * doesn't cover (no estimate, or overdue). Finished work is left out.
  */
 export function todayPlan(assignments, plan, now = new Date(), dailyHours = DEFAULT_DAILY_HOURS) {
   const today = toDateKey(now);
   const todayHours = new Map([...plan].map(([id, entry]) => [id, entry.todayHours]));
   let free = dailyHours - [...todayHours.values()].reduce((sum, hours) => sum + hours, 0);
+  const weight = weightOf(assignments);
   const byStart = assignments
     .filter((a) => plan.has(a.id))
-    .sort((a, b) => plan.get(a.id).startDate.localeCompare(plan.get(b.id).startDate) || toDueDate(a.dueDate, a.dueTime) - toDueDate(b.dueDate, b.dueTime));
+    .sort(
+      (a, b) =>
+        weight(b) - weight(a) ||
+        plan.get(a.id).startDate.localeCompare(plan.get(b.id).startDate) ||
+        toDueDate(a.dueDate, a.dueTime) - toDueDate(b.dueDate, b.dueTime),
+    );
   for (const assignment of byStart) {
     const { hoursLeft } = plan.get(assignment.id);
     const extra = Math.min(free, hoursLeft - todayHours.get(assignment.id));
@@ -126,8 +134,20 @@ export function todayPlan(assignments, plan, now = new Date(), dailyHours = DEFA
     .sort(
       (a, b) =>
         order.indexOf(a.reason) - order.indexOf(b.reason) ||
+        (a.reason === "planned" || a.reason === "ahead" ? weight(b.assignment) - weight(a.assignment) : 0) ||
         toDueDate(a.assignment.dueDate, a.assignment.dueTime) - toDueDate(b.assignment.dueDate, b.assignment.dueTime),
     );
+}
+
+/**
+ * A function giving each assignment's grade weight for ordering. Work without one counts as the average weight of
+ * the unfinished work that has one (Yihao's choice: an empty box shouldn't push work down), so with no weights at
+ * all, every assignment counts the same and nothing changes.
+ */
+function weightOf(assignments) {
+  const weights = assignments.filter((a) => !a.done && a.weight > 0).map((a) => a.weight);
+  const average = weights.length > 0 ? weights.reduce((sum, w) => sum + w, 0) / weights.length : 0;
+  return (assignment) => (assignment.weight > 0 ? assignment.weight : average);
 }
 
 /**

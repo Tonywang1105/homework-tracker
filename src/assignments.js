@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { t, tCount } from "./i18n.js?v=9a88d159";
-import { withTimerStopped } from "./timer.js?v=9a88d159";
+import { t, tCount } from "./i18n.js?v=30d0dcf8";
+import { withTimerStopped } from "./timer.js?v=30d0dcf8";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -61,6 +61,9 @@ const MAX_STEPS = 20;
 const MAX_STEP_LENGTH = 200;
 // Time estimates, in hours: from a quarter hour up to a week of full-time work.
 const MIN_HOURS = 0.25;
+// Grade weights, as a percent of the course grade (optional).
+const MIN_WEIGHT = 0.5;
+const MAX_WEIGHT = 100;
 const MAX_HOURS = 40;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -81,6 +84,9 @@ export function validateAssignmentInput(input) {
   const hours = hoursText === "" ? null : Number(hoursText);
   const steps = readSteps(input.steps);
   const platform = input.platform ?? "";
+  // Worth is optional too: empty means no weight, stored as null.
+  const weightText = String(input.weight ?? "").trim();
+  const weight = weightText === "" ? null : Number(weightText);
   const errors = {};
 
   if (title === "") {
@@ -106,6 +112,9 @@ export function validateAssignmentInput(input) {
   if (hours !== null && !(hours >= MIN_HOURS && hours <= MAX_HOURS)) {
     errors.hours = t("err.hours", { min: MIN_HOURS, max: MAX_HOURS });
   }
+  if (weight !== null && !(weight >= MIN_WEIGHT && weight <= MAX_WEIGHT)) {
+    errors.weight = t("err.weight");
+  }
   if (platform !== "" && !PLATFORMS.includes(platform)) {
     errors.platform = t("err.platform");
   }
@@ -120,7 +129,7 @@ export function validateAssignmentInput(input) {
   }
   // "Guess from title" is saved as the guess, so renaming the assignment later doesn't change its type.
   const type = chosenType === AUTO_TYPE ? guessType(title) : chosenType;
-  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours, steps, platform } };
+  return { ok: true, fields: { title, course, dueDate, dueTime, priority, notes, type, hours, steps, platform, weight } };
 }
 
 /**

@@ -4,8 +4,8 @@
 // "HW12", its title, its available credit ("100% until 23:59, Fri, Nov 7 (CST)") and a score, the cells separated
 // by tabs or each on its own line. If PrairieLearn changes that layout, this is the place to update.
 
-import { toDueDate } from "./assignments.js?v=9a88d159";
-import { toDateKey } from "./calendar.js?v=9a88d159";
+import { toDueDate } from "./assignments.js?v=30d0dcf8";
+import { toDateKey } from "./calendar.js?v=30d0dcf8";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 // "100% until 23:59, Fri, Nov 7 (CST)", "80% until 11:59pm, Nov 14, 2026": the credit, the time and the date.

@@ -2,17 +2,17 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=9a88d159";
-import { firebaseConfig } from "../firebase-config.js?v=9a88d159";
-import { t } from "../i18n.js?v=9a88d159";
-import { render } from "../main.js?v=9a88d159";
-import { saveAssignments } from "../storage.js?v=9a88d159";
-import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=9a88d159";
-import { splitDeleted } from "../trash.js?v=9a88d159";
-import { applyCourseLinks } from "./coursePage.js?v=9a88d159";
-import { countAssignments, elements } from "./dom.js?v=9a88d159";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=9a88d159";
-import { showToast } from "./toast.js?v=9a88d159";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=30d0dcf8";
+import { firebaseConfig } from "../firebase-config.js?v=30d0dcf8";
+import { t } from "../i18n.js?v=30d0dcf8";
+import { render } from "../main.js?v=30d0dcf8";
+import { saveAssignments } from "../storage.js?v=30d0dcf8";
+import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=30d0dcf8";
+import { splitDeleted } from "../trash.js?v=30d0dcf8";
+import { applyCourseLinks } from "./coursePage.js?v=30d0dcf8";
+import { countAssignments, elements } from "./dom.js?v=30d0dcf8";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=30d0dcf8";
+import { showToast } from "./toast.js?v=30d0dcf8";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.

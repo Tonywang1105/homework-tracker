@@ -12,16 +12,16 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=9a88d159";
-import { suggestHours } from "../estimates.js?v=9a88d159";
-import { t } from "../i18n.js?v=9a88d159";
-import { latestLesson } from "../lessons.js?v=9a88d159";
-import { render } from "../main.js?v=9a88d159";
-import { createSeries, validateRepeat } from "../repeat.js?v=9a88d159";
-import { formatSpent } from "../timer.js?v=9a88d159";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=9a88d159";
-import { findAssignment, state, updateAssignments } from "./store.js?v=9a88d159";
-import { showToast } from "./toast.js?v=9a88d159";
+} from "../assignments.js?v=30d0dcf8";
+import { suggestHours } from "../estimates.js?v=30d0dcf8";
+import { t } from "../i18n.js?v=30d0dcf8";
+import { latestLesson } from "../lessons.js?v=30d0dcf8";
+import { render } from "../main.js?v=30d0dcf8";
+import { createSeries, validateRepeat } from "../repeat.js?v=30d0dcf8";
+import { formatSpent } from "../timer.js?v=30d0dcf8";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=30d0dcf8";
+import { findAssignment, state, updateAssignments } from "./store.js?v=30d0dcf8";
+import { showToast } from "./toast.js?v=30d0dcf8";
 
 const lessonHint = document.getElementById("lesson-hint");
 const hoursSuggestion = {
@@ -30,7 +30,7 @@ const hoursSuggestion = {
   use: document.getElementById("hours-suggestion-use"),
 };
 
-const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
+const FIELD_NAMES = ["title", "dueDate", "dueTime", "priority", "type", "platform", "hours", "weight", "repeat", "untilDate", "steps", "notes"];
 
 export function startHoursSuggestion() {
   for (const name of ["title", "course", "type", "hours"]) {
@@ -86,7 +86,7 @@ export function startAddingOn(dateKey) {
 
 function readForm() {
   const data = new FormData(elements.form);
-  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "platform", "hours", "repeat", "untilDate", "steps", "notes"];
+  const names = ["title", "course", "dueDate", "dueTime", "priority", "type", "platform", "hours", "weight", "repeat", "untilDate", "steps", "notes"];
   return Object.fromEntries(names.map((name) => [name, data.get(name) ?? ""]));
 }
 
@@ -279,6 +279,7 @@ function fillFormFrom(assignment) {
   fields.notes.value = assignment.notes;
   fields.platform.value = assignmentPlatform(assignment);
   fields.hours.value = assignment.hours ?? "";
+  fields.weight.value = assignment.weight ?? "";
   fields.steps.value = (assignment.steps ?? []).map((step) => step.text).join("\n");
   updateStepsLabel();
   updateHoursSuggestion();

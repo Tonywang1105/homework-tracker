@@ -25,15 +25,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/form.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/list.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/calendar.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/agenda.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/types.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/panels.css?v=9a88d159" />
-    <link rel="stylesheet" href="styles/messages.css?v=9a88d159" />
-    <script type="module" src="src/main.js?v=9a88d159"></script>
+    <link rel="stylesheet" href="styles/base.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/form.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/list.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/calendar.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/agenda.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/types.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/panels.css?v=30d0dcf8" />
+    <link rel="stylesheet" href="styles/messages.css?v=30d0dcf8" />
+    <script type="module" src="src/main.js?v=30d0dcf8"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -152,6 +152,12 @@
               <button type="button" id="hours-suggestion-use" class="link-button"></button>
             </p>
             <p class="field-error" id="hours-error"></p>
+          </div>
+
+          <div class="field">
+            <label for="weight"><span data-i18n="form.worth">Worth</span> <span class="optional" data-i18n="form.worth_note">% of your grade, optional</span></label>
+            <input id="weight" name="weight" type="number" min="0.5" max="100" step="0.5" inputmode="decimal" placeholder="e.g. 15" data-i18n-placeholder="form.worth_ph" />
+            <p class="field-error" id="weight-error"></p>
           </div>
 
           <!-- Only when adding: one entry can become a weekly or every-other-week series. -->
