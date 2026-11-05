@@ -4,8 +4,8 @@
 // and when it's due ("Nov 06 at 11:59PM"), the cells separated by tabs or each on its own line, and sometimes a
 // "Late Due Date" line under it. If Gradescope changes that layout, this is the place to update.
 
-import { toDueDate } from "./assignments.js?v=5726d47e";
-import { dateNearNow, pasteKey, planPasted } from "./paste.js?v=5726d47e";
+import { toDueDate } from "./assignments.js?v=ccd67723";
+import { dateNearNow, pasteKey, planPasted } from "./paste.js?v=ccd67723";
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 // "Nov 06 at 11:59PM", "Nov 6, 2026 at 5:00 pm".
