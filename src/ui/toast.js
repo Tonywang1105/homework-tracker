@@ -1,14 +1,17 @@
 // The short confirmation message at the bottom of the page, optionally with Undo.
 
-import { t } from "../i18n.js?v=ccd67723";
-import { elements } from "./dom.js?v=ccd67723";
-import { state } from "./store.js?v=ccd67723";
+import { t } from "../i18n.js?v=2630e36f";
+import { elements } from "./dom.js?v=2630e36f";
+import { state } from "./store.js?v=2630e36f";
 
 // A short confirmation ("Added "MP3".") goes quickly, so it isn't in the way; a longer message stays long
 // enough to read, and one with Undo stays long enough to use it.
 const MIN_DURATION_MS = 3000;
 const MS_PER_CHARACTER = 60;
 const MAX_DURATION_MS = 8000;
+
+// Whether the message's button is Undo (rather than, say, "Mark done"), so Ctrl+Z (Cmd+Z) may press it.
+let buttonIsUndo = false;
 
 /**
  * Shows a message, optionally with a button (labelled Undo unless `actionLabel` says otherwise) that runs `undoAction`.
@@ -17,6 +20,7 @@ const MAX_DURATION_MS = 8000;
 export function showToast(message, undoAction = null, actionLabel = t("msg.undo"), durationMs = null) {
   clearTimeout(state.toastTimer);
   state.undoAction = undoAction;
+  buttonIsUndo = undoAction !== null && actionLabel === t("msg.undo");
   elements.toastMessage.textContent = message;
   elements.toastUndo.textContent = actionLabel;
   elements.toastUndo.hidden = undoAction === null;
@@ -37,12 +41,22 @@ export function hideToast() {
   state.undoAction = null;
 }
 
-export function handleUndo() {
+/** Whether a message with Undo is showing, so Ctrl+Z (Cmd+Z) has something to undo. */
+export function canUndo() {
+  return buttonIsUndo && state.undoAction !== null && !elements.toast.hidden;
+}
+
+/** Runs the message's Undo and hides the message. Keyboard focus stays where it is (Ctrl+Z, Cmd+Z). */
+export function runUndo() {
   const undo = state.undoAction;
   hideToast();
   if (undo) {
     undo();
   }
-  // The button is now hidden, so give keyboard focus a place in the list instead of losing it.
+}
+
+/** The Undo button: runs it, then gives keyboard focus a place, since the button is now hidden. */
+export function handleUndo() {
+  runUndo();
   elements.listHeading.focus({ preventScroll: true });
 }

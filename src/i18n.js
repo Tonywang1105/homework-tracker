@@ -667,6 +667,11 @@ const PHRASES = {
   "shortcut.search": ["Search", "搜索", "Buscar"],
   "shortcut.view": ["Switch between List, Calendar and Agenda", "在列表、日历和日程之间切换", "Cambiar entre Lista, Calendario y Agenda"],
   "shortcut.help": ["Show these shortcuts", "显示这些快捷键", "Mostrar estos atajos"],
+  "shortcut.undo": [
+    "Undo, while a message with Undo is showing",
+    "撤销（显示带“撤销”的提示时）",
+    "Deshacer, mientras se ve un aviso con «Deshacer»",
+  ],
   "settings.deleted": ["Recently deleted", "最近删除", "Eliminadas recientemente"],
   "settings.deleted_help": [
     "Deleted assignments are kept here for 30 days, on all your devices, then removed for good.",

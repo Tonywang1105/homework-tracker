@@ -1,17 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=ccd67723";
-import { currentMonth, shiftMonth } from "./calendar.js?v=ccd67723";
-import { hasExamples } from "./examples.js?v=ccd67723";
-import { t } from "./i18n.js?v=ccd67723";
-import { parseSavedWidth } from "./layout.js?v=ccd67723";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=ccd67723";
-import { combineSeries } from "./repeat.js?v=ccd67723";
-import { loadAssignments } from "./storage.js?v=ccd67723";
-import { splitDeleted } from "./trash.js?v=ccd67723";
-import { startAccount } from "./ui/account.js?v=ccd67723";
-import { renderAgenda } from "./ui/agendaView.js?v=ccd67723";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=ccd67723";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=2630e36f";
+import { currentMonth, shiftMonth } from "./calendar.js?v=2630e36f";
+import { hasExamples } from "./examples.js?v=2630e36f";
+import { t } from "./i18n.js?v=2630e36f";
+import { parseSavedWidth } from "./layout.js?v=2630e36f";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=2630e36f";
+import { combineSeries } from "./repeat.js?v=2630e36f";
+import { loadAssignments } from "./storage.js?v=2630e36f";
+import { splitDeleted } from "./trash.js?v=2630e36f";
+import { startAccount } from "./ui/account.js?v=2630e36f";
+import { renderAgenda } from "./ui/agendaView.js?v=2630e36f";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=2630e36f";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -24,12 +24,12 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=ccd67723";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=ccd67723";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=ccd67723";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=ccd67723";
-import { elements } from "./ui/dom.js?v=ccd67723";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=ccd67723";
+} from "./ui/calendarView.js?v=2630e36f";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=2630e36f";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=2630e36f";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=2630e36f";
+import { elements } from "./ui/dom.js?v=2630e36f";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=2630e36f";
 import {
   closeForm,
   focusForm,
@@ -42,10 +42,11 @@ import {
   updateHoursSuggestion,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=ccd67723";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=ccd67723";
-import { startLanguage } from "./ui/language.js?v=ccd67723";
-import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=ccd67723";
+} from "./ui/form.js?v=2630e36f";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=2630e36f";
+import { rememberFocus, restoreFocus } from "./ui/keepFocus.js?v=2630e36f";
+import { startLanguage } from "./ui/language.js?v=2630e36f";
+import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=2630e36f";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -60,7 +61,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=ccd67723";
+} from "./ui/list.js?v=2630e36f";
 import {
   addExamples,
   canvasPanel,
@@ -73,12 +74,12 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=ccd67723";
-import { renderPastePreviews, startPastePanels } from "./ui/pastePanel.js?v=ccd67723";
-import { startReminders } from "./ui/reminders.js?v=ccd67723";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=ccd67723";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=ccd67723";
-import { renderSelect, startSelect } from "./ui/select.js?v=ccd67723";
+} from "./ui/panels.js?v=2630e36f";
+import { renderPastePreviews, startPastePanels } from "./ui/pastePanel.js?v=2630e36f";
+import { startReminders } from "./ui/reminders.js?v=2630e36f";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=2630e36f";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=2630e36f";
+import { renderSelect, startSelect } from "./ui/select.js?v=2630e36f";
 import {
   applyTheme,
   DAILY_HOURS_KEY,
@@ -94,13 +95,15 @@ import {
   THEMES,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=ccd67723";
-import { startShortcuts } from "./ui/shortcuts.js?v=ccd67723";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=ccd67723";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=ccd67723";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=ccd67723";
+} from "./ui/settings.js?v=2630e36f";
+import { startShortcuts } from "./ui/shortcuts.js?v=2630e36f";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=2630e36f";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=2630e36f";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=2630e36f";
 
 export function render() {
+  // Redrawing replaces the rows, so note where keyboard focus is and put it back afterwards (see keepFocus.js).
+  const focusSpot = rememberFocus();
   const courses = courseNames(state.assignments);
   updateCourseColors(courses);
   renderCourseFilter(courses);
@@ -182,6 +185,7 @@ export function render() {
     state.detailsId = null;
     elements.details.hidden = true;
   }
+  restoreFocus(focusSpot);
 }
 
 function start() {

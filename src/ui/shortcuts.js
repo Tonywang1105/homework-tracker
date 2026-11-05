@@ -1,13 +1,14 @@
-// Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them (src/shortcuts.js says which key is which).
+// Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them, Ctrl+Z (Cmd+Z) undoes
+// (src/shortcuts.js says which key is which).
 
-import { t } from "../i18n.js?v=ccd67723";
-import { render } from "../main.js?v=ccd67723";
-import { nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=ccd67723";
-import { elements } from "./dom.js?v=ccd67723";
-import { panels, setPanelOpen } from "./panels.js?v=ccd67723";
-import { setView, VIEWS } from "./settings.js?v=ccd67723";
-import { state } from "./store.js?v=ccd67723";
-import { showToast } from "./toast.js?v=ccd67723";
+import { t } from "../i18n.js?v=2630e36f";
+import { render } from "../main.js?v=2630e36f";
+import { isUndoKey, nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=2630e36f";
+import { elements } from "./dom.js?v=2630e36f";
+import { panels, setPanelOpen } from "./panels.js?v=2630e36f";
+import { setView, VIEWS } from "./settings.js?v=2630e36f";
+import { state } from "./store.js?v=2630e36f";
+import { canUndo, runUndo, showToast } from "./toast.js?v=2630e36f";
 
 // The shortcuts are listed in Settings, so ? opens Settings at that section.
 const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");
@@ -43,6 +44,12 @@ function handleShortcutKey(event) {
   }
   // While the first-time tour is showing, keys belong to it.
   const typing = (event.target instanceof Element && event.target.closest(TYPING_SELECTOR) !== null) || !guide.hidden;
+  // Ctrl+Z (Cmd+Z) presses the message's Undo, so a keyboard user can undo a delete without Tabbing to the button.
+  if (isUndoKey(event, typing) && canUndo()) {
+    event.preventDefault();
+    runUndo();
+    return;
+  }
   const action = shortcutAction(event, typing);
   if (!action) {
     return;

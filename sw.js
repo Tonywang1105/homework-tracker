@@ -69,6 +69,7 @@ const APP_FILES = [
   "src/ui/focus.js",
   "src/ui/form.js",
   "src/ui/guide.js",
+  "src/ui/keepFocus.js",
   "src/ui/language.js",
   "src/ui/lessonBar.js",
   "src/ui/list.js",
