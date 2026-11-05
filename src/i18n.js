@@ -663,6 +663,10 @@ const PHRASES = {
   "theme.dark": ["Dark", "深色", "Oscuro"],
   "settings.shortcuts": ["Keyboard shortcuts", "快捷键", "Atajos de teclado"],
   "settings.shortcuts_help": ["Press these keys anywhere except while typing in a box.", "在任意位置按这些键即可（输入框中除外）。", "Pulsa estas teclas en cualquier sitio, salvo mientras escribes en un cuadro."],
+  "form.day_load": ["{day} already has {hours} due: {titles}.", "{day}已有{hours}的作业到期：{titles}。", "Para el {day} ya hay {hours} de entregas: {titles}."],
+  "form.day_load_count": ["{day} already has {count} due: {titles}.", "{day}已有{count}到期：{titles}。", "Para el {day} ya hay {count} por entregar: {titles}."],
+  "form.day_full": [" That fills your {hours} a day.", "已占满你每天的{hours}。", " Eso llena tus {hours} al día."],
+  "form.day_more": ["{n} more", "另外 {n} 项", "{n} más"],
   "shortcut.add": ["Add an assignment", "添加作业", "Añadir una tarea"],
   "shortcut.search": ["Search", "搜索", "Buscar"],
   "shortcut.view": ["Switch between List, Calendar and Agenda", "在列表、日历和日程之间切换", "Cambiar entre Lista, Calendario y Agenda"],
@@ -712,6 +716,11 @@ export function t(key, values = {}) {
 /** A number written the chosen language's way: "4.5" in English, "4,5" in Spanish. */
 export function formatNumber(n) {
   return new Intl.NumberFormat(DATE_LOCALES[current], { maximumFractionDigits: 1 }).format(n);
+}
+
+/** Names joined the chosen language's way: "A, B, and C", "A、B和C", "A, B y C". */
+export function formatList(items) {
+  return new Intl.ListFormat(DATE_LOCALES[current], { type: "conjunction" }).format(items);
 }
 
 /** A phrase for a count, using its .one form for exactly 1 and its .other form otherwise: "1 day", "3 days". */

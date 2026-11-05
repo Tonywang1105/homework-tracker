@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { formatNumber, t, tCount } from "./i18n.js?v=2630e36f";
-import { withTimerStopped } from "./timer.js?v=2630e36f";
+import { formatNumber, t, tCount } from "./i18n.js?v=7b6e7ff5";
+import { withTimerStopped } from "./timer.js?v=7b6e7ff5";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -381,6 +381,21 @@ export function formatHoursPlain(hours) {
 /** Total estimated hours of the unfinished assignments given (those without an estimate count as 0). */
 export function totalHours(assignments) {
   return assignments.reduce((sum, a) => sum + (!a.done && a.hours ? a.hours : 0), 0);
+}
+
+/**
+ * The other unfinished work due on `dueDate`, for the busy-day line under the form's due date, leaving out
+ * `exceptId` (the assignment being edited). Returns { titles, count, hours } with big work first, then by due time,
+ * or null when nothing else is due that day. Hours count only the work that has an estimate.
+ */
+export function dayLoad(assignments, dueDate, exceptId = null) {
+  const due = assignments
+    .filter((a) => !a.done && a.dueDate === dueDate && a.id !== exceptId)
+    .sort((a, b) => PRIORITIES.indexOf(a.priority) - PRIORITIES.indexOf(b.priority) || (a.dueTime ?? "").localeCompare(b.dueTime ?? ""));
+  if (due.length === 0) {
+    return null;
+  }
+  return { titles: due.map((a) => a.title), count: due.length, hours: totalHours(due) };
 }
 
 /**

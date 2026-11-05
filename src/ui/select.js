@@ -2,13 +2,13 @@
 // once (for example after a Canvas import, which brings everything in as big). Every action has Undo, and then
 // select mode ends.
 
-import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=2630e36f";
-import { t } from "../i18n.js?v=2630e36f";
-import { render } from "../main.js?v=2630e36f";
-import { countAssignments, elements } from "./dom.js?v=2630e36f";
-import { stopEditing } from "./form.js?v=2630e36f";
-import { state, updateAssignments } from "./store.js?v=2630e36f";
-import { showToast } from "./toast.js?v=2630e36f";
+import { changeAssignments, markManyDone, PRIORITY_LABELS, removeAssignmentsById } from "../assignments.js?v=7b6e7ff5";
+import { t } from "../i18n.js?v=7b6e7ff5";
+import { render } from "../main.js?v=7b6e7ff5";
+import { countAssignments, elements } from "./dom.js?v=7b6e7ff5";
+import { stopEditing } from "./form.js?v=7b6e7ff5";
+import { state, updateAssignments } from "./store.js?v=7b6e7ff5";
+import { showToast } from "./toast.js?v=7b6e7ff5";
 
 const select = {
   toggle: document.getElementById("select-toggle"),

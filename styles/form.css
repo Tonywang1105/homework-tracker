@@ -147,6 +147,24 @@ textarea {
   font-weight: 600;
 }
 
+/* "Wed, 11/11 already has ~5 h due: …", under the due date; amber once that fills a day's hours. */
+.day-load {
+  margin: -4px 0 12px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.day-load.is-full {
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: var(--soon);
+  background: var(--soon-soft);
+}
+
+.day-load[hidden] {
+  display: none;
+}
+
 /* "Last time (MP8): start the tests first", under Time needed while adding one of that kind. */
 .lesson-hint {
   margin: 6px 0 0;

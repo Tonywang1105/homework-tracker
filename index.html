@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/form.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/list.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/calendar.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/agenda.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/types.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/panels.css?v=2630e36f" />
-    <link rel="stylesheet" href="styles/messages.css?v=2630e36f" />
-    <script type="module" src="src/main.js?v=2630e36f"></script>
+    <link rel="stylesheet" href="styles/base.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/form.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/list.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/calendar.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/agenda.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/types.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/panels.css?v=7b6e7ff5" />
+    <link rel="stylesheet" href="styles/messages.css?v=7b6e7ff5" />
+    <script type="module" src="src/main.js?v=7b6e7ff5"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -106,6 +106,8 @@
               <p class="field-error" id="dueTime-error"></p>
             </div>
           </div>
+          <!-- "Wed, 11/11 already has ~5 h due: Midterm 2 and Problem Set 7.", filled in by updateDayLoad in form.js. -->
+          <p id="day-load" class="day-load" aria-live="polite" hidden></p>
 
           <fieldset class="field priority-picker">
             <legend data-i18n="form.size">Size</legend>

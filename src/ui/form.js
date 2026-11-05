@@ -3,7 +3,9 @@
 import {
   assignmentPlatform,
   AUTO_TYPE,
+  dayLoad,
   formatHours,
+  formatHoursPlain,
   guessType,
   keepStepTicks,
   PLATFORM_LABELS,
@@ -12,18 +14,21 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=2630e36f";
-import { suggestHours } from "../estimates.js?v=2630e36f";
-import { t } from "../i18n.js?v=2630e36f";
-import { latestLesson } from "../lessons.js?v=2630e36f";
-import { render } from "../main.js?v=2630e36f";
-import { createSeries, validateRepeat } from "../repeat.js?v=2630e36f";
-import { formatSpent } from "../timer.js?v=2630e36f";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=2630e36f";
-import { findAssignment, state, updateAssignments } from "./store.js?v=2630e36f";
-import { showToast } from "./toast.js?v=2630e36f";
+} from "../assignments.js?v=7b6e7ff5";
+import { suggestHours } from "../estimates.js?v=7b6e7ff5";
+import { formatList, t } from "../i18n.js?v=7b6e7ff5";
+import { latestLesson } from "../lessons.js?v=7b6e7ff5";
+import { render } from "../main.js?v=7b6e7ff5";
+import { createSeries, validateRepeat } from "../repeat.js?v=7b6e7ff5";
+import { formatSpent } from "../timer.js?v=7b6e7ff5";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=7b6e7ff5";
+import { findAssignment, state, updateAssignments } from "./store.js?v=7b6e7ff5";
+import { showToast } from "./toast.js?v=7b6e7ff5";
 
 const lessonHint = document.getElementById("lesson-hint");
+const dayLoadLine = document.getElementById("day-load");
+// The busy-day line names this many assignments, then says how many more.
+const MAX_NAMED = 3;
 const hoursSuggestion = {
   box: document.getElementById("hours-suggestion"),
   text: document.getElementById("hours-suggestion-text"),
@@ -37,6 +42,7 @@ export function startHoursSuggestion() {
     elements.form.elements[name].addEventListener("input", updateHoursSuggestion);
   }
   hoursSuggestion.use.addEventListener("click", useHoursSuggestion);
+  elements.form.elements.dueDate.addEventListener("input", updateDayLoad);
 }
 
 export function renderTypeOptions() {
@@ -67,6 +73,7 @@ export function startCopying(assignment) {
   // A copy is already filled in, so the hint about what's needed would only be in the way.
   elements.formHint.hidden = true;
   elements.form.elements.dueDate.value = "";
+  updateDayLoad();
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.form.elements.dueDate.focus({ preventScroll: true });
   showToast(t("msg.copying", { title: assignment.title }));
@@ -78,6 +85,7 @@ export function startAddingOn(dateKey) {
   }
   setFormOpen(true);
   elements.form.elements.dueDate.value = dateKey;
+  updateDayLoad();
   showErrors({});
   elements.form.scrollIntoView({ behavior: "smooth", block: "start" });
   elements.form.elements.title.focus({ preventScroll: true });
@@ -171,12 +179,14 @@ export function updateStepsLabel() {
 
 /**
  * Under Time needed: what similar finished work took (src/estimates.js), with a button to use it. Shown only while
- * the box is empty, so it never replaces a number that was typed.
+ * the box is empty, so it never replaces a number that was typed. Also refreshes the form's other hints (the lesson
+ * and the busy-day line), since they change at the same moments: filling, clearing and redrawing.
  */
 export function updateHoursSuggestion() {
   const fields = elements.form.elements;
   const type = fields.type.value === AUTO_TYPE ? guessType(fields.title.value) : fields.type.value;
   updateLessonHint(type);
+  updateDayLoad();
   const suggestion = fields.hours.value.trim() === "" ? suggestHours(state.assignments, { course: fields.course.value, type }) : null;
   hoursSuggestion.box.hidden = suggestion === null;
   if (!suggestion) {
@@ -204,6 +214,31 @@ function updateLessonHint(type) {
   if (last) {
     lessonHint.textContent = t("lesson.last", last);
   }
+}
+
+/**
+ * Under the due date: the other unfinished work already due that day (see dayLoad), so a crowded day shows before
+ * it's chosen. Amber once that work fills the hours a day set in Settings. It only informs; saving still works.
+ */
+function updateDayLoad() {
+  const dueDate = elements.form.elements.dueDate.value;
+  const load = dueDate ? dayLoad(state.assignments, dueDate, state.editingId) : null;
+  dayLoadLine.hidden = load === null;
+  if (!load) {
+    return;
+  }
+  const named = load.titles.slice(0, MAX_NAMED);
+  if (load.count > MAX_NAMED) {
+    named.push(t("form.day_more", { n: load.count - MAX_NAMED }));
+  }
+  const values = { day: formatDay(dueDate), titles: formatList(named) };
+  const full = load.hours > 0 && load.hours >= state.dailyHours;
+  const sentence =
+    load.hours > 0
+      ? t("form.day_load", { ...values, hours: formatHours(load.hours) })
+      : t("form.day_load_count", { ...values, count: countAssignments(load.count) });
+  dayLoadLine.textContent = sentence + (full ? t("form.day_full", { hours: formatHoursPlain(state.dailyHours) }) : "");
+  dayLoadLine.classList.toggle("is-full", full);
 }
 
 function useHoursSuggestion() {
