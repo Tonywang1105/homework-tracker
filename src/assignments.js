@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { t, tCount } from "./i18n.js?v=ff7901f2";
-import { withTimerStopped } from "./timer.js?v=ff7901f2";
+import { formatNumber, t, tCount } from "./i18n.js?v=5726d47e";
+import { withTimerStopped } from "./timer.js?v=5726d47e";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -370,12 +370,12 @@ export function dueSoon(assignments, now = new Date(), hours = 24) {
 
 /** "~3 h", "~1.5 h", or "~30 min" for under an hour. */
 export function formatHours(hours) {
-  return hours < 1 ? t("hours.min", { n: Math.round(hours * 60) }) : t("hours.h", { n: Math.round(hours * 10) / 10 });
+  return hours < 1 ? t("hours.min", { n: formatNumber(Math.round(hours * 60)) }) : t("hours.h", { n: formatNumber(Math.round(hours * 10) / 10) });
 }
 
 /** "9 h" or "30 min", without the "~", for sentences that already say "about". */
 export function formatHoursPlain(hours) {
-  return hours < 1 ? t("hours.min_plain", { n: Math.round(hours * 60) }) : t("hours.h_plain", { n: Math.round(hours * 10) / 10 });
+  return hours < 1 ? t("hours.min_plain", { n: formatNumber(Math.round(hours * 60)) }) : t("hours.h_plain", { n: formatNumber(Math.round(hours * 10) / 10) });
 }
 
 /** Total estimated hours of the unfinished assignments given (those without an estimate count as 0). */

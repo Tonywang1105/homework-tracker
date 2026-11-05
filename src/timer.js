@@ -3,7 +3,7 @@
 // Saving the start time rather than a ticking count is what lets a timer survive a reload or show on another device.
 
 // A timer left running overnight shouldn't add a whole night, so one session counts for at most 12 hours.
-import { t } from "./i18n.js?v=ff7901f2";
+import { formatNumber, t } from "./i18n.js?v=5726d47e";
 
 export const MAX_SESSION_SECONDS = 12 * 60 * 60;
 
@@ -52,7 +52,7 @@ export function formatSpent(seconds) {
   if (seconds < 60 * 60) {
     return t("spent.minutes", { n: Math.round(seconds / 60) });
   }
-  return t("spent.hours", { n: Math.round(seconds / 360) / 10 });
+  return t("spent.hours", { n: formatNumber(Math.round(seconds / 360) / 10) });
 }
 
 /**

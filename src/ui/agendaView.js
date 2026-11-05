@@ -1,12 +1,12 @@
 // The Agenda view: overdue work, then the next two weeks day by day, made for reading on a phone.
 // Tapping an assignment opens the same details box as the calendar.
 
-import { formatHours, toDueDate, totalHours } from "../assignments.js?v=ff7901f2";
-import { buildAgenda } from "../calendar.js?v=ff7901f2";
-import { t } from "../i18n.js?v=ff7901f2";
-import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=ff7901f2";
-import { renderTags } from "./list.js?v=ff7901f2";
-import { state } from "./store.js?v=ff7901f2";
+import { formatHours, toDueDate, totalHours } from "../assignments.js?v=5726d47e";
+import { buildAgenda } from "../calendar.js?v=5726d47e";
+import { t } from "../i18n.js?v=5726d47e";
+import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=5726d47e";
+import { renderTags } from "./list.js?v=5726d47e";
+import { state } from "./store.js?v=5726d47e";
 
 const AGENDA_DAYS = 14;
 
@@ -50,7 +50,7 @@ function renderAgendaDay(heading, assignments, emptyText, { overdue = false } = 
   if (hours > 0) {
     const hoursLabel = document.createElement("span");
     hoursLabel.className = "agenda-hours";
-    hoursLabel.textContent = `${formatHours(hours)} of work`;
+    hoursLabel.textContent = t("work.of_work", { hours: formatHours(hours) });
     header.append(hoursLabel);
   }
   if (assignments.length === 0) {

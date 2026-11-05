@@ -11,6 +11,8 @@ export const HTML_LANGS = { en: "en", zh: "zh-CN", es: "es" };
 
 // key: [English, 中文, Español]. {name} is filled in by t(). Keys ending .one/.other are a count's singular and plural.
 const PHRASES = {
+  "skip.to_list": ["Skip to To do list", "跳到待办列表", "Saltar a la lista de pendientes"],
+
   // Header
   "header.tagline": ["Everything due, soonest first, with your own notes.", "所有待办，按截止时间排序，附上你自己的笔记。", "Todo lo pendiente, lo más próximo primero, con tus propias notas."],
   "account.sign_in": ["Sign in to sync", "登录以同步", "Inicia sesión para sincronizar"],
@@ -40,8 +42,8 @@ const PHRASES = {
   "form.type": ["Type", "类型", "Tipo"],
   "form.type_guess": ["Guess from title", "根据标题猜测", "Adivinar por el título"],
   "form.type_none": ["None", "无", "Ninguno"],
-  "form.where": ["Where", "在哪里完成", "Dónde"],
-  "form.where_note": ["optional, where it's done", "可选，在哪个平台完成", "opcional, dónde se hace"],
+  "form.where": ["Where", "平台", "Dónde"],
+  "form.where_note": ["optional, where it's done", "可选，作业在哪里完成", "opcional, dónde se hace"],
   "form.not_set": ["Not set", "未设置", "Sin indicar"],
   "form.hours": ["Time needed", "所需时间", "Tiempo necesario"],
   "form.hours_note": ["hours, optional", "小时，可选", "horas, opcional"],
@@ -65,7 +67,7 @@ const PHRASES = {
   "lesson.saved": ["Saved for next time.", "已保存，下次会提醒你。", "Guardado para la próxima vez."],
   "lesson.last": ["Last time ({title}): {lesson}", "上次（{title}）：{lesson}", "La última vez ({title}): {lesson}"],
   "estimate.use": ["Use {hours}", "使用 {hours}", "Usar {hours}"],
-  "form.worth": ["Worth", "占成绩", "Vale"],
+  "form.worth": ["Worth", "占成绩", "Peso"],
   "form.worth_note": ["% of your grade, optional", "占总成绩的百分比，可选", "% de tu nota, opcional"],
   "form.worth_ph": ["e.g. 15", "例如：15", "p. ej., 15"],
   "tag.weight": ["{n}%", "{n}%", "{n} %"],
@@ -102,11 +104,11 @@ const PHRASES = {
   "type.quiz": ["Quiz", "小测", "Cuestionario"],
   "type.mp": ["MP", "MP", "MP"],
   "type.lab": ["Lab", "实验", "Laboratorio"],
-  "type.homework": ["Homework", "作业", "Tarea"],
+  "type.homework": ["Homework", "习题", "Deberes"],
   "type.reading": ["Reading", "阅读", "Lectura"],
 
   // The list, its views and filters
-  "list.todo": ["To do", "待办", "Pendiente"],
+  "list.todo": ["To do", "待办", "Pendientes"],
   "list.completed": ["Completed", "已完成", "Completadas"],
   "list.show_older": ["Show {n} older", "显示更早的 {n} 项", "Mostrar {n} anteriores"],
   "list.series_more": ["+{n} more in this series", "本系列还有 {n} 项", "+{n} más de esta serie"],
@@ -117,9 +119,9 @@ const PHRASES = {
   "quick.label": ["Quick add", "快速添加", "Añadir rápido"],
   "quick.add": ["Add", "添加", "Añadir"],
   "start.empty": [
-    "No assignments yet. Add one with the form, use Import… below (Canvas or PrairieLearn), or see how the app works with some examples.",
-    "还没有作业。用表单添加一项、用下方的「导入…」（Canvas 或 PrairieLearn），或者先用示例看看应用怎么用。",
-    "Aún no hay tareas. Añade una con el formulario, usa Importar… abajo (Canvas o PrairieLearn) o mira cómo funciona con unos ejemplos.",
+    "No assignments yet. Add one with the form, use Import… below (Canvas, PrairieLearn or Gradescope), or see how the app works with some examples.",
+    "还没有作业。用表单添加一项、用下方的「导入…」（Canvas、PrairieLearn 或 Gradescope），或者先用示例看看应用怎么用。",
+    "Aún no hay tareas. Añade una con el formulario, usa Importar… abajo (Canvas, PrairieLearn o Gradescope) o mira cómo funciona con unos ejemplos.",
   ],
   "start.try": ["Try with example assignments", "用示例作业试试", "Probar con tareas de ejemplo"],
   "examples.notice": ["You're looking at example assignments.", "你正在看示例作业。", "Estás viendo tareas de ejemplo."],
@@ -165,7 +167,7 @@ const PHRASES = {
 
   // Due times and amounts of time
   "due.in": ["due in {amount}", "{amount}后截止", "vence en {amount}"],
-  "due.overdue": ["overdue by {amount}", "已逾期 {amount}", "atrasada {amount}"],
+  "due.overdue": ["overdue by {amount}", "已逾期 {amount}", "con {amount} de retraso"],
   "unit.minute.one": ["1 minute", "1 分钟", "1 minuto"],
   "unit.minute.other": ["{n} minutes", "{n} 分钟", "{n} minutos"],
   "unit.hour.one": ["1 hour", "1 小时", "1 hora"],
@@ -189,10 +191,10 @@ const PHRASES = {
 
   // Today's plan
   "plan.heading": ["Today's plan", "今日计划", "Plan de hoy"],
-  "plan.total": ["{hours} of work", "共 {hours}", "{hours} de trabajo"],
+  "plan.total": ["{hours} of work", "{hours}工作量", "{hours} de trabajo"],
   "plan.today_hours": ["{hours} today", "今天 {hours}", "{hours} hoy"],
   "plan.of_left": [" of {hours} left", "（还剩 {hours}）", " de {hours} restantes"],
-  "plan.ahead": [" · getting ahead", " · 提前进行", " · adelantando"],
+  "plan.ahead": [" · getting ahead", " · 提前进行", " · para adelantar"],
   "plan.study": ["Study: {list}", "复习：{list}", "Estudiar: {list}"],
   "plan.steps": ["Steps: {list}", "步骤：{list}", "Pasos: {list}"],
   "plan.nothing": ["Nothing planned for today.", "今天没有计划。", "Nada planeado para hoy."],
@@ -217,7 +219,7 @@ const PHRASES = {
   // The workload line and empty list messages
   "work.next7": ["Next 7 days: ", "未来 7 天：", "Próximos 7 días: "],
   "work.no_hours": ['{count} · add "Time needed" to see how much work that is.', "{count} · 填写「所需时间」即可看到工作量。", "{count} · añade «Tiempo necesario» para ver cuánto trabajo es."],
-  "work.of_work": ["{hours} of work", "共 {hours}", "{hours} de trabajo"],
+  "work.of_work": ["{hours} of work", "{hours}工作量", "{hours} de trabajo"],
   "work.busiest": ["busiest: {day} ({hours})", "最忙：{day}（{hours}）", "día más cargado: {day} ({hours})"],
   "work.unestimated": ["{n} without an estimate", "{n} 项未估时", "{n} sin estimación"],
   "empty.caught_up": ["All caught up. Nothing left to do.", "全部完成，没有待办了。", "Todo al día. No queda nada pendiente."],
@@ -504,10 +506,10 @@ const PHRASES = {
   "course.left": ["{n} to do", "{n} 项待办", "{n} pendientes"],
   "course.nothing_left": ["nothing to do", "没有待办", "nada pendiente"],
   "course.needs_name": ["A link needs a name. Type one, or remove the link.", "链接需要一个名称。请输入名称，或移除这个链接。", "Un enlace necesita un nombre. Escribe uno o quita el enlace."],
-  "focus.block_done": ['Block done on "{title}". Take a {minutes}-minute break: {clock} left.', "「{title}」的专注时段结束了。休息 {minutes} 分钟：还剩 {clock}。", "Bloque terminado en «{title}». Descansa {minutes} minutos: quedan {clock}."],
+  "focus.block_done": ['Block done on "{title}". Take a {minutes}-minute break: {clock} left.', "「{title}」的专注时段结束了。休息 {minutes} 分钟：还剩 {clock}。", "Terminaste un bloque de «{title}». Descansa {minutes} minutos: quedan {clock}."],
   "focus.keep_going": ["Keep going", "继续", "Seguir"],
   "focus.end": ["End focus", "结束专注", "Terminar"],
-  "focus.break_over": ['Break\'s over. Ready for the next block on "{title}"?', "休息结束。准备好开始「{title}」的下一个时段了吗？", "Se acabó el descanso. ¿Listo para el siguiente bloque de «{title}»?"],
+  "focus.break_over": ['Break\'s over. Ready for the next block on "{title}"?', "休息结束。准备好开始「{title}」的下一个时段了吗？", "Se acabó el descanso. ¿Seguimos con el siguiente bloque de «{title}»?"],
   "focus.start_next": ["Start next block", "开始下一个时段", "Empezar el siguiente bloque"],
   "focus.not_now": ["Not now", "以后再说", "Ahora no"],
   "sync.sign_out": ["Sign out", "退出登录", "Cerrar sesión"],
@@ -548,9 +550,9 @@ const PHRASES = {
   ],
   "guide.tools_title": ["More tools", "更多工具", "Más herramientas"],
   "guide.tools_text": [
-    "Review your week, import from Canvas, add your list to your phone's calendar, back up, and change Settings like hours per day and focus blocks.",
-    "回顾本周、从 Canvas 导入、把列表加入手机日历、备份，还可以在设置里调整每天的小时数和专注时段。",
-    "Repasa tu semana, importa de Canvas, añade tu lista al calendario del móvil, haz copias y cambia Ajustes como las horas al día y los bloques de concentración.",
+    "Review your week, import from Canvas, PrairieLearn or Gradescope, add your list to your phone's calendar, back up, and change Settings like hours per day and reminders.",
+    "回顾本周、从 Canvas、PrairieLearn 或 Gradescope 导入、把列表加入手机日历、备份，还可以在设置里调整每天的小时数和提醒。",
+    "Repasa tu semana, importa de Canvas, PrairieLearn o Gradescope, añade tu lista al calendario del móvil, haz copias y cambia Ajustes como las horas al día y los recordatorios.",
   ],
   "guide.phone_title": ["Use it on your phone too", "在手机上也能用", "Úsala también en el móvil"],
   "guide.phone_text": ["Sign in with Google to see the same list on your laptop and phone.", "用 Google 登录，就能在电脑和手机上看到同一份列表。", "Inicia sesión con Google para ver la misma lista en el portátil y el móvil."],
@@ -700,6 +702,11 @@ export function getLanguage() {
 export function t(key, values = {}) {
   const phrase = PHRASES[key]?.[LANGUAGES.indexOf(current)] ?? key;
   return phrase.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ""));
+}
+
+/** A number written the chosen language's way: "4.5" in English, "4,5" in Spanish. */
+export function formatNumber(n) {
+  return new Intl.NumberFormat(DATE_LOCALES[current], { maximumFractionDigits: 1 }).format(n);
 }
 
 /** A phrase for a count, using its .one form for exactly 1 and its .other form otherwise: "1 day", "3 days". */
