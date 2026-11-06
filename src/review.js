@@ -1,8 +1,9 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=5a7c35b2";
-import { toDateKey } from "./calendar.js?v=5a7c35b2";
-import { withTimerStopped } from "./timer.js?v=5a7c35b2";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=c11df76a";
+import { toDateKey } from "./calendar.js?v=c11df76a";
+import { DEFAULT_DAILY_HOURS } from "./plan.js?v=c11df76a";
+import { withTimerStopped } from "./timer.js?v=c11df76a";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).
@@ -67,6 +68,56 @@ function trackedTime(assignments, now) {
 }
 
 /** Midnight on the Monday of `now`'s week. */
+/** The Monday that starts this week, as "YYYY-MM-DD": the weekly banner is remembered as seen for that week. */
+export function weekStartKey(now = new Date()) {
+  return toDateKey(mondayOf(now));
+}
+
+/**
+ * The weekly planning banner: what's left this week, from today to Sunday. Returns null when nothing unfinished is
+ * due in that time and nothing is overdue, so the banner doesn't appear just to say so. Otherwise
+ * { end, count, hours, overdue, busiest, shortDays }: end is Sunday's date, count and hours are the unfinished work
+ * due today to Sunday (hours only where estimated), overdue counts unfinished work already past due, busiest is
+ * { dueDate, hours } for the day with the most estimated hours (null with fewer than two days of estimated work),
+ * and shortDays are the days left whose hours (`limit`, a function of the date) are under `usualHours`, as
+ * [{ date, hours }].
+ */
+export function weekAhead(assignments, now = new Date(), limit = () => DEFAULT_DAILY_HOURS, usualHours = DEFAULT_DAILY_HOURS) {
+  const today = toDateKey(now);
+  const { end } = weekKeys(mondayOf(now), 0);
+  const unfinished = assignments.filter((a) => !a.done);
+  const overdue = unfinished.filter((a) => toDueDate(a.dueDate, a.dueTime) < now).length;
+  const left = unfinished.filter((a) => a.dueDate >= today && a.dueDate <= end && toDueDate(a.dueDate, a.dueTime) >= now);
+  if (left.length === 0 && overdue === 0) {
+    return null;
+  }
+  const hoursByDay = new Map();
+  for (const a of left.filter((a) => a.hours)) {
+    hoursByDay.set(a.dueDate, (hoursByDay.get(a.dueDate) ?? 0) + a.hours);
+  }
+  const days = [...hoursByDay].sort(([a], [b]) => a.localeCompare(b));
+  const most = days.reduce((best, day) => (best === null || day[1] > best[1] ? day : best), null);
+  const shortDays = [];
+  for (let date = today; date <= end; date = nextDay(date)) {
+    if (limit(date) < usualHours) {
+      shortDays.push({ date, hours: limit(date) });
+    }
+  }
+  return {
+    end,
+    count: left.length,
+    hours: totalHours(left),
+    overdue,
+    busiest: days.length >= 2 ? { dueDate: most[0], hours: most[1] } : null,
+    shortDays,
+  };
+}
+
+function nextDay(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return toDateKey(new Date(year, month - 1, day + 1));
+}
+
 function mondayOf(now) {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
 }

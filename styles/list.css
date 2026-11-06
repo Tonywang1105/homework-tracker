@@ -160,6 +160,16 @@
   font-size: 0.9rem;
 }
 
+/* The weekly planning banner: the accent color, so it reads as this week's plan rather than a reminder. */
+.week-banner {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+
+.week-banner-actions {
+  display: inline-flex;
+  gap: 10px;
+}
+
 .empty {
   color: var(--muted);
   padding: 24px 0;
