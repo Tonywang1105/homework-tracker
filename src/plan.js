@@ -1,9 +1,9 @@
 // "When to start": using time estimates, the latest day to start each assignment so that no day needs
 // more than a daily limit of homework. No DOM, so it can be unit-tested with Node.
 
-import { toDueDate } from "./assignments.js?v=7b6e7ff5";
-import { toDateKey } from "./calendar.js?v=7b6e7ff5";
-import { sessionSeconds } from "./timer.js?v=7b6e7ff5";
+import { toDueDate } from "./assignments.js?v=5a7c35b2";
+import { toDateKey } from "./calendar.js?v=5a7c35b2";
+import { sessionSeconds } from "./timer.js?v=5a7c35b2";
 
 export const DEFAULT_DAILY_HOURS = 3;
 const MIN_DAILY_HOURS = 0.5;
@@ -14,6 +14,26 @@ const EVENING = "17:00";
 function addDays(dateKey, days) {
   const [year, month, day] = dateKey.split("-").map(Number);
   return toDateKey(new Date(year, month - 1, day + days));
+}
+
+/** The day of the week of a "YYYY-MM-DD" date, 0 for Sunday to 6 for Saturday (like Date.getDay). */
+export function weekdayOf(dateKey) {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return new Date(year, month - 1, day).getDay();
+}
+
+/**
+ * The hours of homework planned for each day: `weekdayHours[weekday]` where one is set (0 is a day off), else
+ * `dailyHours`. Returns a function from a "YYYY-MM-DD" date to its hours, which planStarts and todayPlan accept
+ * in place of a single number.
+ */
+export function dailyLimit(dailyHours, weekdayHours = []) {
+  return (dateKey) => weekdayHours[weekdayOf(dateKey)] ?? dailyHours;
+}
+
+/** A daily limit as a function of the date, whether it was given as one number or by dailyLimit. */
+function asLimit(dailyHours) {
+  return typeof dailyHours === "function" ? dailyHours : () => dailyHours;
 }
 
 /** The last day there's time to work on an assignment: its due day if due in the evening, else the day before. */
@@ -32,7 +52,8 @@ export function hoursLeft(assignment, now = new Date()) {
 
 /**
  * Plans backwards from the latest due date: each assignment takes the latest free hours before it is due,
- * at most `dailyHours` per day, so busy weeks push start dates earlier. Only unfinished assignments with
+ * at most `dailyHours` per day (one number, or a function of the date from dailyLimit), so busy weeks push start
+ * dates earlier. Only unfinished assignments with
  * hours left (the estimate minus time tracked) that aren't due yet are planned.
  * Returns a Map from assignment id to { startDate, status, shortHours, todayHours, hoursLeft, days }, where status is
  * "later" (start on startDate), "today" (startDate is today or earlier), or "behind" (even starting
@@ -41,6 +62,7 @@ export function hoursLeft(assignment, now = new Date()) {
  */
 export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_DAILY_HOURS) {
   const today = toDateKey(now);
+  const limit = asLimit(dailyHours);
   const planned = assignments
     .filter((a) => !a.done && hoursLeft(a, now) > 0 && toDueDate(a.dueDate, a.dueTime) > now)
     .sort((a, b) => toDueDate(b.dueDate, b.dueTime) - toDueDate(a.dueDate, a.dueTime) || a.id.localeCompare(b.id));
@@ -54,7 +76,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
     let day = lastWorkDay(assignment);
     let startDate = day < today ? today : day;
     while (remaining > 0 && day >= today) {
-      const free = dailyHours - (used.get(day) ?? 0);
+      const free = limit(day) - (used.get(day) ?? 0);
       if (free > 0) {
         const taken = Math.min(free, remaining);
         used.set(day, (used.get(day) ?? 0) + taken);
@@ -82,7 +104,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
 
 /**
  * Today's plan, in order: overdue work, work due today, what the plan needs started today ("planned"), and
- * then, if that leaves room under `dailyHours`, the next work in line ("ahead"), so the day is filled rather than
+ * then, if that leaves room under today's `dailyHours` (a number, or a function of the date), the next work in line ("ahead"), so the day is filled rather than
  * only the bare minimum. Grade weights decide what comes first among planned work and among work to get ahead on,
  * and which gets the spare time: heavier first (see weightOf); deadlines still come first, so overdue and due-today
  * work lead. Each entry is { assignment, reason, todayHours, hoursLeft }, the hours being 0 for work the plan
@@ -91,7 +113,7 @@ export function planStarts(assignments, now = new Date(), dailyHours = DEFAULT_D
 export function todayPlan(assignments, plan, now = new Date(), dailyHours = DEFAULT_DAILY_HOURS) {
   const today = toDateKey(now);
   const todayHours = new Map([...plan].map(([id, entry]) => [id, entry.todayHours]));
-  let free = dailyHours - [...todayHours.values()].reduce((sum, hours) => sum + hours, 0);
+  let free = asLimit(dailyHours)(today) - [...todayHours.values()].reduce((sum, hours) => sum + hours, 0);
   const weight = weightOf(assignments);
   const byStart = assignments
     .filter((a) => plan.has(a.id))
@@ -186,6 +208,33 @@ export function stepDays(assignment, planEntry, todayHours, now = new Date()) {
     result[stepIndex] = later.find((day) => (covered += day.hours) >= position)?.date ?? later.at(-1).date;
   });
   return result;
+}
+
+/**
+ * The hours for each day of the week, saved as a list of 7 (Sunday first), each a number of hours or null for "the
+ * usual hours a day". Anything unreadable or out of range counts as null, so a damaged setting falls back safely.
+ */
+export function parseWeekdayHours(text) {
+  let saved = null;
+  try {
+    saved = JSON.parse(text ?? "null");
+  } catch {
+    saved = null;
+  }
+  return Array.from({ length: 7 }, (_, weekday) => {
+    const hours = Array.isArray(saved) ? saved[weekday] : null;
+    return typeof hours === "number" && hours >= 0 && hours <= MAX_DAILY_HOURS ? hours : null;
+  });
+}
+
+/** One weekday's box: null when empty (use the usual hours), the hours if 0 to 16, or undefined if it isn't valid. */
+export function parseWeekdayBox(text) {
+  const trimmed = String(text ?? "").trim();
+  if (trimmed === "") {
+    return null;
+  }
+  const hours = Number(trimmed);
+  return Number.isFinite(hours) && hours >= 0 && hours <= MAX_DAILY_HOURS ? hours : undefined;
 }
 
 /** A daily limit from the settings box, or null if it isn't a sensible number of hours. */

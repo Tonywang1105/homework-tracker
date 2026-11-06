@@ -1,10 +1,10 @@
 // Reminders on this device: while the app is open, a notification when unfinished work is due soon (src/reminders.js
 // decides which). Turning it on asks the browser for permission; if it can't or won't, Settings says why.
 
-import { describeDue } from "../assignments.js?v=7b6e7ff5";
-import { t } from "../i18n.js?v=7b6e7ff5";
-import { dueReminders, readSentReminders, reminderKey } from "../reminders.js?v=7b6e7ff5";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=7b6e7ff5";
+import { describeDue } from "../assignments.js?v=5a7c35b2";
+import { t } from "../i18n.js?v=5a7c35b2";
+import { dueReminders, readSentReminders, reminderKey } from "../reminders.js?v=5a7c35b2";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=5a7c35b2";
 
 const ON_KEY = "homework-tracker.reminders";
 const SENT_KEY = "homework-tracker.remindersSent";

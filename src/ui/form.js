@@ -14,16 +14,18 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=7b6e7ff5";
-import { suggestHours } from "../estimates.js?v=7b6e7ff5";
-import { formatList, t } from "../i18n.js?v=7b6e7ff5";
-import { latestLesson } from "../lessons.js?v=7b6e7ff5";
-import { render } from "../main.js?v=7b6e7ff5";
-import { createSeries, validateRepeat } from "../repeat.js?v=7b6e7ff5";
-import { formatSpent } from "../timer.js?v=7b6e7ff5";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=7b6e7ff5";
-import { findAssignment, state, updateAssignments } from "./store.js?v=7b6e7ff5";
-import { showToast } from "./toast.js?v=7b6e7ff5";
+} from "../assignments.js?v=5a7c35b2";
+import { suggestHours } from "../estimates.js?v=5a7c35b2";
+import { formatList, t } from "../i18n.js?v=5a7c35b2";
+import { latestLesson } from "../lessons.js?v=5a7c35b2";
+import { weekdayOf } from "../plan.js?v=5a7c35b2";
+import { render } from "../main.js?v=5a7c35b2";
+import { createSeries, validateRepeat } from "../repeat.js?v=5a7c35b2";
+import { formatSpent } from "../timer.js?v=5a7c35b2";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=5a7c35b2";
+import { findAssignment, state, updateAssignments } from "./store.js?v=5a7c35b2";
+import { showToast } from "./toast.js?v=5a7c35b2";
+import { hasOwnHours, hoursLimit, weekdayName } from "./weekdayHours.js?v=5a7c35b2";
 
 const lessonHint = document.getElementById("lesson-hint");
 const dayLoadLine = document.getElementById("day-load");
@@ -218,7 +220,8 @@ function updateLessonHint(type) {
 
 /**
  * Under the due date: the other unfinished work already due that day (see dayLoad), so a crowded day shows before
- * it's chosen. Amber once that work fills the hours a day set in Settings. It only informs; saving still works.
+ * it's chosen. Amber once that work fills that day's hours in Settings (or the day is a day off). It only informs;
+ * saving still works.
  */
 function updateDayLoad() {
   const dueDate = elements.form.elements.dueDate.value;
@@ -232,13 +235,28 @@ function updateDayLoad() {
     named.push(t("form.day_more", { n: load.count - MAX_NAMED }));
   }
   const values = { day: formatDay(dueDate), titles: formatList(named) };
-  const full = load.hours > 0 && load.hours >= state.dailyHours;
+  // That day's hours: its weekday's own (Settings → Different hours on some days), or the usual hours a day.
+  const weekday = weekdayOf(dueDate);
+  const dayHours = hoursLimit()(dueDate);
+  const dayOff = dayHours === 0;
+  const full = dayOff || (load.hours > 0 && load.hours >= dayHours);
   const sentence =
     load.hours > 0
       ? t("form.day_load", { ...values, hours: formatHours(load.hours) })
       : t("form.day_load_count", { ...values, count: countAssignments(load.count) });
-  dayLoadLine.textContent = sentence + (full ? t("form.day_full", { hours: formatHoursPlain(state.dailyHours) }) : "");
+  dayLoadLine.textContent = sentence + (full ? fullNote(weekday, dayHours) : "");
   dayLoadLine.classList.toggle("is-full", full);
+}
+
+/** Why the day is full: a day off, the weekday's own hours, or the usual hours a day. */
+function fullNote(weekday, dayHours) {
+  if (dayHours === 0) {
+    return t("form.day_off", { weekday: weekdayName(weekday) });
+  }
+  if (hasOwnHours(weekday)) {
+    return t("form.day_full_on", { hours: formatHoursPlain(dayHours), weekday: weekdayName(weekday) });
+  }
+  return t("form.day_full", { hours: formatHoursPlain(dayHours) });
 }
 
 function useHoursSuggestion() {

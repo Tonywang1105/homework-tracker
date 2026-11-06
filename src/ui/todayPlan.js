@@ -1,12 +1,13 @@
 // Today's plan, at the top of the list: what's overdue, what's due today, and the hours the start-date
 // plan (src/plan.js) fits into today, each with Start, so "what should I do now?" has one answer.
 
-import { assignmentType, describeDue, formatHours } from "../assignments.js?v=7b6e7ff5";
-import { toDateKey } from "../calendar.js?v=7b6e7ff5";
-import { t } from "../i18n.js?v=7b6e7ff5";
-import { makeTag } from "./dom.js?v=7b6e7ff5";
-import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=7b6e7ff5";
-import { state } from "./store.js?v=7b6e7ff5";
+import { assignmentType, describeDue, formatHours } from "../assignments.js?v=5a7c35b2";
+import { toDateKey } from "../calendar.js?v=5a7c35b2";
+import { t } from "../i18n.js?v=5a7c35b2";
+import { makeTag } from "./dom.js?v=5a7c35b2";
+import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=5a7c35b2";
+import { state } from "./store.js?v=5a7c35b2";
+import { hoursLimit } from "./weekdayHours.js?v=5a7c35b2";
 
 const box = document.getElementById("today-plan");
 const total = document.getElementById("today-plan-total");
@@ -30,7 +31,9 @@ export function renderTodayPlan(now) {
     // With no estimates on upcoming work the plan has nothing to fit into the day, so say how to give it some.
     const nothing = t(entries.length === 0 ? "plan.nothing" : "plan.nothing_else");
     const hint = state.startPlan.size === 0 ? t("plan.add_estimates") : "";
-    emptyMessage.textContent = nothing + hint;
+    // A day off (Settings → Different hours on some days) is why nothing is planned, so say so.
+    const dayOff = hoursLimit()(toDateKey(now)) === 0 ? t("plan.day_off") : "";
+    emptyMessage.textContent = nothing + hint + dayOff;
   }
 }
 

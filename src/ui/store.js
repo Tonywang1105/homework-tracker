@@ -1,13 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=7b6e7ff5";
-import { t } from "../i18n.js?v=7b6e7ff5";
-import { render } from "../main.js?v=7b6e7ff5";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=7b6e7ff5";
-import { saveAssignments } from "../storage.js?v=7b6e7ff5";
-import { withDeletions } from "../trash.js?v=7b6e7ff5";
-import { syncAssignments } from "./account.js?v=7b6e7ff5";
-import { showToast } from "./toast.js?v=7b6e7ff5";
+import { currentMonth } from "../calendar.js?v=5a7c35b2";
+import { t } from "../i18n.js?v=5a7c35b2";
+import { render } from "../main.js?v=5a7c35b2";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=5a7c35b2";
+import { saveAssignments } from "../storage.js?v=5a7c35b2";
+import { withDeletions } from "../trash.js?v=5a7c35b2";
+import { syncAssignments } from "./account.js?v=5a7c35b2";
+import { showToast } from "./toast.js?v=5a7c35b2";
 
 export const state = {
   // The live assignments; every screen draws from these.
@@ -51,6 +51,8 @@ export const state = {
   focusBreak: null,
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
   dailyHours: DEFAULT_DAILY_HOURS,
+  // Hours for each weekday (Sunday first) where they differ from dailyHours: a number, or null for the usual hours.
+  weekdayHours: Array(7).fill(null),
   startPlan: new Map(),
   // Today's plan's entries ({ assignment, reason, todayHours, hoursLeft }), worked out on every render.
   todayPlan: [],

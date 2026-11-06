@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/form.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/list.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/calendar.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/agenda.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/types.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/panels.css?v=7b6e7ff5" />
-    <link rel="stylesheet" href="styles/messages.css?v=7b6e7ff5" />
-    <script type="module" src="src/main.js?v=7b6e7ff5"></script>
+    <link rel="stylesheet" href="styles/base.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/form.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/list.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/calendar.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/agenda.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/types.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/panels.css?v=5a7c35b2" />
+    <link rel="stylesheet" href="styles/messages.css?v=5a7c35b2" />
+    <script type="module" src="src/main.js?v=5a7c35b2"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -519,6 +519,11 @@
                 <span data-i18n="settings.hours_a_day">hours of homework a day</span>
               </label>
               <p class="import-help" data-i18n="settings.plan_help">Start-by dates and Today's plan fit work into this many hours a day.</p>
+              <details id="weekday-hours" class="weekday-hours">
+                <summary data-i18n="settings.weekday_toggle">Different hours on some days</summary>
+                <p class="import-help" data-i18n="settings.weekday_help">For a day with labs or a job, set fewer hours; 0 is a day off. An empty day uses the hours above.</p>
+                <div id="weekday-hours-list" class="weekday-hours-list"></div>
+              </details>
             </section>
             <section class="settings-section" aria-labelledby="settings-focus">
               <h3 id="settings-focus" data-i18n="settings.focus">Focus blocks</h3>

@@ -84,6 +84,7 @@ const APP_FILES = [
   "src/ui/store.js",
   "src/ui/toast.js",
   "src/ui/todayPlan.js",
+  "src/ui/weekdayHours.js",
 ];
 
 self.addEventListener("install", (event) => {
