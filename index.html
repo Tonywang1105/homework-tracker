@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/form.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/list.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/calendar.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/agenda.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/types.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/panels.css?v=339917fb" />
-    <link rel="stylesheet" href="styles/messages.css?v=339917fb" />
-    <script type="module" src="src/main.js?v=339917fb"></script>
+    <link rel="stylesheet" href="styles/base.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/form.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/list.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/calendar.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/agenda.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/types.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/panels.css?v=83b99c44" />
+    <link rel="stylesheet" href="styles/messages.css?v=83b99c44" />
+    <script type="module" src="src/main.js?v=83b99c44"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -236,6 +236,11 @@
           <div class="course-page-header">
             <h3 id="course-page-title" class="course-page-title" tabindex="-1"></h3>
             <button type="button" id="course-page-all" class="link-button" data-i18n="course.all">All courses</button>
+          </div>
+          <!-- How much of the grade (the Worth entered) is done, overdue, due soon and later; filled in by coursePage.js. -->
+          <div id="course-progress" class="course-progress" hidden>
+            <p id="course-progress-text" class="course-progress-text"></p>
+            <div id="course-progress-bar" class="course-progress-bar" aria-hidden="true"></div>
           </div>
           <ul id="course-links" class="course-links" aria-label="Course links" data-i18n-aria="aria.course_links"></ul>
           <p id="course-links-empty" class="course-links-empty" hidden>

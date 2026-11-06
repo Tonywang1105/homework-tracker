@@ -1,15 +1,16 @@
 // Course pages: clicking a course tag shows the List for that course (the Course filter) with the course's links
 // above it, such as Canvas, PrairieLearn and Gradescope. Links are saved in this browser and synced when signed in.
 
-import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=339917fb";
-import { t } from "../i18n.js?v=339917fb";
-import { render } from "../main.js?v=339917fb";
-import { syncCourseLinks } from "./account.js?v=339917fb";
-import { elements, makeButton } from "./dom.js?v=339917fb";
-import { handleFilterChange } from "./list.js?v=339917fb";
-import { setView } from "./settings.js?v=339917fb";
-import { loadText, saveChoice, state } from "./store.js?v=339917fb";
-import { showToast } from "./toast.js?v=339917fb";
+import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=83b99c44";
+import { formatNumber, t } from "../i18n.js?v=83b99c44";
+import { courseProgress } from "../progress.js?v=83b99c44";
+import { render } from "../main.js?v=83b99c44";
+import { syncCourseLinks } from "./account.js?v=83b99c44";
+import { elements, makeButton } from "./dom.js?v=83b99c44";
+import { handleFilterChange } from "./list.js?v=83b99c44";
+import { setView } from "./settings.js?v=83b99c44";
+import { loadText, saveChoice, state } from "./store.js?v=83b99c44";
+import { showToast } from "./toast.js?v=83b99c44";
 
 const COURSE_LINKS_KEY = "homework-tracker.courseLinks";
 
@@ -25,7 +26,12 @@ const page = {
   form: document.getElementById("course-link-form"),
   error: document.getElementById("course-link-error"),
   done: document.getElementById("course-links-done"),
+  progress: document.getElementById("course-progress"),
+  progressText: document.getElementById("course-progress-text"),
+  progressBar: document.getElementById("course-progress-bar"),
 };
+// The parts of the progress bar, in order, each with its color class.
+const PROGRESS_PARTS = ["done", "overdue", "soon", "later"];
 // The course whose links are being edited, so choosing another course closes the editor.
 let editingCourse = null;
 
@@ -91,6 +97,7 @@ export function renderCoursePage() {
   count.className = "course-page-count";
   count.textContent = left === 0 ? t("course.nothing_left") : t("course.left", { n: left });
   page.title.append(" ", count);
+  renderProgress(course);
 
   page.links.replaceChildren(
     ...links.map((link) => {
@@ -114,6 +121,35 @@ export function renderCoursePage() {
   if (!page.editList.contains(document.activeElement)) {
     page.editList.replaceChildren(...links.map(renderEditRow));
   }
+}
+
+/**
+ * "Graded work: 2% done · 20% due in the next 2 weeks (of 22% entered)" and a bar of the whole grade, from the Worth
+ * on this course's assignments (src/progress.js). Hidden for a course with no Worth entered.
+ */
+function renderProgress(course) {
+  const progress = courseProgress(state.assignments, course, new Date());
+  page.progress.hidden = progress === null;
+  if (!progress) {
+    return;
+  }
+  // "0% done" always shows, so a course with nothing finished yet still says so; the other parts only when there.
+  const parts = PROGRESS_PARTS.filter((part) => part === "done" || progress[part] > 0).map((part) =>
+    t(`progress.${part}`, { n: formatNumber(progress[part]) }),
+  );
+  const heading = document.createElement("strong");
+  heading.textContent = t("progress.heading");
+  page.progressText.replaceChildren(heading, parts.join(" · ") + t("progress.entered", { n: formatNumber(progress.entered) }));
+  // The bar is the whole grade, so what hasn't been entered stays empty; more than 100% entered fills it.
+  const scale = Math.max(100, progress.entered);
+  page.progressBar.replaceChildren(
+    ...PROGRESS_PARTS.filter((part) => progress[part] > 0).map((part) => {
+      const segment = document.createElement("span");
+      segment.className = `course-progress-${part}`;
+      segment.style.width = `${(progress[part] / scale) * 100}%`;
+      return segment;
+    }),
+  );
 }
 
 /** A link in the editor: its name (rename by typing) and Remove. */

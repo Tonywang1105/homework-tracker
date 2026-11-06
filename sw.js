@@ -47,6 +47,7 @@ const APP_FILES = [
   "src/main.js",
   "src/paste.js",
   "src/plan.js",
+  "src/progress.js",
   "src/prairielearn.js",
   "src/quickadd.js",
   "src/reminders.js",

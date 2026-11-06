@@ -1,13 +1,13 @@
 // Today's plan, at the top of the list: what's overdue, what's due today, and the hours the start-date
 // plan (src/plan.js) fits into today, each with Start, so "what should I do now?" has one answer.
 
-import { assignmentType, describeDue, formatHours } from "../assignments.js?v=339917fb";
-import { toDateKey } from "../calendar.js?v=339917fb";
-import { t } from "../i18n.js?v=339917fb";
-import { makeTag } from "./dom.js?v=339917fb";
-import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=339917fb";
-import { state } from "./store.js?v=339917fb";
-import { hoursLimit } from "./weekdayHours.js?v=339917fb";
+import { assignmentType, describeDue, formatHours } from "../assignments.js?v=83b99c44";
+import { toDateKey } from "../calendar.js?v=83b99c44";
+import { t } from "../i18n.js?v=83b99c44";
+import { makeTag } from "./dom.js?v=83b99c44";
+import { makeTimerClock, stepSchedule, timerButton } from "./list.js?v=83b99c44";
+import { state } from "./store.js?v=83b99c44";
+import { hoursLimit } from "./weekdayHours.js?v=83b99c44";
 
 const box = document.getElementById("today-plan");
 const total = document.getElementById("today-plan-total");
