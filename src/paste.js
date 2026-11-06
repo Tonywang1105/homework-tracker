@@ -1,7 +1,7 @@
 // What the pasted imports (PrairieLearn, Gradescope) share: recognizing the same assignment on a later paste,
 // working out what a paste would add or update, and the year of a date shown without one. No DOM; unit-tested.
 
-import { toDateKey } from "./calendar.js?v=699c5eff";
+import { toDateKey } from "./calendar.js?v=339917fb";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 

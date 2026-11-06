@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/form.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/list.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/calendar.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/agenda.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/types.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/panels.css?v=699c5eff" />
-    <link rel="stylesheet" href="styles/messages.css?v=699c5eff" />
-    <script type="module" src="src/main.js?v=699c5eff"></script>
+    <link rel="stylesheet" href="styles/base.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/form.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/list.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/calendar.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/agenda.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/types.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/panels.css?v=339917fb" />
+    <link rel="stylesheet" href="styles/messages.css?v=339917fb" />
+    <script type="module" src="src/main.js?v=339917fb"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -48,9 +48,11 @@
       <div class="header-controls">
         <div class="account">
           <span id="account-status" class="account-status" role="status" hidden></span>
-          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n-title="title.sign_in" data-i18n="account.sign_in">
+          <button type="button" id="sign-in" class="button account-button" title="Sign in with Google to see the same list on your laptop and phone" data-i18n-title="title.sign_in" data-i18n="account.sign_in" aria-describedby="sign-in-hint">
             Sign in to sync
           </button>
+          <!-- What signing in does, shown with the button: the button's hover note never appears on a phone. -->
+          <p id="sign-in-hint" class="sign-in-hint" data-i18n="account.hint" hidden>Same list on your laptop and phone. Without it, your list stays in this browser.</p>
           <button type="button" id="sign-out" class="button account-button" hidden data-i18n="sync.sign_out">Sign out</button>
         </div>
         <!-- The app's language, at the top so it's easy to find from any view (src/ui/language.js). Each name is in its own language. -->

@@ -1,7 +1,7 @@
 // Estimates from history: when adding work, a suggested Time needed from the time actually tracked on finished work
 // of the same type, in the same course if there is any, else in any course. No DOM, so it can be unit-tested with Node.
 
-import { assignmentType } from "./assignments.js?v=699c5eff";
+import { assignmentType } from "./assignments.js?v=339917fb";
 
 // The most recent this many matching assignments count, so old habits fade out.
 const RECENT = 5;

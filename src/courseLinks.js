@@ -1,8 +1,8 @@
 // Course pages' links (Canvas, PrairieLearn, Gradescope, slides…): checking them, and combining two lists of
 // them when signing in. No DOM, so it can be unit-tested with Node. Each link is { course, label, url }.
 
-import { t } from "./i18n.js?v=699c5eff";
-import { isWebAddress, shortLinkLabel } from "./links.js?v=699c5eff";
+import { t } from "./i18n.js?v=339917fb";
+import { isWebAddress, shortLinkLabel } from "./links.js?v=339917fb";
 
 export const MAX_LINKS_PER_COURSE = 12;
 // Also the limit in firestore.rules, which keeps the synced list to one small document.

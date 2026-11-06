@@ -16,6 +16,11 @@ const PHRASES = {
   // Header
   "header.tagline": ["Everything due, soonest first, with your own notes.", "所有待办，按截止时间排序，附上你自己的笔记。", "Todo lo pendiente, lo más próximo primero, con tus propias notas."],
   "account.sign_in": ["Sign in to sync", "登录以同步", "Inicia sesión para sincronizar"],
+  "account.hint": [
+    "Same list on your laptop and phone. Without it, your list stays in this browser.",
+    "电脑和手机上是同一份列表。不登录的话，列表只保存在这个浏览器里。",
+    "La misma lista en el portátil y el móvil. Sin iniciar sesión, tu lista se queda en este navegador.",
+  ],
 
   // The form
   "form.add_toggle": ["+ Add assignment", "+ 添加作业", "+ Añadir tarea"],

@@ -80,6 +80,20 @@ h2 {
   font-size: 0.85rem;
 }
 
+/* Under Sign in to sync: what it does, since the button's hover note never shows on a phone. */
+.sign-in-hint {
+  flex-basis: 100%;
+  max-width: 280px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.sign-in-hint[hidden] {
+  display: none;
+}
+
 .account-button {
   padding: 5px 12px;
   font-size: 0.85rem;
@@ -170,6 +184,12 @@ body.is-resizing {
   .form-panel:not(.is-open) h2,
   .form-panel:not(.is-open) form {
     display: none;
+  }
+
+  /* The hint tucks up under the heading (see .form-hint); with the heading folded away it follows the button,
+     so it needs a gap instead, or the button covers its first line. */
+  .form-panel:not(.is-open) .form-hint {
+    margin-top: 8px;
   }
 
   /* While the form is open on a phone, Cancel folds it again, even when adding rather than editing. */
