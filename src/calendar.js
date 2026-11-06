@@ -1,7 +1,7 @@
 // Pure logic for the month calendar: which days the grid shows and which assignments fall on each.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { PRIORITIES, sortByDue } from "./assignments.js?v=c11df76a";
+import { PRIORITIES, sortByDue } from "./assignments.js?v=699c5eff";
 
 const DAYS_PER_WEEK = 7;
 
@@ -32,12 +32,13 @@ export function shiftMonth({ year, month }, offset) {
 }
 
 /**
- * Builds the weeks shown for one month, Sunday first. The grid starts on the Sunday on or before
- * the 1st and ends on the Saturday on or after the last day, so it has 4 to 6 full weeks.
+ * Builds the weeks shown for one month, starting on `weekStart` (0 for Sunday, the default, or 1 for Monday). The
+ * grid starts on that weekday on or before the 1st and ends on the day before it on or after the last day, so it
+ * has 4 to 6 full weeks.
  * Each day is { key, dayOfMonth, inMonth, isToday, assignments }, with that day's assignments
  * ordered unfinished big, unfinished small, then finished, each by due time.
  */
-export function buildMonthGrid({ year, month }, assignments, today = new Date()) {
+export function buildMonthGrid({ year, month }, assignments, today = new Date(), weekStart = 0) {
   const byDay = new Map();
   // sortByDue first, then a stable sort by group, keeps due-time order inside each group.
   for (const assignment of sortByDue(assignments).sort(compareWithinDay)) {
@@ -48,14 +49,16 @@ export function buildMonthGrid({ year, month }, assignments, today = new Date())
 
   const firstOfMonth = new Date(year, month, 1);
   const lastOfMonth = new Date(year, month + 1, 0);
-  const gridStart = new Date(year, month, 1 - firstOfMonth.getDay());
-  const gridEnd = new Date(year, month + 1, DAYS_PER_WEEK - 1 - lastOfMonth.getDay());
+  // How many days into the week a date falls, counting from weekStart (0 to 6).
+  const intoWeek = (date) => (date.getDay() - weekStart + DAYS_PER_WEEK) % DAYS_PER_WEEK;
+  const gridStart = new Date(year, month, 1 - intoWeek(firstOfMonth));
+  const gridEnd = new Date(year, month + 1, DAYS_PER_WEEK - 1 - intoWeek(lastOfMonth));
   const todayKey = toDateKey(today);
 
   const weeks = [];
   // Step by calendar day (not by 24 hours) so daylight-saving changes cannot skip or repeat a day.
   for (let day = gridStart; day <= gridEnd; day = new Date(day.getFullYear(), day.getMonth(), day.getDate() + 1)) {
-    if (day.getDay() === 0) {
+    if (day.getDay() === weekStart) {
       weeks.push([]);
     }
     const key = toDateKey(day);

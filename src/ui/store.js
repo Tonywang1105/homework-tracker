@@ -1,13 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=c11df76a";
-import { t } from "../i18n.js?v=c11df76a";
-import { render } from "../main.js?v=c11df76a";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=c11df76a";
-import { saveAssignments } from "../storage.js?v=c11df76a";
-import { withDeletions } from "../trash.js?v=c11df76a";
-import { syncAssignments } from "./account.js?v=c11df76a";
-import { showToast } from "./toast.js?v=c11df76a";
+import { currentMonth } from "../calendar.js?v=699c5eff";
+import { t } from "../i18n.js?v=699c5eff";
+import { render } from "../main.js?v=699c5eff";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=699c5eff";
+import { saveAssignments } from "../storage.js?v=699c5eff";
+import { withDeletions } from "../trash.js?v=699c5eff";
+import { syncAssignments } from "./account.js?v=699c5eff";
+import { showToast } from "./toast.js?v=699c5eff";
 
 export const state = {
   // The live assignments; every screen draws from these.
@@ -51,6 +51,8 @@ export const state = {
   focusBreak: null,
   // Hours of homework per day the start-date planner fits work into, and its latest plan (id -> start).
   dailyHours: DEFAULT_DAILY_HOURS,
+  // The weekday weeks start on in the calendar and the weekday boxes: 0 for Sunday, 1 for Monday.
+  weekStart: 0,
   // Hours for each weekday (Sunday first) where they differ from dailyHours: a number, or null for the usual hours.
   weekdayHours: Array(7).fill(null),
   startPlan: new Map(),

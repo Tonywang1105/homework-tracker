@@ -339,3 +339,8 @@
   width: 100%;
   min-width: 0;
 }
+
+/* "Week starts on", above its Sunday / Monday buttons in Settings → Appearance. */
+.settings-label {
+  margin: 12px 0 6px;
+}

@@ -2,11 +2,11 @@
 // whether that's an extension). A mouse drags once it moves a little; a finger has to press and hold first, so a
 // quick swipe still scrolls the page. A plain click still opens the details box.
 
-import { rescheduleTo } from "../assignments.js?v=c11df76a";
-import { t } from "../i18n.js?v=c11df76a";
-import { elements, formatDay } from "./dom.js?v=c11df76a";
-import { findAssignment, state, updateAssignments } from "./store.js?v=c11df76a";
-import { showToast } from "./toast.js?v=c11df76a";
+import { rescheduleTo } from "../assignments.js?v=699c5eff";
+import { t } from "../i18n.js?v=699c5eff";
+import { elements, formatDay } from "./dom.js?v=699c5eff";
+import { findAssignment, state, updateAssignments } from "./store.js?v=699c5eff";
+import { showToast } from "./toast.js?v=699c5eff";
 
 const MOUSE_START_DISTANCE = 6;
 const TOUCH_HOLD_MS = 450;

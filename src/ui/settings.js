@@ -1,13 +1,13 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=c11df76a";
-import { t } from "../i18n.js?v=c11df76a";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=c11df76a";
-import { render } from "../main.js?v=c11df76a";
-import { parseDailyHours } from "../plan.js?v=c11df76a";
-import { countAssignments, elements, formatDay } from "./dom.js?v=c11df76a";
-import { removeChoice, saveChoice, state } from "./store.js?v=c11df76a";
-import { showToast } from "./toast.js?v=c11df76a";
+import { formatHours, workload } from "../assignments.js?v=699c5eff";
+import { t } from "../i18n.js?v=699c5eff";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=699c5eff";
+import { render } from "../main.js?v=699c5eff";
+import { parseDailyHours } from "../plan.js?v=699c5eff";
+import { countAssignments, elements, formatDay } from "./dom.js?v=699c5eff";
+import { removeChoice, saveChoice, state } from "./store.js?v=699c5eff";
+import { showToast } from "./toast.js?v=699c5eff";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -22,6 +22,10 @@ export const THEMES = ["system", "light", "dark"];
 export const FORM_WIDTH_KEY = "homework-tracker.formWidth";
 
 export const DAILY_HOURS_KEY = "homework-tracker.dailyHours";
+
+export const WEEK_START_KEY = "homework-tracker.weekStart";
+
+export const WEEK_STARTS = ["sunday", "monday"];
 
 export function setView(view) {
   state.view = view;
@@ -96,6 +100,22 @@ export function applyTheme(theme) {
   for (const button of elements.themeButtons) {
     button.setAttribute("aria-pressed", String(button.dataset.themeChoice === theme));
   }
+}
+
+/**
+ * Sunday-first or Monday-first weeks in the calendar and the weekday boxes (Settings → Appearance), kept on this
+ * device. The Weekly review and the weekly banner always count Monday to Sunday.
+ */
+export function applyWeekStart(choice) {
+  state.weekStart = choice === "monday" ? 1 : 0;
+  for (const button of elements.weekStartButtons) {
+    button.setAttribute("aria-pressed", String(button.dataset.weekStart === choice));
+  }
+}
+
+export function setWeekStart(choice) {
+  applyWeekStart(choice);
+  saveChoice(WEEK_START_KEY, choice);
 }
 
 export function setTheme(theme) {

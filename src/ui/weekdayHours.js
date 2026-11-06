@@ -1,12 +1,12 @@
-// Different hours on some days: in Settings → Planning, seven boxes (Sunday to Saturday) for the hours of homework
+// Different hours on some days: in Settings → Planning, seven boxes (Sunday or Monday first) for the hours of homework
 // that weekday has, such as 1 h on a lab day or 0 for a day off. An empty box uses the usual hours a day. Saved on
 // this device, like the usual hours; the planner reads both through hoursLimit().
 
-import { DATE_LOCALES, formatNumber, getLanguage, t } from "../i18n.js?v=c11df76a";
-import { render } from "../main.js?v=c11df76a";
-import { dailyLimit, parseWeekdayBox, parseWeekdayHours } from "../plan.js?v=c11df76a";
-import { loadText, saveChoice, state } from "./store.js?v=c11df76a";
-import { showToast } from "./toast.js?v=c11df76a";
+import { DATE_LOCALES, formatNumber, getLanguage, t } from "../i18n.js?v=699c5eff";
+import { render } from "../main.js?v=699c5eff";
+import { dailyLimit, parseWeekdayBox, parseWeekdayHours } from "../plan.js?v=699c5eff";
+import { loadText, saveChoice, state } from "./store.js?v=699c5eff";
+import { showToast } from "./toast.js?v=699c5eff";
 
 export const WEEKDAY_HOURS_KEY = "homework-tracker.weekdayHours";
 // Sunday, November 1, 2026, and the six days after it: one date for each weekday, to name them in any language.
@@ -48,7 +48,7 @@ export function startWeekdayHours() {
     box.addEventListener("change", () => handleWeekdayChange(weekday, box));
     label.append(name, box);
     list.append(label);
-    boxes.push({ name, box });
+    boxes.push({ label, name, box });
   }
   // Opened already when some day has its own hours, so they're easy to find again.
   section.open = state.weekdayHours.some((hours) => hours !== null);
@@ -57,6 +57,12 @@ export function startWeekdayHours() {
 
 /** The weekday names (in the chosen language) and, as each empty box's hint, the usual hours it would use. */
 export function renderWeekdayHours() {
+  // In the week's order (Monday first if chosen in Settings). Moved only when that changes, so a box being typed in
+  // isn't disturbed by the redraw every minute.
+  const order = Array.from({ length: 7 }, (_, index) => (index + state.weekStart) % 7);
+  if (list.firstElementChild !== boxes[order[0]].label) {
+    list.append(...order.map((weekday) => boxes[weekday].label));
+  }
   boxes.forEach(({ name, box }, weekday) => {
     name.textContent = weekdayName(weekday, "short");
     box.placeholder = String(state.dailyHours);
