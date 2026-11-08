@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/form.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/list.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/calendar.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/agenda.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/types.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/panels.css?v=83b99c44" />
-    <link rel="stylesheet" href="styles/messages.css?v=83b99c44" />
-    <script type="module" src="src/main.js?v=83b99c44"></script>
+    <link rel="stylesheet" href="styles/base.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/form.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/list.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/calendar.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/agenda.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/types.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/panels.css?v=da81b4bb" />
+    <link rel="stylesheet" href="styles/messages.css?v=da81b4bb" />
+    <script type="module" src="src/main.js?v=da81b4bb"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -617,7 +617,13 @@
               <button type="button" id="semester-archive" class="link-button action-delete" data-i18n="semester.archive">Archive finished work…</button>
             </section>
             <div class="import-actions">
+              <button type="button" id="copy-week" class="button" data-i18n="copy.button">Copy this week</button>
               <button type="button" id="review-panel-close" class="button" data-i18n="panel.close">Close</button>
+            </div>
+            <!-- Shown only when the browser won't let the app copy (src/ui/copyWeek.js): the text, selected, to copy by hand. -->
+            <div id="copy-week-fallback" class="copy-week-fallback" hidden>
+              <label for="copy-week-text" data-i18n="copy.fallback">Select this text and copy it:</label>
+              <textarea id="copy-week-text" rows="8" readonly></textarea>
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 // The weekly review: how this week went (Monday to Sunday, by due date) and how next week looks.
 
-import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=83b99c44";
-import { toDateKey } from "./calendar.js?v=83b99c44";
-import { DEFAULT_DAILY_HOURS } from "./plan.js?v=83b99c44";
-import { withTimerStopped } from "./timer.js?v=83b99c44";
+import { sortByDue, toDueDate, totalHours } from "./assignments.js?v=da81b4bb";
+import { toDateKey } from "./calendar.js?v=da81b4bb";
+import { DEFAULT_DAILY_HOURS } from "./plan.js?v=da81b4bb";
+import { withTimerStopped } from "./timer.js?v=da81b4bb";
 
 /**
  * This week's and next week's summary, counting by due date (the app doesn't record when work was done).
@@ -68,6 +68,27 @@ function trackedTime(assignments, now) {
 }
 
 /** Midnight on the Monday of `now`'s week. */
+/**
+ * What "Copy this week" copies: unfinished work from today through next Sunday (the two weeks the review shows),
+ * grouped by due day, plus unfinished work already past due. Returns { start, end, overdue, days, count }, where
+ * days is [{ date, assignments }] for each day with something due, soonest first, and count is everything listed.
+ */
+export function weekToCopy(assignments, now = new Date()) {
+  const start = toDateKey(now);
+  const { end } = weekKeys(mondayOf(now), 7);
+  const unfinished = sortByDue(assignments.filter((a) => !a.done));
+  const overdue = unfinished.filter((a) => toDueDate(a.dueDate, a.dueTime) < now);
+  const coming = unfinished.filter((a) => toDueDate(a.dueDate, a.dueTime) >= now && a.dueDate <= end);
+  const days = [];
+  for (const assignment of coming) {
+    if (days.at(-1)?.date !== assignment.dueDate) {
+      days.push({ date: assignment.dueDate, assignments: [] });
+    }
+    days.at(-1).assignments.push(assignment);
+  }
+  return { start, end, overdue, days, count: overdue.length + coming.length };
+}
+
 /** The Monday that starts this week, as "YYYY-MM-DD": the weekly banner is remembered as seen for that week. */
 export function weekStartKey(now = new Date()) {
   return toDateKey(mondayOf(now));

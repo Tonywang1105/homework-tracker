@@ -64,6 +64,7 @@ const APP_FILES = [
   "src/ui/calendarDrag.js",
   "src/ui/calendarView.js",
   "src/ui/colorsPanel.js",
+  "src/ui/copyWeek.js",
   "src/ui/coursePage.js",
   "src/ui/deletedPanel.js",
   "src/ui/dom.js",
