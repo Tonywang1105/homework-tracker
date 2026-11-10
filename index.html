@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/form.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/list.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/calendar.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/agenda.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/types.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/panels.css?v=d5a1412c" />
-    <link rel="stylesheet" href="styles/messages.css?v=d5a1412c" />
-    <script type="module" src="src/main.js?v=d5a1412c"></script>
+    <link rel="stylesheet" href="styles/base.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/form.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/list.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/calendar.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/agenda.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/types.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/panels.css?v=464a6234" />
+    <link rel="stylesheet" href="styles/messages.css?v=464a6234" />
+    <script type="module" src="src/main.js?v=464a6234"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -344,13 +344,23 @@
           <p data-i18n="start.empty">No assignments yet. Add one with the form, use Import… below (Canvas, PrairieLearn or Gradescope), or see how the app works with some examples.</p>
           <button type="button" id="try-examples" class="button button-primary" data-i18n="start.try">Try with example assignments</button>
         </div>
+        <!-- What's new since this device last looked, until "Got it" (src/ui/whatsNewBanner.js). -->
+        <div id="new-banner" class="notice-bar week-banner" role="region" aria-labelledby="new-banner-heading" hidden>
+          <strong id="new-banner-heading" data-i18n="new.heading">New: </strong>
+          <span id="new-banner-text"></span>
+          <ul id="new-banner-list" class="new-banner-list" hidden></ul>
+          <span class="week-banner-actions">
+            <button type="button" id="new-banner-all" class="link-button" aria-expanded="false" aria-controls="new-banner-list" data-i18n="new.show_all">Show all</button>
+            <button type="button" id="new-banner-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide what's new" data-i18n-aria="aria.dismiss_new">Got it</button>
+          </span>
+        </div>
         <!-- The weekly planning banner, on the first open of each week until "Got it" (src/ui/weekBanner.js). -->
         <div id="week-banner" class="notice-bar week-banner" role="region" aria-labelledby="week-banner-heading" hidden>
           <strong id="week-banner-heading" data-i18n="week.heading">This week</strong>
           <span id="week-banner-text"></span>
           <span class="week-banner-actions">
             <button type="button" id="week-banner-review" class="link-button" data-i18n="week.review">Weekly review</button>
-            <button type="button" id="week-banner-dismiss" class="link-button" data-i18n="week.got_it">Got it</button>
+            <button type="button" id="week-banner-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide this week's plan" data-i18n-aria="aria.dismiss_week">Got it</button>
           </span>
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>

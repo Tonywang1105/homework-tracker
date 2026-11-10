@@ -60,6 +60,7 @@ const APP_FILES = [
   "src/timer.js",
   "src/trash.js",
   "src/version.js",
+  "src/whatsNew.js",
   "src/ui/account.js",
   "src/ui/agendaView.js",
   "src/ui/calendarDrag.js",
@@ -89,6 +90,7 @@ const APP_FILES = [
   "src/ui/todayPlan.js",
   "src/ui/weekBanner.js",
   "src/ui/weekdayHours.js",
+  "src/ui/whatsNewBanner.js",
 ];
 
 self.addEventListener("install", (event) => {

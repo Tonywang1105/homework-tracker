@@ -1,7 +1,7 @@
 // Reminders: which unfinished work is close enough to its deadline for a notification (big work a day before,
 // everything else an hour before, like the calendar export), each reminded once. No DOM, so it can be unit-tested.
 
-import { toDueDate } from "./assignments.js?v=d5a1412c";
+import { toDueDate } from "./assignments.js?v=464a6234";
 
 const HOUR_MS = 60 * 60 * 1000;
 // Remembered reminders older than this are forgotten, so the saved list doesn't grow all semester.
