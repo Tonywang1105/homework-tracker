@@ -1,7 +1,7 @@
 // The end-of-semester wrap-up: what was finished this term, time tracked per course, the longest streak and how
 // estimates compared, and which finished work the Archive button would clear. No DOM, so it can be unit-tested.
 
-import { toDateKey } from "./calendar.js?v=da81b4bb";
+import { toDateKey } from "./calendar.js?v=d5a1412c";
 
 /**
  * The term `now` falls in, by date: spring (January to May), summer (June and July) or fall (August to December).

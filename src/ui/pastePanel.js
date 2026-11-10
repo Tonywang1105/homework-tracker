@@ -2,13 +2,13 @@
 // a preview of what it would add or update, and Add (with Undo). Each source supplies its reader and the key that
 // recognizes its assignments on a later paste; nothing leaves this device.
 
-import { createAssignment, validateAssignmentInput } from "../assignments.js?v=da81b4bb";
-import { planGradescope, readGradescope } from "../gradescope.js?v=da81b4bb";
-import { t } from "../i18n.js?v=da81b4bb";
-import { planPrairieLearn, readPrairieLearn } from "../prairielearn.js?v=da81b4bb";
-import { countAssignments, formatDay } from "./dom.js?v=da81b4bb";
-import { state, updateAssignments } from "./store.js?v=da81b4bb";
-import { showToast } from "./toast.js?v=da81b4bb";
+import { createAssignment, validateAssignmentInput } from "../assignments.js?v=d5a1412c";
+import { planGradescope, readGradescope } from "../gradescope.js?v=d5a1412c";
+import { t } from "../i18n.js?v=d5a1412c";
+import { planPrairieLearn, readPrairieLearn } from "../prairielearn.js?v=d5a1412c";
+import { countAssignments, formatDay } from "./dom.js?v=d5a1412c";
+import { state, updateAssignments } from "./store.js?v=d5a1412c";
+import { showToast } from "./toast.js?v=d5a1412c";
 
 // Each source: its element id prefix, how to read and plan a paste, the field its key is saved in, its Where, and
 // the phrases that differ.

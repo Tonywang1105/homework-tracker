@@ -1,13 +1,14 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=da81b4bb";
-import { t } from "../i18n.js?v=da81b4bb";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=da81b4bb";
-import { render } from "../main.js?v=da81b4bb";
-import { parseDailyHours } from "../plan.js?v=da81b4bb";
-import { countAssignments, elements, formatDay } from "./dom.js?v=da81b4bb";
-import { removeChoice, saveChoice, state } from "./store.js?v=da81b4bb";
-import { showToast } from "./toast.js?v=da81b4bb";
+import { formatHours, workload } from "../assignments.js?v=d5a1412c";
+import { t } from "../i18n.js?v=d5a1412c";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=d5a1412c";
+import { render } from "../main.js?v=d5a1412c";
+import { parseDailyHours } from "../plan.js?v=d5a1412c";
+import { versionFromUrl } from "../version.js?v=d5a1412c";
+import { countAssignments, elements, formatDay } from "./dom.js?v=d5a1412c";
+import { removeChoice, saveChoice, state } from "./store.js?v=d5a1412c";
+import { showToast } from "./toast.js?v=d5a1412c";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -22,6 +23,16 @@ export const THEMES = ["system", "light", "dark"];
 export const FORM_WIDTH_KEY = "homework-tracker.formWidth";
 
 export const DAILY_HOURS_KEY = "homework-tracker.dailyHours";
+
+// This script's own address carries the published version (see src/version.js); a local copy has none.
+const APP_VERSION = versionFromUrl(import.meta.url);
+
+/** "Version da81b4bb" at the bottom of Settings, so a phone and a laptop can tell whether they run the same code. */
+export function renderVersion() {
+  document.getElementById("app-version").textContent = APP_VERSION
+    ? t("settings.version", { version: APP_VERSION })
+    : t("settings.version_local");
+}
 
 export const WEEK_START_KEY = "homework-tracker.weekStart";
 

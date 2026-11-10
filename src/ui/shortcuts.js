@@ -1,14 +1,14 @@
 // Keyboard shortcuts on a laptop: n adds, / searches, t switches views, ? lists them, Ctrl+Z (Cmd+Z) undoes
 // (src/shortcuts.js says which key is which).
 
-import { t } from "../i18n.js?v=da81b4bb";
-import { render } from "../main.js?v=da81b4bb";
-import { isUndoKey, nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=da81b4bb";
-import { elements } from "./dom.js?v=da81b4bb";
-import { panels, setPanelOpen } from "./panels.js?v=da81b4bb";
-import { setView, VIEWS } from "./settings.js?v=da81b4bb";
-import { state } from "./store.js?v=da81b4bb";
-import { canUndo, runUndo, showToast } from "./toast.js?v=da81b4bb";
+import { t } from "../i18n.js?v=d5a1412c";
+import { render } from "../main.js?v=d5a1412c";
+import { isUndoKey, nextView, SHORTCUTS, shortcutAction } from "../shortcuts.js?v=d5a1412c";
+import { elements } from "./dom.js?v=d5a1412c";
+import { panels, setPanelOpen } from "./panels.js?v=d5a1412c";
+import { setView, VIEWS } from "./settings.js?v=d5a1412c";
+import { state } from "./store.js?v=d5a1412c";
+import { canUndo, runUndo, showToast } from "./toast.js?v=d5a1412c";
 
 // The shortcuts are listed in Settings, so ? opens Settings at that section.
 const shortcutsPanel = panels.find((panel) => panel.panel.id === "settings-panel");

@@ -1,10 +1,10 @@
 // Course colors, in Settings: each course with its tag's color, which can be changed (saved in this browser).
 
-import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=da81b4bb";
-import { t } from "../i18n.js?v=da81b4bb";
-import { render } from "../main.js?v=da81b4bb";
-import { makeOption, makeTag } from "./dom.js?v=da81b4bb";
-import { loadText, saveChoice, state } from "./store.js?v=da81b4bb";
+import { COURSE_COLORS, courseColors, parseChosenColors } from "../courseColors.js?v=d5a1412c";
+import { t } from "../i18n.js?v=d5a1412c";
+import { render } from "../main.js?v=d5a1412c";
+import { makeOption, makeTag } from "./dom.js?v=d5a1412c";
+import { loadText, saveChoice, state } from "./store.js?v=d5a1412c";
 
 const CHOSEN_COLORS_KEY = "homework-tracker.courseColors";
 const AUTOMATIC = "";

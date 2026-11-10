@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/form.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/list.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/calendar.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/agenda.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/types.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/panels.css?v=da81b4bb" />
-    <link rel="stylesheet" href="styles/messages.css?v=da81b4bb" />
-    <script type="module" src="src/main.js?v=da81b4bb"></script>
+    <link rel="stylesheet" href="styles/base.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/form.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/list.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/calendar.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/agenda.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/types.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/panels.css?v=d5a1412c" />
+    <link rel="stylesheet" href="styles/messages.css?v=d5a1412c" />
+    <script type="module" src="src/main.js?v=d5a1412c"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -590,6 +590,8 @@
             <section class="settings-section" aria-labelledby="settings-help">
               <h3 id="settings-help" data-i18n="settings.help">Help</h3>
               <button type="button" id="guide-start" class="button" data-i18n="settings.tour">Show the tour again</button>
+              <!-- Which published version this is, so two devices can be compared (src/ui/settings.js). -->
+              <p id="app-version" class="import-help app-version"></p>
             </section>
             <div class="import-actions">
               <button type="button" id="settings-panel-close" class="button" data-i18n="settings.close">Close</button>

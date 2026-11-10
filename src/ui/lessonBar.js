@@ -1,11 +1,11 @@
 // The "how did it go?" bar: after big or regular work is marked done, one optional line for next time, saved on
 // that assignment (src/lessons.js shows it on the next one of its kind). It stays until saved or skipped.
 
-import { updateAssignment } from "../assignments.js?v=da81b4bb";
-import { t } from "../i18n.js?v=da81b4bb";
-import { asksForLesson, cleanLesson } from "../lessons.js?v=da81b4bb";
-import { findAssignment, state, updateAssignments } from "./store.js?v=da81b4bb";
-import { showToast } from "./toast.js?v=da81b4bb";
+import { updateAssignment } from "../assignments.js?v=d5a1412c";
+import { t } from "../i18n.js?v=d5a1412c";
+import { asksForLesson, cleanLesson } from "../lessons.js?v=d5a1412c";
+import { findAssignment, state, updateAssignments } from "./store.js?v=d5a1412c";
+import { showToast } from "./toast.js?v=d5a1412c";
 
 const bar = {
   form: document.getElementById("lesson-bar"),

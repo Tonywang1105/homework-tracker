@@ -576,6 +576,8 @@ const PHRASES = {
   "aria.big_this_week": ["Big assignments this week", "本周的大型作业", "Tareas grandes de esta semana"],
   "aria.close_details": ["Close details", "关闭详情", "Cerrar detalles"],
   "aria.close_message": ["Close message", "关闭消息", "Cerrar mensaje"],
+  "settings.version": ["Version {version}", "版本 {version}", "Versión {version}"],
+  "settings.version_local": ["Version: local copy (not published)", "版本：本地副本（未发布）", "Versión: copia local (sin publicar)"],
   "settings.week_start": ["Week starts on", "每周开始于", "La semana empieza el"],
   "week_start.sunday": ["Sunday", "周日", "domingo"],
   "week_start.monday": ["Monday", "周一", "lunes"],

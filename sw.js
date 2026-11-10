@@ -59,6 +59,7 @@ const APP_FILES = [
   "src/sync.js",
   "src/timer.js",
   "src/trash.js",
+  "src/version.js",
   "src/ui/account.js",
   "src/ui/agendaView.js",
   "src/ui/calendarDrag.js",

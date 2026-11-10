@@ -361,3 +361,9 @@
   font-family: inherit;
   font-size: 0.85rem;
 }
+
+/* "Version da81b4bb", under Help at the bottom of Settings. */
+.app-version {
+  margin-top: 12px;
+  font-variant-numeric: tabular-nums;
+}
