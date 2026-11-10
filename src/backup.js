@@ -1,11 +1,11 @@
 // Backing up the assignment list to a file and restoring it, so the list survives a cleared
 // browser and can move to another browser or device. No DOM, so it can be unit-tested with Node.
 
-import { validateAssignmentInput } from "./assignments.js?v=464a6234";
-import { toDateKey } from "./calendar.js?v=464a6234";
-import { t } from "./i18n.js?v=464a6234";
-import { cleanLesson } from "./lessons.js?v=464a6234";
-import { readSpentSeconds } from "./timer.js?v=464a6234";
+import { validateAssignmentInput } from "./assignments.js?v=a4a2142e";
+import { toDateKey } from "./calendar.js?v=a4a2142e";
+import { t } from "./i18n.js?v=a4a2142e";
+import { cleanLesson } from "./lessons.js?v=a4a2142e";
+import { readSpentSeconds } from "./timer.js?v=a4a2142e";
 
 // Written into every backup, so restoring can tell our file from any other JSON file.
 const BACKUP_FORMAT = "homework-tracker-backup";
@@ -55,7 +55,10 @@ export function readBackup(text) {
   return { ok: true, assignments, skipped };
 }
 
-/** One saved assignment, checked and cleaned, or null if it can't be used. */
+/**
+ * One saved assignment, checked and cleaned, or null if it can't be used. A new stored field goes here, and in
+ * EVERY_FIELD in tests/sync.test.js, which checks the database's 30-field limit.
+ */
 function restoreAssignment(saved) {
   if (typeof saved?.id !== "string" || saved.id === "") {
     return null;

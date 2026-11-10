@@ -1,16 +1,16 @@
 // Course pages: clicking a course tag shows the List for that course (the Course filter) with the course's links
 // above it, such as Canvas, PrairieLearn and Gradescope. Links are saved in this browser and synced when signed in.
 
-import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=464a6234";
-import { formatNumber, t } from "../i18n.js?v=464a6234";
-import { courseProgress } from "../progress.js?v=464a6234";
-import { render } from "../main.js?v=464a6234";
-import { syncCourseLinks } from "./account.js?v=464a6234";
-import { elements, makeButton } from "./dom.js?v=464a6234";
-import { handleFilterChange } from "./list.js?v=464a6234";
-import { setView } from "./settings.js?v=464a6234";
-import { loadText, saveChoice, state } from "./store.js?v=464a6234";
-import { showToast } from "./toast.js?v=464a6234";
+import { linksFor, parseSavedLinks, validateLink } from "../courseLinks.js?v=a4a2142e";
+import { formatNumber, t } from "../i18n.js?v=a4a2142e";
+import { courseProgress } from "../progress.js?v=a4a2142e";
+import { render } from "../main.js?v=a4a2142e";
+import { syncCourseLinks } from "./account.js?v=a4a2142e";
+import { elements, makeButton } from "./dom.js?v=a4a2142e";
+import { handleFilterChange } from "./list.js?v=a4a2142e";
+import { setView } from "./settings.js?v=a4a2142e";
+import { loadText, saveChoice, state } from "./store.js?v=a4a2142e";
+import { showToast } from "./toast.js?v=a4a2142e";
 
 const COURSE_LINKS_KEY = "homework-tracker.courseLinks";
 

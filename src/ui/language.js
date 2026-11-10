@@ -3,14 +3,14 @@
 // themselves are in src/i18n.js; the page's fixed words are marked with data-i18n, and placeholders, screen-reader
 // labels and tooltips with data-i18n-placeholder, data-i18n-aria and data-i18n-title.
 
-import { DATE_LOCALES, getLanguage, HTML_LANGS, pickLanguage, setLanguage, t } from "../i18n.js?v=464a6234";
-import { render } from "../main.js?v=464a6234";
-import { renderTypeLegend, renderWeekdayHeadings } from "./calendarView.js?v=464a6234";
-import { setDateLocale } from "./dom.js?v=464a6234";
-import { renderFormMode } from "./form.js?v=464a6234";
-import { handleQuickAddInput } from "./quickAdd.js?v=464a6234";
-import { renderShortcutList } from "./shortcuts.js?v=464a6234";
-import { loadText, saveChoice } from "./store.js?v=464a6234";
+import { DATE_LOCALES, getLanguage, HTML_LANGS, pickLanguage, setLanguage, t } from "../i18n.js?v=a4a2142e";
+import { render } from "../main.js?v=a4a2142e";
+import { renderTypeLegend, renderWeekdayHeadings } from "./calendarView.js?v=a4a2142e";
+import { setDateLocale } from "./dom.js?v=a4a2142e";
+import { renderFormMode } from "./form.js?v=a4a2142e";
+import { handleQuickAddInput } from "./quickAdd.js?v=a4a2142e";
+import { renderShortcutList } from "./shortcuts.js?v=a4a2142e";
+import { loadText, saveChoice } from "./store.js?v=a4a2142e";
 
 const LANGUAGE_KEY = "homework-tracker.language";
 const buttons = document.querySelectorAll(".language-button");

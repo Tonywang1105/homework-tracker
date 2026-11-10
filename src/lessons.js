@@ -1,7 +1,7 @@
 // "How it went" notes: a one-line lesson saved when big or regular work is finished, shown on the next assignment of
 // the same type in the same course ("Last time (MP8): start the tests first"). No DOM, so it can be unit-tested.
 
-import { assignmentType } from "./assignments.js?v=464a6234";
+import { assignmentType } from "./assignments.js?v=a4a2142e";
 
 export const MAX_LESSON_LENGTH = 200;
 
