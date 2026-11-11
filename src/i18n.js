@@ -659,6 +659,11 @@ const PHRASES = {
   "new.monday_first": ["Weeks can start on Monday, in Settings → Appearance", "可在设置 → 外观里让每周从周一开始", "La semana puede empezar el lunes, en Ajustes → Apariencia"],
   "new.course_progress": ["Grade progress on each course page", "每门课的页面显示成绩进度", "Progreso de la nota en la página de cada curso"],
   "new.copy_week": ["Copy this week, in the Weekly review", "每周回顾里可以复制本周", "Copiar la semana, en el Repaso semanal"],
+  "new.regular_day_reminder": [
+    "Reminders now come a day before regular work too, as well as an hour before",
+    "普通作业现在也会提前一天提醒，另外仍提前一小时提醒",
+    "Los recordatorios ahora llegan también un día antes del trabajo normal, además de una hora antes",
+  ],
   "new.version": ["The version number, at the bottom of Settings", "设置底部显示版本号", "El número de versión, al final de Ajustes"],
   "week.heading": ["This week", "本周", "Esta semana"],
   "week.due_hours": ["{count} due by {end}, {hours} of work.", "{end}前有{count}到期，共{hours}工作量。", "{count} para el {end}, {hours} de trabajo."],
@@ -715,9 +720,9 @@ const PHRASES = {
   "settings.reminders": ["Reminders", "提醒", "Recordatorios"],
   "settings.reminders_on": ["Remind me before work is due", "截止前提醒我", "Avisarme antes de que venza una tarea"],
   "settings.reminders_help": [
-    "While the app is open, even in a background tab: big work a day before, everything else an hour before. Each device decides for itself.",
-    "应用打开时（即使在后台标签页）：大型作业提前一天提醒，其他提前一小时。每台设备单独设置。",
-    "Mientras la app está abierta, aunque sea en otra pestaña: las tareas grandes un día antes y el resto una hora antes. Cada dispositivo decide por su cuenta.",
+    "While the app is open, even in a background tab: big work a day before, regular work a day and an hour before, small reminders an hour before. Each device decides for itself.",
+    "应用打开时（即使在后台标签页）：大型作业提前一天提醒，普通作业提前一天和一小时各提醒一次，小提醒提前一小时。每台设备单独设置。",
+    "Mientras la app está abierta, aunque sea en otra pestaña: las tareas grandes un día antes, las normales un día y una hora antes, y los recordatorios pequeños una hora antes. Cada dispositivo decide por su cuenta.",
   ],
   "reminders.unsupported": ["This browser can't show notifications here.", "这个浏览器无法在这里显示通知。", "Este navegador no puede mostrar notificaciones aquí."],
   "reminders.blocked": [

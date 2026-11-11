@@ -1,10 +1,10 @@
 // Reminders on this device: while the app is open, a notification when unfinished work is due soon (src/reminders.js
 // decides which). Turning it on asks the browser for permission; if it can't or won't, Settings says why.
 
-import { describeDue } from "../assignments.js?v=51ea54e1";
-import { t } from "../i18n.js?v=51ea54e1";
-import { dueReminders, readSentReminders, reminderKey } from "../reminders.js?v=51ea54e1";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=51ea54e1";
+import { describeDue } from "../assignments.js?v=7a4e1cba";
+import { t } from "../i18n.js?v=7a4e1cba";
+import { dueReminders, readSentReminders } from "../reminders.js?v=7a4e1cba";
+import { loadText, removeChoice, saveChoice, state } from "./store.js?v=7a4e1cba";
 
 const ON_KEY = "homework-tracker.reminders";
 const SENT_KEY = "homework-tracker.remindersSent";
@@ -58,10 +58,10 @@ export function checkReminders(now = new Date()) {
     return;
   }
   const sent = readSentReminders(loadText(SENT_KEY), now);
-  for (const assignment of dueReminders(state.assignments, sent, now)) {
+  for (const { assignment, key } of dueReminders(state.assignments, sent, now)) {
     const { text } = describeDue(assignment, now);
-    notify(assignment.title, assignment.course ? `${text} · ${assignment.course}` : text, reminderKey(assignment));
-    sent.add(reminderKey(assignment));
+    notify(assignment.title, assignment.course ? `${text} · ${assignment.course}` : text, key);
+    sent.add(key);
   }
   saveChoice(SENT_KEY, JSON.stringify([...sent]));
 }

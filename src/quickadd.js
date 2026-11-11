@@ -1,8 +1,8 @@
 // Quick add: reading one typed line, like "MP4 cs124 fri 11:59pm", into an assignment's fields.
 // Words that aren't recognized stay in the title, so nothing typed is lost.
 
-import { toDateKey } from "./calendar.js?v=51ea54e1";
-import { shortCourseName } from "./canvas.js?v=51ea54e1";
+import { toDateKey } from "./calendar.js?v=7a4e1cba";
+import { shortCourseName } from "./canvas.js?v=7a4e1cba";
 
 const WEEKDAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 // Longer spellings people type for each weekday, mapped to the three-letter ones above.
