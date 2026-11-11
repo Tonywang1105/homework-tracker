@@ -274,6 +274,11 @@ const PHRASES = {
   ],
   "msg.signed_in_added": ["Signed in. Added {count} from this device to your account.", "已登录，已将这台设备上的{count}添加到你的账号。", "Sesión iniciada. Se añadieron {count} de este dispositivo a tu cuenta."],
   "msg.signed_in": ["Signed in. Your list now syncs with your account.", "已登录，你的列表现在会与账号同步。", "Sesión iniciada. Tu lista ahora se sincroniza con tu cuenta."],
+  "msg.signed_in_set_aside": [
+    "Signed in. The list that was on this device belongs to another account, so it was set aside for that account, not copied into this one.",
+    "已登录。这台设备上原来的列表属于另一个帐号，已为那个帐号单独保存，没有复制到这个帐号。",
+    "Sesión iniciada. La lista que había en este dispositivo es de otra cuenta, así que se guardó aparte para esa cuenta y no se copió a esta.",
+  ],
   "msg.sync_failed": ["Couldn't sync with your account ({code}). Try reloading the page.", "无法与账号同步（{code}），请刷新页面重试。", "No se pudo sincronizar con tu cuenta ({code}). Prueba a recargar la página."],
   "msg.links_sync_failed": ["Couldn't sync course links ({code}). They're saved on this device.", "无法同步课程链接（{code}），它们已保存在这台设备上。", "No se pudieron sincronizar los enlaces ({code}). Están guardados en este dispositivo."],
   "msg.file_too_big": ['"{name}" is too big to be a {kind}.', "「{name}」太大，不像是{kind}。", "«{name}» es demasiado grande para ser {kind}."],

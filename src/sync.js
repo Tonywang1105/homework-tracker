@@ -30,12 +30,15 @@ export function mergeLists(local, remote) {
 }
 
 /**
- * The list after signing back in to an account this device has synced with before. `lastSynced` is the
- * account's list as this device last saw it, so each difference can be told apart:
+ * The list after signing back in, or reconnecting, to an account this device has synced with before. `lastSynced`
+ * is the account's list as this device last saw it, so each difference can be told apart:
  * - deleted on another device (in lastSynced, gone from the account) stays deleted;
  * - added here while signed out (in neither) is added;
- * - changed or deleted only here (the account still matches lastSynced) goes to the account;
- * - changed on both keeps the account's copy.
+ * - changed only here (the account still matches lastSynced) goes to the account, including a deletion, which is
+ *   an assignment with deletedAt (Recently deleted);
+ * - changed on both keeps the account's copy;
+ * - missing here but in the account is kept: missing never means deleted, so an empty or out-of-date list on this
+ *   device (unreadable storage, an emptied cache) can't delete anything from the account.
  * Returns { assignments, addedCount }, like mergeLists.
  */
 export function mergeWithLastSynced(local, remote, lastSynced) {
@@ -50,10 +53,7 @@ export function mergeWithLastSynced(local, remote, lastSynced) {
     const before = lastById.get(theirs.id);
     const unchangedElsewhere = before && sameAssignment(theirs, before);
     if (!mine) {
-      // Gone here: deleted here while signed out, unless the account changed it since (then it's kept).
-      if (!unchangedElsewhere) {
-        kept.push(theirs);
-      }
+      kept.push(theirs);
     } else if (unchangedElsewhere && !sameAssignment(mine, before)) {
       kept.push(mine);
     } else {
@@ -64,6 +64,45 @@ export function mergeWithLastSynced(local, remote, lastSynced) {
     (a) => !remoteIds.has(a.id) && !lastById.has(a.id) && !(a.canvasUid && remoteCanvasUids.has(a.canvasUid)),
   );
   return { assignments: [...kept, ...added], addedCount: added.length };
+}
+
+/**
+ * What to merge when `userId` signs in or reconnects. `local` and `links` are this device's assignments and course
+ * links; `saved` is the account as this device last saw it confirmed, { userId, assignments } (null if never); and
+ * `setAside` maps other accounts' ids to what was set aside for them, { assignments, links, lastSynced }.
+ * Returns { local, links, lastSynced, setAside, switchedFrom }:
+ * - Normally local and links are this device's, and lastSynced is the saved list if it was this account's (else
+ *   null, a first merge).
+ * - If this device's list was last synced with a different account, nothing of it goes into this one (it's someone
+ *   else's homework): it's set aside for that account (switchedFrom names it), and whatever was set aside for this
+ *   account earlier is merged instead.
+ */
+export function signInPlan(local, links, saved, setAside, userId) {
+  const kept = { ...setAside };
+  const mine = kept[userId];
+  delete kept[userId];
+  if (saved?.userId && saved.userId !== userId) {
+    kept[saved.userId] = { assignments: local, links, lastSynced: saved.assignments };
+    return {
+      local: mine?.assignments ?? [],
+      links: mine?.links ?? [],
+      lastSynced: mine?.lastSynced ?? null,
+      setAside: kept,
+      switchedFrom: saved.userId,
+    };
+  }
+  if (mine && local.length === 0) {
+    // This device was cleared for a switch that didn't finish: the owner gets their set-aside list back.
+    return { local: mine.assignments, links: mine.links ?? [], lastSynced: mine.lastSynced ?? null, setAside: kept, switchedFrom: null };
+  }
+  return {
+    local,
+    links,
+    lastSynced: saved?.userId === userId ? saved.assignments : null,
+    // Only taken out of the set-aside lists when it's used above.
+    setAside: mine ? { ...kept, [userId]: mine } : kept,
+    switchedFrom: null,
+  };
 }
 
 /** What to send to the account to turn `previous` into `next`: assignments to save, and ids to delete. */

@@ -1,12 +1,12 @@
 // Copy this week, in the Weekly review: unfinished work from today through next Sunday as plain text, grouped by
 // day, to paste into notes or a chat. Notes aren't included, since they often hold personal hints and links.
 
-import { formatHours, toDueDate } from "../assignments.js?v=7a4e1cba";
-import { t } from "../i18n.js?v=7a4e1cba";
-import { weekToCopy } from "../review.js?v=7a4e1cba";
-import { countAssignments, formatDay, timeFormatter } from "./dom.js?v=7a4e1cba";
-import { state } from "./store.js?v=7a4e1cba";
-import { showToast } from "./toast.js?v=7a4e1cba";
+import { formatHours, toDueDate } from "../assignments.js?v=49cec885";
+import { t } from "../i18n.js?v=49cec885";
+import { weekToCopy } from "../review.js?v=49cec885";
+import { countAssignments, formatDay, timeFormatter } from "./dom.js?v=49cec885";
+import { state } from "./store.js?v=49cec885";
+import { showToast } from "./toast.js?v=49cec885";
 
 const copy = {
   button: document.getElementById("copy-week"),

@@ -2,17 +2,17 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=7a4e1cba";
-import { firebaseConfig } from "../firebase-config.js?v=7a4e1cba";
-import { t } from "../i18n.js?v=7a4e1cba";
-import { render } from "../main.js?v=7a4e1cba";
-import { saveAssignments } from "../storage.js?v=7a4e1cba";
-import { listChanges, mergeLists, mergeWithLastSynced, toRemote } from "../sync.js?v=7a4e1cba";
-import { splitDeleted } from "../trash.js?v=7a4e1cba";
-import { applyCourseLinks } from "./coursePage.js?v=7a4e1cba";
-import { countAssignments, elements } from "./dom.js?v=7a4e1cba";
-import { loadText, removeChoice, saveChoice, state } from "./store.js?v=7a4e1cba";
-import { showToast } from "./toast.js?v=7a4e1cba";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=49cec885";
+import { firebaseConfig } from "../firebase-config.js?v=49cec885";
+import { t } from "../i18n.js?v=49cec885";
+import { render } from "../main.js?v=49cec885";
+import { saveAssignments } from "../storage.js?v=49cec885";
+import { listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=49cec885";
+import { splitDeleted } from "../trash.js?v=49cec885";
+import { applyCourseLinks } from "./coursePage.js?v=49cec885";
+import { countAssignments, elements } from "./dom.js?v=49cec885";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=49cec885";
+import { showToast } from "./toast.js?v=49cec885";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
@@ -22,6 +22,9 @@ const SYNCED_ACCOUNT_KEY = "homework-tracker.syncedAccount";
 // { userId, assignments }. Kept after signing out, so signing back in can tell "deleted on the phone"
 // apart from "added here while signed out" (see mergeWithLastSynced).
 const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
+// What was on this device when a different account signed in, set aside for its own account instead of being
+// copied into the new one: { <user id>: { assignments, links, lastSynced } } (see signInPlan in src/sync.js).
+const SET_ASIDE_KEY = "homework-tracker.setAsideLists";
 // Set when course links change while signed in but before Firebase has connected, so they're sent once it has.
 const LINKS_PENDING_KEY = "homework-tracker.courseLinksPending";
 // Firestore takes at most 500 writes at once.
@@ -31,6 +34,12 @@ let firebase = null;
 let connecting = null;
 // While syncing: the signed-in user's id, the list as the account last had it, and how to stop listening.
 let sync = null;
+// The merge that's running, { uid, generation }, so Firebase reporting the same sign-in twice doesn't start a second
+// one (a sign-out and back in is a new generation, so it does start one).
+let merging = null;
+// Goes up whenever who is signed in changes (sign-in, sign-out, a switch), so a merge that was still running for the
+// previous person stops at its next step instead of finishing for someone no longer signed in.
+let generation = 0;
 
 /** Wires up the sign-in buttons, and reconnects straight away if this device was signed in last time. */
 export function startAccount() {
@@ -124,6 +133,7 @@ async function signIn() {
 }
 
 async function handleSignOut() {
+  generation += 1;
   stopSyncing();
   removeChoice(SYNCED_ACCOUNT_KEY);
   showAccount({ signedIn: false });
@@ -135,48 +145,73 @@ async function handleSignOut() {
 
 async function handleUser(user) {
   if (!user) {
+    generation += 1;
     stopSyncing();
     // Signed out somewhere else, or the sign-in expired: go back to saving on this device only.
     removeChoice(SYNCED_ACCOUNT_KEY);
     showAccount({ signedIn: false });
     return;
   }
-  if (sync?.userId === user.uid) {
+  if (sync?.userId === user.uid || (merging?.uid === user.uid && merging.generation === generation)) {
     return;
   }
   stopSyncing();
+  generation += 1;
+  const mine = { uid: user.uid, generation };
+  merging = mine;
+  try {
+    await startSyncing(user, mine.generation);
+  } finally {
+    if (merging === mine) {
+      merging = null;
+    }
+  }
+}
+
+/** Thrown to stop a merge whose person is no longer the one signed in. */
+class SyncCancelled extends Error {}
+
+/** Stops a merge (by throwing SyncCancelled) if someone signed out or another account signed in since it began. */
+function stillCurrent(startedIn) {
+  if (startedIn !== generation) {
+    throw new SyncCancelled();
+  }
+}
+
+/** Merges this device's list with the account's, then listens for changes from either side. */
+async function startSyncing(user, startedIn) {
   showAccount({ status: t("sync.syncing"), signedIn: true });
   const { dbApi, db } = firebase;
   const assignmentsRef = dbApi.collection(db, "users", user.uid, "assignments");
   const linksRef = dbApi.doc(db, "users", user.uid, "settings", "courseLinks");
 
-  if (loadText(SYNCED_ACCOUNT_KEY) !== user.uid) {
-    // Signing in on this device: combine its list with the account's. From the server, not the offline
-    // copy, since an out-of-date account list would make deletions look like additions.
-    const snapshot = await dbApi.getDocsFromServer(assignmentsRef);
-    const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
-    const lastSynced = loadLastSynced(user.uid);
-    // Recently deleted ones are merged too, so a deletion here or there isn't undone by the other copy.
-    const local = [...state.assignments, ...state.deleted];
-    const { assignments, addedCount } = lastSynced ? mergeWithLastSynced(local, remote, lastSynced) : mergeLists(local, remote);
-    const { saves, deletes } = listChanges(remote, assignments);
-    await writeChanges(user.uid, saves, deletes);
-    ({ live: state.assignments, deleted: state.deleted } = splitDeleted(assignments));
+  const firstTime = loadText(SYNCED_ACCOUNT_KEY) !== user.uid;
+  const { addedCount, switchedFrom, account } = await mergeIntoAccount(user, assignmentsRef, firstTime, startedIn);
+  stillCurrent(startedIn);
+  if (firstTime) {
     // Course links too: the account's, plus any this device has that the account doesn't.
     try {
       const linksSnapshot = await dbApi.getDocFromServer(linksRef);
+      stillCurrent(startedIn);
       const links = mergeLinks(state.courseLinks, readLinks(linksSnapshot.data()?.links));
       await writeLinks(user.uid, links);
+      stillCurrent(startedIn);
       removeChoice(LINKS_PENDING_KEY);
       state.courseLinks = links;
     } catch (error) {
+      if (error instanceof SyncCancelled) {
+        throw error;
+      }
       handleLinksError(error);
     }
+    stillCurrent(startedIn);
     saveChoice(SYNCED_ACCOUNT_KEY, user.uid);
     showToast(
-      addedCount > 0
-        ? t("msg.signed_in_added", { count: countAssignments(addedCount) })
-        : t("msg.signed_in"),
+      switchedFrom
+        ? t("msg.signed_in_set_aside")
+        : addedCount > 0
+          ? t("msg.signed_in_added", { count: countAssignments(addedCount) })
+          : t("msg.signed_in"),
     );
   }
 
@@ -186,7 +221,9 @@ async function handleUser(user) {
       .catch(handleLinksError);
   }
 
-  sync = { userId: user.uid, remoteList: [...state.assignments, ...state.deleted], stop: null, stopLinks: null };
+  // The account holds what the merge sent; anything changed here since (say, during the course links step) is sent now.
+  sync = { userId: user.uid, remoteList: account ?? [...state.assignments, ...state.deleted], stop: null, stopLinks: null };
+  syncAssignments([...state.assignments, ...state.deleted]);
   sync.stop = dbApi.onSnapshot(
     assignmentsRef,
     { includeMetadataChanges: true },
@@ -194,6 +231,86 @@ async function handleUser(user) {
     handleSyncError,
   );
   sync.stopLinks = dbApi.onSnapshot(linksRef, (snapshot) => showRemoteLinks(user, snapshot), handleLinksError);
+}
+
+/**
+ * Combines this device's list with the account's before listening, so nothing saved here while sync wasn't running
+ * (the Connecting… moment, "offline copy", or signed out) is replaced by the account's older list. The rules are in
+ * src/sync.js: changes made only here go to the account, deletions travel as Recently deleted, something missing
+ * here is never deleted, and a list that belongs to another account is set aside, not copied (signInPlan).
+ * Returns { addedCount, switchedFrom, account }, where account is the list sent to the account (null if not merged).
+ */
+async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
+  const { dbApi } = firebase;
+  if (!state.storageReadable) {
+    // This device's saved list couldn't be read, so it isn't merged: the account's list is shown as it is.
+    return { addedCount: 0, switchedFrom: null, account: null };
+  }
+  // Recently deleted ones are merged too, so a deletion here or there isn't undone by the other copy.
+  const plan = signInPlan([...state.assignments, ...state.deleted], state.courseLinks, loadSavedList(), loadSetAside(), user.uid);
+  if (plan.switchedFrom) {
+    // Before anything is read or sent: set the other account's list and links aside and take them off this device,
+    // so even a sign-in that stops part-way can't copy them into this account.
+    saveChoice(SET_ASIDE_KEY, JSON.stringify(plan.setAside));
+    // This device's (now empty) list belongs to this account from here on, even if the rest of the sign-in fails,
+    // so a later sign-in by someone else sets aside anything added here instead of copying it.
+    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: [] }));
+    removeChoice(LINKS_PENDING_KEY);
+    const { live, deleted } = splitDeleted(plan.local);
+    updateDeleted(live, deleted);
+    applyCourseLinks(plan.links);
+  }
+  if (!firstTime && !plan.lastSynced) {
+    // Reconnecting with no record of the account to compare against: show the account's list, as before.
+    return { addedCount: 0, switchedFrom: null, account: null };
+  }
+  const liveBefore = state.assignments;
+  const deletedBefore = state.deleted;
+  let remote;
+  try {
+    // From the server, not the offline copy, since an out-of-date account list would make deletions on another
+    // device look like additions here on a first merge.
+    remote = (await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id }));
+    if (!firstTime) {
+      saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
+    }
+  } catch (error) {
+    // A first sign-in needs the account itself; a reconnect can use the saved copy.
+    if (firstTime || !plan.lastSynced) {
+      throw error;
+    }
+    // Offline on a device that has synced before: Firebase's saved copy of the account will do, and the uploads
+    // wait until the connection is back.
+    remote = (await dbApi.getDocsFromCache(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id }));
+  }
+  stillCurrent(startedIn);
+  let { assignments, addedCount } = plan.lastSynced ? mergeWithLastSynced(plan.local, remote, plan.lastSynced) : mergeLists(plan.local, remote);
+  const writing = sendChanges(user.uid, remote, assignments);
+  if (firstTime) {
+    await writing;
+    stillCurrent(startedIn);
+    // Only now, with the account confirmed to hold the merged list, is it this device's record of the account.
+    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments }));
+  } else {
+    // Reconnecting, maybe offline: don't wait for the server; Firebase sends these when it can.
+    writing.catch(handleSyncError);
+  }
+  if (state.assignments !== liveBefore || state.deleted !== deletedBefore) {
+    // Changed here while the account was being read or written: merge that in, compared with the list from before,
+    // so an item the account gained meanwhile isn't mistaken for one deleted here.
+    const account = assignments;
+    ({ assignments } = mergeWithLastSynced([...state.assignments, ...state.deleted], account, plan.local));
+    sendChanges(user.uid, account, assignments).catch(handleSyncError);
+  }
+  saveChoice(SET_ASIDE_KEY, JSON.stringify(plan.setAside));
+  ({ live: state.assignments, deleted: state.deleted } = splitDeleted(assignments));
+  return { addedCount, switchedFrom: plan.switchedFrom, account: assignments };
+}
+
+/** Writes what turns `before` into `after` in the account. Offline, Firebase keeps the writes and sends them later. */
+function sendChanges(userId, before, after) {
+  const { saves, deletes } = listChanges(before, after);
+  return writeChanges(userId, saves, deletes);
 }
 
 /** The account's course links changed (here or on another device): show them. */
@@ -227,13 +344,23 @@ function showRemoteList(user, snapshot) {
   render();
 }
 
-/** The account's list as last seen on this device, if it was this account's; null otherwise. */
-function loadLastSynced(userId) {
+/** The account's list as last seen confirmed on this device, { userId, assignments }, or null. */
+function loadSavedList() {
   try {
     const saved = JSON.parse(loadText(LAST_SYNCED_KEY) ?? "null");
-    return saved?.userId === userId && Array.isArray(saved.assignments) ? saved.assignments : null;
+    return typeof saved?.userId === "string" && Array.isArray(saved.assignments) ? saved : null;
   } catch {
     return null;
+  }
+}
+
+/** What's set aside for other accounts (see SET_ASIDE_KEY), or nothing if what's saved can't be read. */
+function loadSetAside() {
+  try {
+    const saved = JSON.parse(loadText(SET_ASIDE_KEY) ?? "{}");
+    return saved && typeof saved === "object" && !Array.isArray(saved) ? saved : {};
+  } catch {
+    return {};
   }
 }
 
@@ -259,6 +386,10 @@ function stopSyncing() {
 }
 
 function handleSyncError(error) {
+  if (error instanceof SyncCancelled) {
+    // Someone signed out, or another account signed in, while this sync was running: nothing went wrong.
+    return;
+  }
   console.error("Sync failed:", error.code ?? error.message);
   showAccount({ status: t("sync.failed"), signedIn: true });
   showToast(t("msg.sync_failed", { code: error.code ?? error.message }));

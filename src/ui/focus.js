@@ -9,12 +9,12 @@ import {
   parseFocusBreak,
   parseFocusSettings,
   parseWorkMinutes,
-} from "../focus.js?v=7a4e1cba";
-import { t } from "../i18n.js?v=7a4e1cba";
-import { render } from "../main.js?v=7a4e1cba";
-import { formatClock, startTimer } from "../timer.js?v=7a4e1cba";
-import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=7a4e1cba";
-import { showToast } from "./toast.js?v=7a4e1cba";
+} from "../focus.js?v=49cec885";
+import { t } from "../i18n.js?v=49cec885";
+import { render } from "../main.js?v=49cec885";
+import { formatClock, startTimer } from "../timer.js?v=49cec885";
+import { findAssignment, loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=49cec885";
+import { showToast } from "./toast.js?v=49cec885";
 
 const FOCUS_KEY = "homework-tracker.focus";
 const BREAK_KEY = "homework-tracker.focusBreak";
