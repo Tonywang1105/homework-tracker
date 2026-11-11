@@ -1,13 +1,13 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=a4a2142e";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=a4a2142e";
-import { t } from "../i18n.js?v=a4a2142e";
-import { render } from "../main.js?v=a4a2142e";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=a4a2142e";
-import { startAddingOn } from "./form.js?v=a4a2142e";
-import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=a4a2142e";
-import { findAssignment, state } from "./store.js?v=a4a2142e";
+import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=51ea54e1";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=51ea54e1";
+import { t } from "../i18n.js?v=51ea54e1";
+import { render } from "../main.js?v=51ea54e1";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=51ea54e1";
+import { startAddingOn } from "./form.js?v=51ea54e1";
+import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=51ea54e1";
+import { findAssignment, state } from "./store.js?v=51ea54e1";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;
@@ -116,7 +116,8 @@ function renderCalendarItem(assignment) {
   // The tag is only a short label, so the tooltip and screen-reader label carry the full title.
   button.title = t("title.cal_item", { title: assignment.title, course, type: typeName, time: dueTime });
   const status = assignment.done ? t("aria.status_done") : overdue ? t("aria.status_overdue") : "";
-  button.setAttribute("aria-label", t("aria.cal_item", { title: assignment.title, course, type: typeName, size, time: dueTime, status }));
+  // The spoken name starts with the tag's visible text, so a voice command like "click CS 124" finds it.
+  button.setAttribute("aria-label", t("aria.cal_item", { tag: calendarTagText(assignment), title: assignment.title, course, type: typeName, size, time: dueTime, status }));
 
   item.append(button);
   return item;
@@ -282,6 +283,7 @@ function renderDueSoonChip(assignment, now) {
   chip.classList.toggle("is-selected", state.detailsFromChip && assignment.id === state.detailsId);
   chip.setAttribute("aria-haspopup", "dialog");
   const course = assignment.course ? ` (${assignment.course})` : "";
+  // The spoken name starts with the chip's visible words, in order, so a voice command can use them.
   chip.setAttribute("aria-label", t("aria.chip", { title: assignment.title, course, due: text }));
 
   const type = assignmentType(assignment);
@@ -296,7 +298,8 @@ function renderDueSoonChip(assignment, now) {
   const when = document.createElement("span");
   when.className = "due-soon-when";
   when.textContent = text;
-  chip.append(title, when);
+  // A space between the two, so the chip's text reads "HW 6 overdue by 1 day", not "HW 6overdue…".
+  chip.append(title, " ", when);
 
   item.append(chip);
   return item;
