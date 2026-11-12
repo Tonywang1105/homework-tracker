@@ -2,7 +2,7 @@
 // regular work a day and an hour before, small reminders an hour before), each reminder sent once. No DOM, so it can
 // be unit-tested.
 
-import { toDueDate } from "./assignments.js?v=1db4c2d8";
+import { toDueDate } from "./assignments.js?v=ab392af8";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;

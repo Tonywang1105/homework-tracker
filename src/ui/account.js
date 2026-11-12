@@ -2,17 +2,17 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=1db4c2d8";
-import { firebaseConfig } from "../firebase-config.js?v=1db4c2d8";
-import { t } from "../i18n.js?v=1db4c2d8";
-import { render } from "../main.js?v=1db4c2d8";
-import { saveAssignments } from "../storage.js?v=1db4c2d8";
-import { listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=1db4c2d8";
-import { splitDeleted } from "../trash.js?v=1db4c2d8";
-import { applyCourseLinks } from "./coursePage.js?v=1db4c2d8";
-import { countAssignments, elements } from "./dom.js?v=1db4c2d8";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=1db4c2d8";
-import { showToast } from "./toast.js?v=1db4c2d8";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=ab392af8";
+import { firebaseConfig } from "../firebase-config.js?v=ab392af8";
+import { t } from "../i18n.js?v=ab392af8";
+import { render } from "../main.js?v=ab392af8";
+import { saveAssignments } from "../storage.js?v=ab392af8";
+import { completeAssignments, fieldChanges, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=ab392af8";
+import { splitDeleted } from "../trash.js?v=ab392af8";
+import { applyCourseLinks } from "./coursePage.js?v=ab392af8";
+import { countAssignments, elements } from "./dom.js?v=ab392af8";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=ab392af8";
+import { showToast } from "./toast.js?v=ab392af8";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
@@ -31,8 +31,6 @@ const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
 const SET_ASIDE_KEY = "homework-tracker.setAsideLists";
 // Set when course links change while signed in but before Firebase has connected, so they're sent once it has.
 const LINKS_PENDING_KEY = "homework-tracker.courseLinksPending";
-// Firestore takes at most 500 writes at once.
-const MAX_WRITES_PER_BATCH = 400;
 
 let firebase = null;
 let connecting = null;
@@ -87,9 +85,10 @@ export function syncAssignments(assignments) {
   if (!sync) {
     return;
   }
-  const { saves, deletes } = listChanges(sync.remoteList, assignments);
+  const before = sync.remoteList;
+  const { saves, deletes } = listChanges(before, assignments);
   sync.remoteList = assignments;
-  writeChanges(sync.userId, saves, deletes).catch(handleSyncError);
+  writeChanges(sync.userId, before, saves, deletes).catch(handleSyncError);
 }
 
 /**
@@ -307,7 +306,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
   try {
     // From the server, not the offline copy, since an out-of-date account list would make deletions on another
     // device look like additions here on a first merge.
-    remote = (await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id }));
+    remote = completeAssignments((await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id })));
     if (!firstTime) {
       saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
     }
@@ -318,7 +317,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
     }
     // Offline on a device that has synced before: Firebase's saved copy of the account will do, and the uploads
     // wait until the connection is back.
-    remote = (await dbApi.getDocsFromCache(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id }));
+    remote = completeAssignments((await dbApi.getDocsFromCache(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id })));
   }
   stillCurrent(startedIn);
   let { assignments, addedCount } = plan.lastSynced ? mergeWithLastSynced(plan.local, remote, plan.lastSynced) : mergeLists(plan.local, remote);
@@ -347,7 +346,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
 /** Writes what turns `before` into `after` in the account. Offline, Firebase keeps the writes and sends them later. */
 function sendChanges(userId, before, after) {
   const { saves, deletes } = listChanges(before, after);
-  return writeChanges(userId, saves, deletes);
+  return writeChanges(userId, before, saves, deletes);
 }
 
 /** The account's course links changed (here or on another device): show them. */
@@ -364,7 +363,8 @@ function showRemoteLinks(user, snapshot) {
 
 /** The account's list changed (here or on another device): show it, and keep this device's copy up to date. */
 function showRemoteList(user, snapshot) {
-  const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
+  // Leaves out a half-written assignment (see completeAssignments), which would have no title or date to show.
+  const remote = completeAssignments(snapshot.docs.map((d) => ({ ...d.data(), id: d.id })));
   sync.remoteList = remote;
   ({ live: state.assignments, deleted: state.deleted } = splitDeleted(remote));
   // While the saved list can't be read, it's left alone until Start over, as the app promises (see persist).
@@ -404,19 +404,26 @@ function loadSetAside() {
   }
 }
 
-async function writeChanges(userId, saves, deletes) {
+/**
+ * Sends saves and deletions to the account. A new assignment is written whole; a changed one sends only the fields
+ * that changed since `before` (the account as this device last had it), so a late save from another device can't undo
+ * what this one didn't touch, such as a deletion made there. Each is its own write, so one the database refuses
+ * doesn't cancel the others.
+ */
+async function writeChanges(userId, before, saves, deletes) {
   const { dbApi, db } = firebase;
-  const writes = [
-    ...saves.map((a) => (batch) => batch.set(dbApi.doc(db, "users", userId, "assignments", a.id), toRemote(a))),
-    ...deletes.map((id) => (batch) => batch.delete(dbApi.doc(db, "users", userId, "assignments", id))),
-  ];
-  for (let start = 0; start < writes.length; start += MAX_WRITES_PER_BATCH) {
-    const batch = dbApi.writeBatch(db);
-    for (const write of writes.slice(start, start + MAX_WRITES_PER_BATCH)) {
-      write(batch);
+  const beforeById = new Map(before.map((a) => [a.id, a]));
+  const ref = (id) => dbApi.doc(db, "users", userId, "assignments", id);
+  const writes = saves.map((a) => {
+    const changes = fieldChanges(beforeById.get(a.id), a);
+    if (!changes) {
+      return dbApi.setDoc(ref(a.id), toRemote(a));
     }
-    await batch.commit();
-  }
+    const removed = Object.fromEntries(changes.removed.map((key) => [key, dbApi.deleteField()]));
+    return dbApi.setDoc(ref(a.id), { ...changes.changed, ...removed }, { merge: true });
+  });
+  writes.push(...deletes.map((id) => dbApi.deleteDoc(ref(id))));
+  await Promise.all(writes);
 }
 
 function stopSyncing() {

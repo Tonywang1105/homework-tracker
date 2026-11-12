@@ -2,7 +2,7 @@
 // right. They stay in the saved and synced list with a deletedAt time, and the app splits them off where it loads
 // and saves, so every screen sees only the live ones. No DOM, so it can be unit-tested with Node.
 
-import { t, tCount } from "./i18n.js?v=1db4c2d8";
+import { t, tCount } from "./i18n.js?v=ab392af8";
 
 export const KEEP_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;

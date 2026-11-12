@@ -26,7 +26,33 @@ export function mergeLists(local, remote) {
   const remoteIds = new Set(remote.map((a) => a.id));
   const remoteCanvasUids = new Set(remote.filter((a) => a.canvasUid).map((a) => a.canvasUid));
   const added = local.filter((a) => !remoteIds.has(a.id) && !(a.canvasUid && remoteCanvasUids.has(a.canvasUid)));
-  return { assignments: [...remote, ...added], addedCount: added.length };
+  // The same Canvas assignment imported on both: the account's copy, plus what was added to it only on this device.
+  const localByCanvasUid = new Map(local.filter((a) => a.canvasUid && !remoteIds.has(a.id)).map((a) => [a.canvasUid, a]));
+  const kept = remote.map((theirs) => (localByCanvasUid.has(theirs.canvasUid) ? withLocalAdditions(theirs, localByCanvasUid.get(theirs.canvasUid)) : theirs));
+  return { assignments: [...kept, ...added], addedCount: added.length };
+}
+
+/**
+ * The account's copy of an assignment with what this device added to its own copy: notes (both kept when they
+ * differ), and steps, an estimate or a weight the account's copy doesn't have. The account's other values win.
+ */
+function withLocalAdditions(theirs, mine) {
+  const merged = { ...theirs };
+  const theirNotes = theirs.notes ?? "";
+  const myNotes = mine.notes ?? "";
+  // Already in the account's notes (say, a first sign-in that stopped partway and ran again): not added twice.
+  if (myNotes && !theirNotes.includes(myNotes)) {
+    merged.notes = theirNotes ? `${theirNotes}\n\n${myNotes}` : myNotes;
+  }
+  if (!(theirs.steps?.length > 0) && mine.steps?.length > 0) {
+    merged.steps = mine.steps;
+  }
+  for (const key of ["hours", "weight"]) {
+    if (theirs[key] == null && mine[key] != null) {
+      merged[key] = mine[key];
+    }
+  }
+  return merged;
 }
 
 /**
@@ -105,6 +131,32 @@ export function signInPlan(local, links, saved, setAside, userId) {
   };
 }
 
+/**
+ * What changed between two stored versions of one assignment, so only that is sent: { changed, removed }, where
+ * changed holds the fields that are new or different (as stored) and removed names fields that are gone. null when
+ * there's no earlier version, meaning the assignment is saved whole. Sending only this means a late save from another
+ * device can't overwrite fields it never touched, such as a deletion made elsewhere.
+ */
+export function fieldChanges(before, after) {
+  if (!before) {
+    return null;
+  }
+  const old = toRemote(before);
+  const now = toRemote(after);
+  const changed = Object.fromEntries(Object.entries(now).filter(([key, value]) => stableJson(value) !== stableJson(old[key])));
+  const removed = Object.keys(old).filter((key) => !(key in now));
+  return { changed, removed };
+}
+
+/**
+ * The stored assignments that are whole: with a title and a due date. A save of only the changed fields to an
+ * assignment another device had just deleted for good can leave a half-written one, which the database refuses but
+ * Firebase shows until then; it's left out, so the list never holds an assignment with no title or date.
+ */
+export function completeAssignments(assignments) {
+  return assignments.filter((a) => typeof a.title === "string" && a.title !== "" && typeof a.dueDate === "string" && a.dueDate !== "");
+}
+
 /** What to send to the account to turn `previous` into `next`: assignments to save, and ids to delete. */
 export function listChanges(previous, next) {
   const previousById = new Map(previous.map((a) => [a.id, a]));
@@ -117,6 +169,17 @@ export function listChanges(previous, next) {
 /** True if the two would be stored the same, ignoring the order of their fields. */
 function sameAssignment(a, b) {
   return canonical(toRemote(a)) === canonical(toRemote(b));
+}
+
+/** A value as JSON with object fields in a fixed order, so equal values compare equal however they were built. */
+function stableJson(value) {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableJson).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "undefined";
 }
 
 function canonical(assignment) {
