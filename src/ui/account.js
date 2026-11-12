@@ -2,17 +2,18 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=ab392af8";
-import { firebaseConfig } from "../firebase-config.js?v=ab392af8";
-import { t } from "../i18n.js?v=ab392af8";
-import { render } from "../main.js?v=ab392af8";
-import { saveAssignments } from "../storage.js?v=ab392af8";
-import { completeAssignments, fieldChanges, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=ab392af8";
-import { splitDeleted } from "../trash.js?v=ab392af8";
-import { applyCourseLinks } from "./coursePage.js?v=ab392af8";
-import { countAssignments, elements } from "./dom.js?v=ab392af8";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=ab392af8";
-import { showToast } from "./toast.js?v=ab392af8";
+import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=29f9a5f9";
+import { firebaseConfig } from "../firebase-config.js?v=29f9a5f9";
+import { t } from "../i18n.js?v=29f9a5f9";
+import { render } from "../main.js?v=29f9a5f9";
+import { saveAssignments } from "../storage.js?v=29f9a5f9";
+import { completeAssignments, fieldChanges, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=29f9a5f9";
+import { settleFinishedTimer } from "../timer.js?v=29f9a5f9";
+import { splitDeleted } from "../trash.js?v=29f9a5f9";
+import { applyCourseLinks } from "./coursePage.js?v=29f9a5f9";
+import { countAssignments, elements } from "./dom.js?v=29f9a5f9";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=29f9a5f9";
+import { showToast } from "./toast.js?v=29f9a5f9";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
@@ -29,6 +30,12 @@ const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
 // What was on this device when a different account signed in, set aside for its own account instead of being
 // copied into the new one: { <user id>: { assignments, links, lastSynced } } (see signInPlan in src/sync.js).
 const SET_ASIDE_KEY = "homework-tracker.setAsideLists";
+// The account's course links as this device last saw them, { userId, links }, so links changed here while sync wasn't
+// running can be sent as changes later (see linkChanges) instead of replacing the whole list.
+const LINKS_LAST_SEEN_KEY = "homework-tracker.courseLinksLastSeen";
+// Set while a course link change hasn't been confirmed by the server, so it's sent again on the next start if it never
+// got there (Firebase's queue of waiting writes doesn't always survive the app being closed offline).
+const LINKS_UNCONFIRMED_KEY = "homework-tracker.courseLinksUnconfirmed";
 // Set when course links change while signed in but before Firebase has connected, so they're sent once it has.
 const LINKS_PENDING_KEY = "homework-tracker.courseLinksPending";
 
@@ -92,8 +99,9 @@ export function syncAssignments(assignments) {
 }
 
 /**
- * Sends the course links to the account after they change. All of them live in one small document,
- * users/<id>/settings/courseLinks, and the last change wins.
+ * Sends the course links to the account after they change: only what changed since the account's links as this
+ * device last saw them (see linkChanges), so a device with an older list can't undo another's edits or bring back a
+ * deleted link. They live in one small document, users/<id>/settings/courseLinks, with a record of deleted links.
  */
 export function syncCourseLinks(links) {
   if (!sync) {
@@ -102,12 +110,50 @@ export function syncCourseLinks(links) {
     }
     return;
   }
-  writeLinks(sync.userId, links).catch(handleLinksError);
+  const before = sync.remoteLinks ?? lastSeenLinks(sync.userId);
+  if (before === null) {
+    // No record yet of the account's links to compare with: they're joined once the account's links arrive.
+    saveChoice(LINKS_PENDING_KEY, "yes");
+    return;
+  }
+  saveChoice(LINKS_UNCONFIRMED_KEY, "yes");
+  writeLinkChanges(sync.userId, linkChanges(before, links)).catch(handleLinksError);
 }
 
-function writeLinks(userId, links) {
+/** Sends link changes: links to add (clearing any deletion record), and links to take out (recording the deletion). */
+async function writeLinkChanges(userId, { add, drop, removedKeys, restoredKeys }) {
   const { dbApi, db } = firebase;
-  return dbApi.setDoc(dbApi.doc(db, "users", userId, "settings", "courseLinks"), { links });
+  const ref = dbApi.doc(db, "users", userId, "settings", "courseLinks");
+  // Taking out and putting in are separate writes, since one write can't do both to the same list (a rename).
+  // Each part is sent only when it has something in it.
+  const takeOut = {
+    ...(drop.length > 0 && { links: dbApi.arrayRemove(...drop) }),
+    ...(removedKeys.length > 0 && { removed: dbApi.arrayUnion(...removedKeys) }),
+  };
+  const putIn = {
+    ...(add.length > 0 && { links: dbApi.arrayUnion(...add) }),
+    ...(restoredKeys.length > 0 && { removed: dbApi.arrayRemove(...restoredKeys) }),
+  };
+  // Both are queued straight away (Firebase keeps them in order): waiting for the first to reach the server would
+  // leave a renamed link removed but not yet put back, and lost if the app closed offline.
+  const writes = [];
+  if (Object.keys(takeOut).length > 0) {
+    writes.push(dbApi.setDoc(ref, takeOut, { merge: true }));
+  }
+  if (Object.keys(putIn).length > 0) {
+    writes.push(dbApi.setDoc(ref, putIn, { merge: true }));
+  }
+  await Promise.all(writes);
+}
+
+/** The account's links as this device last saw them, if it has a record for this account; null otherwise. */
+function lastSeenLinks(userId) {
+  try {
+    const saved = JSON.parse(loadText(LINKS_LAST_SEEN_KEY) ?? "null");
+    return saved?.userId === userId ? visibleLinks(saved.links) : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -229,8 +275,10 @@ async function startSyncing(user, startedIn) {
     try {
       const linksSnapshot = await dbApi.getDocFromServer(linksRef);
       stillCurrent(startedIn);
-      const links = mergeLinks(state.courseLinks, readLinks(linksSnapshot.data()?.links));
-      await writeLinks(user.uid, links);
+      const accountLinks = visibleLinks(linksSnapshot.data()?.links, linksSnapshot.data()?.removed);
+      // Joined, not compared: this device's links are added, and a link deleted in the account stays deleted.
+      const { links, changes } = joinLinks(state.courseLinks, accountLinks, linksSnapshot.data()?.removed ?? []);
+      await writeLinkChanges(user.uid, changes);
       stillCurrent(startedIn);
       removeChoice(LINKS_PENDING_KEY);
       state.courseLinks = links;
@@ -251,14 +299,17 @@ async function startSyncing(user, startedIn) {
     );
   }
 
-  if (loadText(LINKS_PENDING_KEY)) {
-    writeLinks(user.uid, state.courseLinks)
-      .then(() => removeChoice(LINKS_PENDING_KEY))
-      .catch(handleLinksError);
+  const lastSeen = lastSeenLinks(user.uid);
+  if ((loadText(LINKS_PENDING_KEY) || loadText(LINKS_UNCONFIRMED_KEY)) && lastSeen !== null) {
+    // Changed here while sync wasn't running: send what changed since the account's links as last seen here. (With
+    // no record, the account's links are joined instead when they arrive; see showRemoteLinks.)
+    removeChoice(LINKS_PENDING_KEY);
+    saveChoice(LINKS_UNCONFIRMED_KEY, "yes");
+    writeLinkChanges(user.uid, linkChanges(lastSeen, state.courseLinks)).catch(handleLinksError);
   }
 
   // The account holds what the merge sent; anything changed here since (say, during the course links step) is sent now.
-  sync = { userId: user.uid, remoteList: account ?? [...state.assignments, ...state.deleted], stop: null, stopLinks: null };
+  sync = { userId: user.uid, remoteList: account ?? [...state.assignments, ...state.deleted], remoteLinks: null, stop: null, stopLinks: null };
   syncAssignments([...state.assignments, ...state.deleted]);
   sync.stop = dbApi.onSnapshot(
     assignmentsRef,
@@ -266,7 +317,7 @@ async function startSyncing(user, startedIn) {
     (snapshot) => showRemoteList(user, snapshot),
     handleSyncError,
   );
-  sync.stopLinks = dbApi.onSnapshot(linksRef, (snapshot) => showRemoteLinks(user, snapshot), handleLinksError);
+  sync.stopLinks = dbApi.onSnapshot(linksRef, { includeMetadataChanges: true }, (snapshot) => showRemoteLinks(user, snapshot), handleLinksError);
 }
 
 /**
@@ -292,6 +343,8 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
     // so a later sign-in by someone else sets aside anything added here instead of copying it.
     saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: [] }));
     removeChoice(LINKS_PENDING_KEY);
+    removeChoice(LINKS_UNCONFIRMED_KEY);
+    removeChoice(LINKS_LAST_SEEN_KEY);
     const { live, deleted } = splitDeleted(plan.local);
     updateDeleted(live, deleted);
     applyCourseLinks(plan.links);
@@ -351,14 +404,41 @@ function sendChanges(userId, before, after) {
 
 /** The account's course links changed (here or on another device): show them. */
 function showRemoteLinks(user, snapshot) {
+  // Only what the server has confirmed counts as the account's links as last seen, not changes still on their way.
+  const confirmed = !snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache;
   if (!snapshot.exists()) {
-    // An account from before course pages: start it with this device's links.
+    if (!confirmed) {
+      // Missing from the offline copy says nothing about the account: wait for the server.
+      return;
+    }
+    // No links in the account yet (and so no deletions recorded): that's a record too, of an empty list. Start it with
+    // this device's links.
+    removeChoice(LINKS_PENDING_KEY);
+    sync.remoteLinks = [];
+    saveChoice(LINKS_LAST_SEEN_KEY, JSON.stringify({ userId: user.uid, links: [] }));
     if (state.courseLinks.length > 0) {
-      writeLinks(user.uid, state.courseLinks).catch(handleLinksError);
+      sync.remoteLinks = state.courseLinks;
+      writeLinkChanges(user.uid, linkChanges([], state.courseLinks)).catch(handleLinksError);
     }
     return;
   }
-  applyCourseLinks(readLinks(snapshot.data().links));
+  const links = visibleLinks(snapshot.data().links, snapshot.data().removed);
+  if (confirmed) {
+    saveChoice(LINKS_LAST_SEEN_KEY, JSON.stringify({ userId: user.uid, links }));
+    removeChoice(LINKS_UNCONFIRMED_KEY);
+  }
+  if (loadText(LINKS_PENDING_KEY)) {
+    // Changed here with no record of the account's links (say, right after updating to this version): join them,
+    // adding this device's and keeping every deletion the account has recorded.
+    removeChoice(LINKS_PENDING_KEY);
+    const joined = joinLinks(state.courseLinks, links, snapshot.data().removed ?? []);
+    writeLinkChanges(user.uid, joined.changes).catch(handleLinksError);
+    sync.remoteLinks = joined.links;
+    applyCourseLinks(joined.links);
+    return;
+  }
+  sync.remoteLinks = links;
+  applyCourseLinks(links);
 }
 
 /** The account's list changed (here or on another device): show it, and keep this device's copy up to date. */
@@ -366,10 +446,15 @@ function showRemoteList(user, snapshot) {
   // Leaves out a half-written assignment (see completeAssignments), which would have no title or date to show.
   const remote = completeAssignments(snapshot.docs.map((d) => ({ ...d.data(), id: d.id })));
   sync.remoteList = remote;
-  ({ live: state.assignments, deleted: state.deleted } = splitDeleted(remote));
+  // Finished work with a timer still running (started on one device while another marked it done) is set right here.
+  const settled = remote.map(settleFinishedTimer);
+  ({ live: state.assignments, deleted: state.deleted } = splitDeleted(settled));
   // While the saved list can't be read, it's left alone until Start over, as the app promises (see persist).
   if (state.storageReadable) {
-    saveAssignments(localStorage, remote);
+    saveAssignments(localStorage, settled);
+  }
+  if (settled.some((assignment, index) => assignment !== remote[index])) {
+    syncAssignments(settled);
   }
   // Only a list Firebase has confirmed counts as "the account as last seen", not one with uploads pending.
   if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) {

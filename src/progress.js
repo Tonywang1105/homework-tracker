@@ -1,8 +1,8 @@
 // Course progress by grade weight: how much of a course's grade (the Worth entered on its assignments) is done,
 // overdue, due soon and due later, for the line and bar on a course page. No DOM, so it can be unit-tested with Node.
 
-import { toDueDate } from "./assignments.js?v=ab392af8";
-import { toDateKey } from "./calendar.js?v=ab392af8";
+import { toDueDate } from "./assignments.js?v=29f9a5f9";
+import { toDateKey } from "./calendar.js?v=29f9a5f9";
 
 // "Due soon" on the course page: due on or before the day this many days from today.
 export const SOON_DAYS = 14;

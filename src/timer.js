@@ -3,7 +3,7 @@
 // Saving the start time rather than a ticking count is what lets a timer survive a reload or show on another device.
 
 // A timer left running overnight shouldn't add a whole night, so one session counts for at most 12 hours.
-import { formatNumber, t } from "./i18n.js?v=ab392af8";
+import { formatNumber, t } from "./i18n.js?v=29f9a5f9";
 
 export const MAX_SESSION_SECONDS = 12 * 60 * 60;
 
@@ -24,6 +24,23 @@ export function withTimerStopped(assignment, now = new Date()) {
   }
   const { timerStartedAt, ...rest } = assignment;
   return { ...rest, spentSeconds: (assignment.spentSeconds ?? 0) + sessionSeconds(assignment, now) };
+}
+
+/**
+ * A finished assignment whose timer is still running (one device started it, maybe offline, while another marked it
+ * done) with the timer stopped: the time up to when it was marked done is added, nothing after. Without a finish time
+ * after the start, the timer is just removed. Anything else is returned unchanged.
+ */
+export function settleFinishedTimer(assignment) {
+  if (!assignment.done || !assignment.timerStartedAt) {
+    return assignment;
+  }
+  const doneAt = new Date(assignment.doneAt ?? "");
+  if (doneAt > new Date(assignment.timerStartedAt)) {
+    return withTimerStopped(assignment, doneAt);
+  }
+  const { timerStartedAt, ...rest } = assignment;
+  return rest;
 }
 
 /** Starts this assignment's timer. Only one runs at a time, so any other running timer is stopped first. */

@@ -1,8 +1,8 @@
 // Course pages' links (Canvas, PrairieLearn, Gradescope, slides…): checking them, and combining two lists of
 // them when signing in. No DOM, so it can be unit-tested with Node. Each link is { course, label, url }.
 
-import { t } from "./i18n.js?v=ab392af8";
-import { isWebAddress, shortLinkLabel } from "./links.js?v=ab392af8";
+import { t } from "./i18n.js?v=29f9a5f9";
+import { isWebAddress, shortLinkLabel } from "./links.js?v=29f9a5f9";
 
 export const MAX_LINKS_PER_COURSE = 12;
 // Also the limit in firestore.rules, which keeps the synced list to one small document.
@@ -66,9 +66,62 @@ export function parseSavedLinks(text) {
   }
 }
 
+/** What identifies a link across devices: its course and address (the label can be renamed). */
+export function linkKey(link) {
+  return `${link.course}\n${link.url}`;
+}
+
 /** Signing in on a device: the account's links, plus any this device has that the account doesn't. */
 export function mergeLinks(local, remote) {
-  const key = (link) => `${link.course}\n${link.url}`;
-  const known = new Set(remote.map(key));
-  return [...remote, ...local.filter((link) => !known.has(key(link)))].slice(0, MAX_LINKS);
+  const known = new Set(remote.map(linkKey));
+  return [...remote, ...local.filter((link) => !known.has(linkKey(link)))].slice(0, MAX_LINKS);
+}
+
+/**
+ * The links to show from the account's document: its links (checked as in readLinks), each once, leaving out any
+ * whose key is in `removed`, the record of deleted links. That record is why a device with an older list can't bring
+ * a deleted link back.
+ */
+export function visibleLinks(links, removed = []) {
+  const gone = new Set(Array.isArray(removed) ? removed : []);
+  const seen = new Set();
+  return readLinks(links).filter((link) => {
+    const key = linkKey(link);
+    if (gone.has(key) || seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+}
+
+/**
+ * What to send when the links go from `before` (the account's, as this device last saw them) to `after`:
+ * { add, drop, removedKeys, restoredKeys }. add and drop are links to put in and take out of the account's list, so a
+ * rename is one of each; removedKeys are links now gone (recorded as deleted), and restoredKeys are new ones, whose
+ * old deletion record is cleared so they show again. Only these changes are sent, never the whole list, so an older
+ * device can't undo another's newer edits.
+ */
+export function linkChanges(before, after) {
+  const same = (a, b) => a.course === b.course && a.url === b.url && a.label === b.label;
+  const beforeKeys = new Set(before.map(linkKey));
+  const afterKeys = new Set(after.map(linkKey));
+  return {
+    add: after.filter((link) => !before.some((old) => same(old, link))),
+    drop: before.filter((old) => !after.some((link) => same(old, link))),
+    removedKeys: [...beforeKeys].filter((key) => !afterKeys.has(key)),
+    restoredKeys: [...afterKeys].filter((key) => !beforeKeys.has(key)),
+  };
+}
+
+/**
+ * This device's links joined to the account's when there's no record to compare against (a first sign-in, or a
+ * device that synced before deletions were recorded): { links, changes }. The account's links, plus this device's that
+ * the account has neither nor a deletion record for; nothing is removed and no deletion record is cleared, since
+ * without a record a link missing here can't be told from one deleted here.
+ */
+export function joinLinks(local, accountLinks, removed = []) {
+  const gone = new Set(removed);
+  const links = mergeLinks(local.filter((link) => !gone.has(linkKey(link))), accountLinks);
+  return { links, changes: linkChanges(accountLinks, links) };
 }

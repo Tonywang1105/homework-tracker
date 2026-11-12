@@ -1,6 +1,6 @@
 // Saves the assignment list in the browser's localStorage as JSON.
 
-import { t } from "./i18n.js?v=ab392af8";
+import { t } from "./i18n.js?v=29f9a5f9";
 
 export const STORAGE_KEY = "homework-tracker.assignments.v1";
 
