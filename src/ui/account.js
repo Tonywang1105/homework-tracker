@@ -2,19 +2,23 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { mergeLinks, readLinks } from "../courseLinks.js?v=49cec885";
-import { firebaseConfig } from "../firebase-config.js?v=49cec885";
-import { t } from "../i18n.js?v=49cec885";
-import { render } from "../main.js?v=49cec885";
-import { saveAssignments } from "../storage.js?v=49cec885";
-import { listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=49cec885";
-import { splitDeleted } from "../trash.js?v=49cec885";
-import { applyCourseLinks } from "./coursePage.js?v=49cec885";
-import { countAssignments, elements } from "./dom.js?v=49cec885";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=49cec885";
-import { showToast } from "./toast.js?v=49cec885";
+import { mergeLinks, readLinks } from "../courseLinks.js?v=1db4c2d8";
+import { firebaseConfig } from "../firebase-config.js?v=1db4c2d8";
+import { t } from "../i18n.js?v=1db4c2d8";
+import { render } from "../main.js?v=1db4c2d8";
+import { saveAssignments } from "../storage.js?v=1db4c2d8";
+import { listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=1db4c2d8";
+import { splitDeleted } from "../trash.js?v=1db4c2d8";
+import { applyCourseLinks } from "./coursePage.js?v=1db4c2d8";
+import { countAssignments, elements } from "./dom.js?v=1db4c2d8";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=1db4c2d8";
+import { showToast } from "./toast.js?v=1db4c2d8";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
+// Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
+// usesEmulators): a stand-in Google sign-in and database on this computer, so sync can be tested with no real account.
+const EMULATOR_KEY = "homework-tracker.testEmulators";
+const EMULATOR_CONFIG = { apiKey: "demo-key", authDomain: "demo-homework-tracker.firebaseapp.com", projectId: "demo-homework-tracker" };
 // The id of the account this device's list was merged into, kept so the merge happens only once per device.
 // Later starts trust the account, so something deleted on the phone doesn't come back from the laptop's copy.
 const SYNCED_ACCOUNT_KEY = "homework-tracker.syncedAccount";
@@ -43,6 +47,21 @@ let generation = 0;
 
 /** Wires up the sign-in buttons, and reconnects straight away if this device was signed in last time. */
 export function startAccount() {
+  if (usesEmulators()) {
+    // For npm run test:sync: sign in as a made-up Google account, which the emulator accepts without a password.
+    window.homeworkTrackerTest = {
+      async signIn(uid, email) {
+        await connect();
+        const { authApi, auth } = firebase;
+        const { user } = await authApi.signInWithCredential(
+          auth,
+          authApi.GoogleAuthProvider.credential(JSON.stringify({ sub: uid, email, email_verified: true })),
+        );
+        // The emulator gives each made-up account its own id; the test needs it to read that account's data.
+        return user.uid;
+      },
+    };
+  }
   elements.signIn.addEventListener("click", signIn);
   elements.signOut.addEventListener("click", handleSignOut);
   // Fetch Firebase as soon as someone looks like they're about to sign in, because browsers only let
@@ -56,6 +75,11 @@ export function startAccount() {
   } else {
     showAccount({ signedIn: false });
   }
+}
+
+/** Whether this device is syncing with an account right now. */
+export function isSyncing() {
+  return sync !== null;
 }
 
 /** Sends the list (live and Recently deleted together) to the account after the app saves it. Does nothing while signed out. */
@@ -87,6 +111,14 @@ function writeLinks(userId, links) {
   return dbApi.setDoc(dbApi.doc(db, "users", userId, "settings", "courseLinks"), { links });
 }
 
+/**
+ * Whether to use the local emulators: only on this computer's own address, and only when a test turned it on, so the
+ * published app always uses the real project.
+ */
+function usesEmulators() {
+  return ["localhost", "127.0.0.1"].includes(location.hostname) && loadText(EMULATOR_KEY) === "on";
+}
+
 /** Loads Firebase once and starts following who is signed in. */
 function connect() {
   connecting ??= (async () => {
@@ -95,7 +127,8 @@ function connect() {
       import(`${FIREBASE_URL}/firebase-auth.js`),
       import(`${FIREBASE_URL}/firebase-firestore.js`),
     ]);
-    const firebaseApp = app.initializeApp(firebaseConfig);
+    const emulators = usesEmulators();
+    const firebaseApp = app.initializeApp(emulators ? EMULATOR_CONFIG : firebaseConfig);
     firebase = {
       auth: auth.getAuth(firebaseApp),
       authApi: auth,
@@ -105,6 +138,10 @@ function connect() {
       }),
       dbApi: firestore,
     };
+    if (emulators) {
+      auth.connectAuthEmulator(firebase.auth, "http://127.0.0.1:9099", { disableWarnings: true });
+      firestore.connectFirestoreEmulator(firebase.db, "127.0.0.1", 8085);
+    }
     auth.onAuthStateChanged(firebase.auth, (user) => handleUser(user).catch(handleSyncError));
   })();
   connecting.catch(() => {
@@ -330,7 +367,10 @@ function showRemoteList(user, snapshot) {
   const remote = snapshot.docs.map((d) => ({ ...d.data(), id: d.id }));
   sync.remoteList = remote;
   ({ live: state.assignments, deleted: state.deleted } = splitDeleted(remote));
-  saveAssignments(localStorage, remote);
+  // While the saved list can't be read, it's left alone until Start over, as the app promises (see persist).
+  if (state.storageReadable) {
+    saveAssignments(localStorage, remote);
+  }
   // Only a list Firebase has confirmed counts as "the account as last seen", not one with uploads pending.
   if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) {
     saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));

@@ -242,6 +242,11 @@ const PHRASES = {
 
   // Pop-up messages
   "msg.undo": ["Undo", "撤销", "Deshacer"],
+  "msg.started_over_synced": [
+    "Saved your account's list on this device, in place of the list that couldn't be read.",
+    "已把帐号里的列表保存到这台设备，替换无法读取的列表。",
+    "Se guardó la lista de tu cuenta en este dispositivo, en lugar de la que no se podía leer.",
+  ],
   "msg.started_over": ["Started over with an empty list.", "已清空，从头开始。", "Empezaste de nuevo con la lista vacía."],
   "msg.storage_blocked": [
     "Couldn't save. Your browser blocked storage, so changes will be lost on reload.",
