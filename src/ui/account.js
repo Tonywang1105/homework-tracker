@@ -2,18 +2,18 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=29f9a5f9";
-import { firebaseConfig } from "../firebase-config.js?v=29f9a5f9";
-import { t } from "../i18n.js?v=29f9a5f9";
-import { render } from "../main.js?v=29f9a5f9";
-import { saveAssignments } from "../storage.js?v=29f9a5f9";
-import { completeAssignments, fieldChanges, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=29f9a5f9";
-import { settleFinishedTimer } from "../timer.js?v=29f9a5f9";
-import { splitDeleted } from "../trash.js?v=29f9a5f9";
-import { applyCourseLinks } from "./coursePage.js?v=29f9a5f9";
-import { countAssignments, elements } from "./dom.js?v=29f9a5f9";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=29f9a5f9";
-import { showToast } from "./toast.js?v=29f9a5f9";
+import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=2a915822";
+import { firebaseConfig } from "../firebase-config.js?v=2a915822";
+import { t } from "../i18n.js?v=2a915822";
+import { render } from "../main.js?v=2a915822";
+import { saveAssignments } from "../storage.js?v=2a915822";
+import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=2a915822";
+import { settleFinishedTimer } from "../timer.js?v=2a915822";
+import { splitDeleted } from "../trash.js?v=2a915822";
+import { applyCourseLinks } from "./coursePage.js?v=2a915822";
+import { countAssignments, elements } from "./dom.js?v=2a915822";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=2a915822";
+import { showToast } from "./toast.js?v=2a915822";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
@@ -359,7 +359,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
   try {
     // From the server, not the offline copy, since an out-of-date account list would make deletions on another
     // device look like additions here on a first merge.
-    remote = completeAssignments((await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id })));
+    remote = completeAssignments((await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => fromRemote(d.data(), d.id)));
     if (!firstTime) {
       saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
     }
@@ -370,7 +370,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
     }
     // Offline on a device that has synced before: Firebase's saved copy of the account will do, and the uploads
     // wait until the connection is back.
-    remote = completeAssignments((await dbApi.getDocsFromCache(assignmentsRef)).docs.map((d) => ({ ...d.data(), id: d.id })));
+    remote = completeAssignments((await dbApi.getDocsFromCache(assignmentsRef)).docs.map((d) => fromRemote(d.data(), d.id)));
   }
   stillCurrent(startedIn);
   let { assignments, addedCount } = plan.lastSynced ? mergeWithLastSynced(plan.local, remote, plan.lastSynced) : mergeLists(plan.local, remote);
@@ -444,7 +444,7 @@ function showRemoteLinks(user, snapshot) {
 /** The account's list changed (here or on another device): show it, and keep this device's copy up to date. */
 function showRemoteList(user, snapshot) {
   // Leaves out a half-written assignment (see completeAssignments), which would have no title or date to show.
-  const remote = completeAssignments(snapshot.docs.map((d) => ({ ...d.data(), id: d.id })));
+  const remote = completeAssignments(snapshot.docs.map((d) => fromRemote(d.data(), d.id)));
   sync.remoteList = remote;
   // Finished work with a timer still running (started on one device while another marked it done) is set right here.
   const settled = remote.map(settleFinishedTimer);
@@ -505,7 +505,12 @@ async function writeChanges(userId, before, saves, deletes) {
       return dbApi.setDoc(ref(a.id), toRemote(a));
     }
     const removed = Object.fromEntries(changes.removed.map((key) => [key, dbApi.deleteField()]));
-    return dbApi.setDoc(ref(a.id), { ...changes.changed, ...removed }, { merge: true });
+    const update = { ...changes.changed, ...removed };
+    if (changes.removedTicks) {
+      // Steps renamed or removed: their entries come out of the map of ticks, leaving the other entries alone.
+      update.stepTicks = { ...changes.changed.stepTicks, ...Object.fromEntries(changes.removedTicks.map((text) => [text, dbApi.deleteField()])) };
+    }
+    return dbApi.setDoc(ref(a.id), update, { merge: true });
   });
   writes.push(...deletes.map((id) => dbApi.deleteDoc(ref(id))));
   await Promise.all(writes);

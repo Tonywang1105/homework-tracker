@@ -13,7 +13,26 @@ export function toRemote(assignment) {
   }
   remote.notes = assignment.notes ?? "";
   remote.done = Boolean(assignment.done);
+  // Ticks also go in a map, one entry per step, which the database merges entry by entry: two devices ticking
+  // different steps at once then both keep their tick (the list itself is replaced whole). The list is still stored
+  // for older versions of the app.
+  delete remote.stepTicks;
+  if (Array.isArray(assignment.steps) && assignment.steps.length > 0) {
+    remote.stepTicks = Object.fromEntries(assignment.steps.map((step) => [step.text, Boolean(step.done)]));
+  }
   return remote;
+}
+
+/**
+ * An assignment as the account stores it, read back for this device: ticks come from the map of ticks where it has
+ * an entry for a step (see toRemote), and the map itself is left out.
+ */
+export function fromRemote(data, id) {
+  const { stepTicks, ...assignment } = data;
+  if (stepTicks && typeof stepTicks === "object" && Array.isArray(assignment.steps)) {
+    assignment.steps = assignment.steps.map((step) => (typeof stepTicks[step?.text] === "boolean" ? { ...step, done: stepTicks[step.text] } : step));
+  }
+  return { ...assignment, id };
 }
 
 /**
@@ -145,7 +164,21 @@ export function fieldChanges(before, after) {
   const now = toRemote(after);
   const changed = Object.fromEntries(Object.entries(now).filter(([key, value]) => stableJson(value) !== stableJson(old[key])));
   const removed = Object.keys(old).filter((key) => !(key in now));
-  return { changed, removed };
+  const result = { changed, removed };
+  // The map of ticks is sent entry by entry, so this device's tick doesn't overwrite another device's other ticks.
+  if (changed.stepTicks && old.stepTicks) {
+    const ticks = Object.fromEntries(Object.entries(now.stepTicks).filter(([text, done]) => old.stepTicks[text] !== done));
+    const gone = Object.keys(old.stepTicks).filter((text) => !(text in now.stepTicks));
+    if (Object.keys(ticks).length > 0) {
+      changed.stepTicks = ticks;
+    } else {
+      delete changed.stepTicks;
+    }
+    if (gone.length > 0) {
+      result.removedTicks = gone;
+    }
+  }
+  return result;
 }
 
 /**

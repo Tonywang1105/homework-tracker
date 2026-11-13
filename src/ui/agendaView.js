@@ -1,12 +1,12 @@
 // The Agenda view: overdue work, then the next two weeks day by day, made for reading on a phone.
 // Tapping an assignment opens the same details box as the calendar.
 
-import { formatHours, toDueDate, totalHours } from "../assignments.js?v=29f9a5f9";
-import { buildAgenda } from "../calendar.js?v=29f9a5f9";
-import { t } from "../i18n.js?v=29f9a5f9";
-import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=29f9a5f9";
-import { renderTags } from "./list.js?v=29f9a5f9";
-import { state } from "./store.js?v=29f9a5f9";
+import { formatHours, toDueDate, totalHours } from "../assignments.js?v=2a915822";
+import { buildAgenda } from "../calendar.js?v=2a915822";
+import { t } from "../i18n.js?v=2a915822";
+import { elements, formatDay, makeButton, timeFormatter } from "./dom.js?v=2a915822";
+import { renderTags } from "./list.js?v=2a915822";
+import { state } from "./store.js?v=2a915822";
 
 const AGENDA_DAYS = 14;
 
