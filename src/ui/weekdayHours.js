@@ -2,11 +2,11 @@
 // that weekday has, such as 1 h on a lab day or 0 for a day off. An empty box uses the usual hours a day. Saved on
 // this device, like the usual hours; the planner reads both through hoursLimit().
 
-import { DATE_LOCALES, formatNumber, getLanguage, t } from "../i18n.js?v=57e8d854";
-import { render } from "../main.js?v=57e8d854";
-import { dailyLimit, parseWeekdayBox, parseWeekdayHours } from "../plan.js?v=57e8d854";
-import { loadText, saveChoice, state } from "./store.js?v=57e8d854";
-import { showToast } from "./toast.js?v=57e8d854";
+import { DATE_LOCALES, formatNumber, getLanguage, t } from "../i18n.js?v=d5bd6973";
+import { render } from "../main.js?v=d5bd6973";
+import { dailyLimit, parseWeekdayBox, parseWeekdayHours } from "../plan.js?v=d5bd6973";
+import { loadText, saveChoice, state } from "./store.js?v=d5bd6973";
+import { showToast } from "./toast.js?v=d5bd6973";
 
 export const WEEKDAY_HOURS_KEY = "homework-tracker.weekdayHours";
 // Sunday, November 1, 2026, and the six days after it: one date for each weekday, to name them in any language.
