@@ -84,11 +84,12 @@ function withLocalAdditions(theirs, mine) {
  * - changed on both keeps the account's copy;
  * - missing here but in the account is kept: missing never means deleted, so an empty or out-of-date list on this
  *   device (unreadable storage, an emptied cache) can't delete anything from the account.
+ * lastSynced can be the short record from syncRecord or whole assignments (as saved by earlier versions).
  * Returns { assignments, addedCount }, like mergeLists.
  */
 export function mergeWithLastSynced(local, remote, lastSynced) {
   const localById = new Map(local.map((a) => [a.id, a]));
-  const lastById = new Map(lastSynced.map((a) => [a.id, a]));
+  const lastById = new Map(lastSynced.map((a) => [a.id, typeof a.fingerprint === "string" ? a.fingerprint : fingerprint(a)]));
   const remoteIds = new Set(remote.map((a) => a.id));
   const remoteCanvasUids = new Set(remote.filter((a) => a.canvasUid).map((a) => a.canvasUid));
 
@@ -96,10 +97,10 @@ export function mergeWithLastSynced(local, remote, lastSynced) {
   for (const theirs of remote) {
     const mine = localById.get(theirs.id);
     const before = lastById.get(theirs.id);
-    const unchangedElsewhere = before && sameAssignment(theirs, before);
+    const unchangedElsewhere = before !== undefined && fingerprint(theirs) === before;
     if (!mine) {
       kept.push(theirs);
-    } else if (unchangedElsewhere && !sameAssignment(mine, before)) {
+    } else if (unchangedElsewhere && fingerprint(mine) !== before) {
       kept.push(mine);
     } else {
       kept.push(theirs);
@@ -109,6 +110,34 @@ export function mergeWithLastSynced(local, remote, lastSynced) {
     (a) => !remoteIds.has(a.id) && !lastById.has(a.id) && !(a.canvasUid && remoteCanvasUids.has(a.canvasUid)),
   );
   return { assignments: [...kept, ...added], addedCount: added.length };
+}
+
+/**
+ * The account's list in the short form this device keeps as its record of it: each assignment's id and a fingerprint
+ * of what's stored, [{ id, fingerprint }]. The merge only needs to know whether an assignment changed since, so a few
+ * dozen characters each do instead of a second full copy of the list (notes and all), which could fill the browser's
+ * storage and then quietly fail to save, leaving an out-of-date record.
+ */
+export function syncRecord(assignments) {
+  return assignments.map((a) => ({ id: a.id, fingerprint: fingerprint(a) }));
+}
+
+/**
+ * A short code for an assignment as it's stored: the same for the same fields and values (in any order), and different
+ * after any change, except with a chance of about one in nine quadrillion (a 53-bit hash, cyrb53).
+ */
+function fingerprint(assignment) {
+  const text = stableJson(toRemote(assignment));
+  let h1 = 0xdeadbeef;
+  let h2 = 0x41c6ce57;
+  for (let i = 0; i < text.length; i++) {
+    const code = text.charCodeAt(i);
+    h1 = Math.imul(h1 ^ code, 2654435761);
+    h2 = Math.imul(h2 ^ code, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 
 /**

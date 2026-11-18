@@ -2,18 +2,18 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=2a915822";
-import { firebaseConfig } from "../firebase-config.js?v=2a915822";
-import { t } from "../i18n.js?v=2a915822";
-import { render } from "../main.js?v=2a915822";
-import { saveAssignments } from "../storage.js?v=2a915822";
-import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, toRemote } from "../sync.js?v=2a915822";
-import { settleFinishedTimer } from "../timer.js?v=2a915822";
-import { splitDeleted } from "../trash.js?v=2a915822";
-import { applyCourseLinks } from "./coursePage.js?v=2a915822";
-import { countAssignments, elements } from "./dom.js?v=2a915822";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=2a915822";
-import { showToast } from "./toast.js?v=2a915822";
+import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=57e8d854";
+import { firebaseConfig } from "../firebase-config.js?v=57e8d854";
+import { t } from "../i18n.js?v=57e8d854";
+import { render } from "../main.js?v=57e8d854";
+import { saveAssignments } from "../storage.js?v=57e8d854";
+import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, syncRecord, toRemote } from "../sync.js?v=57e8d854";
+import { settleFinishedTimer } from "../timer.js?v=57e8d854";
+import { splitDeleted } from "../trash.js?v=57e8d854";
+import { applyCourseLinks } from "./coursePage.js?v=57e8d854";
+import { countAssignments, elements } from "./dom.js?v=57e8d854";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=57e8d854";
+import { showToast } from "./toast.js?v=57e8d854";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
@@ -24,8 +24,9 @@ const EMULATOR_CONFIG = { apiKey: "demo-key", authDomain: "demo-homework-tracker
 // Later starts trust the account, so something deleted on the phone doesn't come back from the laptop's copy.
 const SYNCED_ACCOUNT_KEY = "homework-tracker.syncedAccount";
 // The account's list as this device last saw it confirmed by Firebase, with whose account it was, as
-// { userId, assignments }. Kept after signing out, so signing back in can tell "deleted on the phone"
-// apart from "added here while signed out" (see mergeWithLastSynced).
+// { userId, assignments }, where assignments is the short record from syncRecord (ids and fingerprints). Kept after
+// signing out, so signing back in can tell "deleted on the phone" apart from "added here while signed out" (see
+// mergeWithLastSynced).
 const LAST_SYNCED_KEY = "homework-tracker.lastSynced";
 // What was on this device when a different account signed in, set aside for its own account instead of being
 // copied into the new one: { <user id>: { assignments, links, lastSynced } } (see signInPlan in src/sync.js).
@@ -361,7 +362,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
     // device look like additions here on a first merge.
     remote = completeAssignments((await dbApi.getDocsFromServer(assignmentsRef)).docs.map((d) => fromRemote(d.data(), d.id)));
     if (!firstTime) {
-      saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
+      saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: syncRecord(remote) }));
     }
   } catch (error) {
     // A first sign-in needs the account itself; a reconnect can use the saved copy.
@@ -379,7 +380,7 @@ async function mergeIntoAccount(user, assignmentsRef, firstTime, startedIn) {
     await writing;
     stillCurrent(startedIn);
     // Only now, with the account confirmed to hold the merged list, is it this device's record of the account.
-    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments }));
+    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: syncRecord(assignments) }));
   } else {
     // Reconnecting, maybe offline: don't wait for the server; Firebase sends these when it can.
     writing.catch(handleSyncError);
@@ -458,7 +459,7 @@ function showRemoteList(user, snapshot) {
   }
   // Only a list Firebase has confirmed counts as "the account as last seen", not one with uploads pending.
   if (!snapshot.metadata.hasPendingWrites && !snapshot.metadata.fromCache) {
-    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: remote }));
+    saveChoice(LAST_SYNCED_KEY, JSON.stringify({ userId: user.uid, assignments: syncRecord(remote) }));
   }
   const status = snapshot.metadata.hasPendingWrites
     ? t("sync.saving")
