@@ -1,13 +1,13 @@
 // The month calendar, its details box, and the Due soon chips above it.
 
-import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=a2302d82";
-import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=a2302d82";
-import { t } from "../i18n.js?v=a2302d82";
-import { render } from "../main.js?v=a2302d82";
-import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=a2302d82";
-import { startAddingOn } from "./form.js?v=a2302d82";
-import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=a2302d82";
-import { findAssignment, state } from "./store.js?v=a2302d82";
+import { assignmentType, describeDue, formatHours, formatHoursPlain, stepProgress, toDueDate, totalHours, TYPE_LABELS, TYPES } from "../assignments.js?v=26fc70a6";
+import { buildMonthGrid, calendarTagText, isPastWeek, visibleOnDay } from "../calendar.js?v=26fc70a6";
+import { t } from "../i18n.js?v=26fc70a6";
+import { render } from "../main.js?v=26fc70a6";
+import { DATE_LOCALE, elements, formatDay, makeButton, monthFormatter, showNote, timeFormatter } from "./dom.js?v=26fc70a6";
+import { startAddingOn } from "./form.js?v=26fc70a6";
+import { renderDueParts, renderSteps, renderTags, toggleAssignmentStep } from "./list.js?v=26fc70a6";
+import { findAssignment, state } from "./store.js?v=26fc70a6";
 
 // A day shows at most this many lines (tags, or tags plus a "+N more" link), so one busy day can't stretch its week.
 const MAX_LINES_PER_DAY = 3;

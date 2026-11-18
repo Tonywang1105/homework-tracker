@@ -2,18 +2,18 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=a2302d82";
-import { firebaseConfig } from "../firebase-config.js?v=a2302d82";
-import { t } from "../i18n.js?v=a2302d82";
-import { render } from "../main.js?v=a2302d82";
-import { saveAssignments } from "../storage.js?v=a2302d82";
-import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, syncRecord, toRemote } from "../sync.js?v=a2302d82";
-import { settleFinishedTimer } from "../timer.js?v=a2302d82";
-import { splitDeleted } from "../trash.js?v=a2302d82";
-import { applyCourseLinks } from "./coursePage.js?v=a2302d82";
-import { countAssignments, elements } from "./dom.js?v=a2302d82";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=a2302d82";
-import { showToast } from "./toast.js?v=a2302d82";
+import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=26fc70a6";
+import { firebaseConfig } from "../firebase-config.js?v=26fc70a6";
+import { t } from "../i18n.js?v=26fc70a6";
+import { render } from "../main.js?v=26fc70a6";
+import { saveAssignments } from "../storage.js?v=26fc70a6";
+import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, syncRecord, toRemote } from "../sync.js?v=26fc70a6";
+import { settleFinishedTimer } from "../timer.js?v=26fc70a6";
+import { splitDeleted } from "../trash.js?v=26fc70a6";
+import { applyCourseLinks } from "./coursePage.js?v=26fc70a6";
+import { countAssignments, elements } from "./dom.js?v=26fc70a6";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=26fc70a6";
+import { showToast } from "./toast.js?v=26fc70a6";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see
@@ -81,6 +81,11 @@ export function startAccount() {
   } else {
     showAccount({ signedIn: false });
   }
+}
+
+/** Whether this device is signed in (from its first sync until signing out), even while it's still connecting. */
+export function isSignedIn() {
+  return Boolean(loadText(SYNCED_ACCOUNT_KEY));
 }
 
 /** Whether this device is syncing with an account right now. */

@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/form.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/list.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/calendar.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/agenda.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/types.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/panels.css?v=a2302d82" />
-    <link rel="stylesheet" href="styles/messages.css?v=a2302d82" />
-    <script type="module" src="src/main.js?v=a2302d82"></script>
+    <link rel="stylesheet" href="styles/base.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/form.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/list.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/calendar.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/agenda.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/types.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/panels.css?v=26fc70a6" />
+    <link rel="stylesheet" href="styles/messages.css?v=26fc70a6" />
+    <script type="module" src="src/main.js?v=26fc70a6"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -373,6 +373,11 @@
           <strong id="canvas-moved-heading" data-i18n="canvas.moved_heading">Canvas moved these due dates:</strong>
           <ul id="canvas-moved-list" class="new-banner-list"></ul>
           <button type="button" id="canvas-moved-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide the moved due dates" data-i18n-aria="aria.dismiss_moved">Got it</button>
+        </div>
+        <!-- iPhone browsers only, while signed out (src/ui/storageNote.js). -->
+        <div id="storage-note" class="notice-bar" hidden>
+          <span data-i18n="storage.note">On iPhone, this list may be deleted if you don't open the app for 7 days. Add it to your Home Screen or sign in to keep it.</span>
+          <button type="button" id="storage-note-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide this note" data-i18n-aria="aria.dismiss_storage">Got it</button>
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>
           <span id="canvas-reminder-text"></span>

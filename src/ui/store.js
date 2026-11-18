@@ -1,13 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=a2302d82";
-import { t } from "../i18n.js?v=a2302d82";
-import { render } from "../main.js?v=a2302d82";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=a2302d82";
-import { saveAssignments } from "../storage.js?v=a2302d82";
-import { withDeletions } from "../trash.js?v=a2302d82";
-import { syncAssignments } from "./account.js?v=a2302d82";
-import { showToast } from "./toast.js?v=a2302d82";
+import { currentMonth } from "../calendar.js?v=26fc70a6";
+import { t } from "../i18n.js?v=26fc70a6";
+import { render } from "../main.js?v=26fc70a6";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=26fc70a6";
+import { saveAssignments } from "../storage.js?v=26fc70a6";
+import { withDeletions } from "../trash.js?v=26fc70a6";
+import { syncAssignments } from "./account.js?v=26fc70a6";
+import { showToast } from "./toast.js?v=26fc70a6";
 
 export const state = {
   // The live assignments; every screen draws from these.
