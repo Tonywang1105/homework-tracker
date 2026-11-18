@@ -1,13 +1,13 @@
 // The app's in-memory state, saving the list, and remembered settings in localStorage.
 
-import { currentMonth } from "../calendar.js?v=c722303e";
-import { t } from "../i18n.js?v=c722303e";
-import { render } from "../main.js?v=c722303e";
-import { DEFAULT_DAILY_HOURS } from "../plan.js?v=c722303e";
-import { saveAssignments } from "../storage.js?v=c722303e";
-import { withDeletions } from "../trash.js?v=c722303e";
-import { syncAssignments } from "./account.js?v=c722303e";
-import { showToast } from "./toast.js?v=c722303e";
+import { currentMonth } from "../calendar.js?v=86b9f91d";
+import { t } from "../i18n.js?v=86b9f91d";
+import { render } from "../main.js?v=86b9f91d";
+import { DEFAULT_DAILY_HOURS } from "../plan.js?v=86b9f91d";
+import { saveAssignments } from "../storage.js?v=86b9f91d";
+import { withDeletions } from "../trash.js?v=86b9f91d";
+import { syncAssignments } from "./account.js?v=86b9f91d";
+import { showToast } from "./toast.js?v=86b9f91d";
 
 export const state = {
   // The live assignments; every screen draws from these.
@@ -15,6 +15,8 @@ export const state = {
   // Recently deleted ones (with deletedAt), kept 30 days; saved and synced together with the live ones.
   deleted: [],
   editingId: null,
+  // Rows whose More… is open on a phone (see the list), kept here because rows are redrawn every minute.
+  moreOpen: new Set(),
   // The finished assignment the "how did it go?" bar is asking about, or null.
   lessonFor: null,
   // Select mode: whether it's on, and the ids of the assignments picked so far.

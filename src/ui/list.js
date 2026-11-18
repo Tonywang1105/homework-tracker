@@ -19,21 +19,21 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=c722303e";
-import { toDateKey } from "../calendar.js?v=c722303e";
-import { timerTagText } from "../focus.js?v=c722303e";
-import { t } from "../i18n.js?v=c722303e";
-import { latestLesson } from "../lessons.js?v=c722303e";
-import { render } from "../main.js?v=c722303e";
-import { stepDays } from "../plan.js?v=c722303e";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=c722303e";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=c722303e";
-import { primeChime } from "./focus.js?v=c722303e";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=c722303e";
-import { askForLesson } from "./lessonBar.js?v=c722303e";
-import { toggleSelected } from "./select.js?v=c722303e";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=c722303e";
-import { showToast } from "./toast.js?v=c722303e";
+} from "../assignments.js?v=86b9f91d";
+import { toDateKey } from "../calendar.js?v=86b9f91d";
+import { timerTagText } from "../focus.js?v=86b9f91d";
+import { t } from "../i18n.js?v=86b9f91d";
+import { latestLesson } from "../lessons.js?v=86b9f91d";
+import { render } from "../main.js?v=86b9f91d";
+import { stepDays } from "../plan.js?v=86b9f91d";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=86b9f91d";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=86b9f91d";
+import { primeChime } from "./focus.js?v=86b9f91d";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=86b9f91d";
+import { askForLesson } from "./lessonBar.js?v=86b9f91d";
+import { toggleSelected } from "./select.js?v=86b9f91d";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=86b9f91d";
+import { showToast } from "./toast.js?v=86b9f91d";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it
@@ -138,6 +138,10 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
   title.className = "assignment-title";
   title.textContent = assignment.title;
   titleLine.append(title, ...renderTags(assignment));
+  if (assignment.notes) {
+    // On a phone the notes fold behind More…, so a compact row says it has some.
+    titleLine.append(makeTag(t("tag.has_notes"), "notes-hint phone-only"));
+  }
 
   const dueLine = document.createElement("div");
   dueLine.className = "due-line";
@@ -164,13 +168,25 @@ export function renderAssignment(assignment, now, soonIds = new Set()) {
 
   const actions = document.createElement("div");
   actions.className = "item-actions";
+  // On a phone a row is compact (title, course, size, due date) and More… opens it in full, with these less-used
+  // actions; a laptop always shows everything (see the phone layout in styles/base.css).
+  const extend = canExtend(assignment, now) ? [makeActionButton(t("action.extend"), "extend", assignment.title)] : [];
+  const copy = makeActionButton(t("action.copy"), "copy", assignment.title);
+  const remove = makeActionButton(t("action.delete"), "delete", assignment.title);
+  [...extend, copy, remove].forEach((button) => button.classList.add("more-action"));
+  const moreOpen = state.moreOpen.has(assignment.id);
+  item.classList.toggle("more-open", moreOpen);
+  const moreToggle = makeActionButton(t(moreOpen ? "action.less" : "action.more"), "more", assignment.title);
+  moreToggle.classList.add("phone-only");
+  moreToggle.setAttribute("aria-expanded", String(moreOpen));
   actions.append(
     ...(assignment.done ? [] : [timerButton(assignment)]),
     ...(canSnooze(assignment, now) ? [makeActionButton(t("action.tomorrow"), "snooze", assignment.title)] : []),
-    ...(canExtend(assignment, now) ? [makeActionButton(t("action.extend"), "extend", assignment.title)] : []),
+    ...extend,
     makeActionButton(t("action.edit"), "edit", assignment.title),
-    makeActionButton(t("action.copy"), "copy", assignment.title),
-    makeActionButton(t("action.delete"), "delete", assignment.title),
+    copy,
+    remove,
+    moreToggle,
   );
 
   item.append(checkbox, body, actions);
@@ -490,6 +506,14 @@ export function handleListClick(event) {
     case "copy":
       startCopying(assignment);
       break;
+    case "more":
+      if (!state.moreOpen.delete(assignment.id)) {
+        state.moreOpen.add(assignment.id);
+      }
+      render();
+      // The row was redrawn, so put focus back on its new More… (now Less) button.
+      list.querySelector(`li[data-id="${CSS.escape(assignment.id)}"] [data-action="more"]`)?.focus();
+      break;
     case "delete": {
       const previous = state.assignments;
       if (state.editingId === assignment.id) {
@@ -510,7 +534,10 @@ export function handleListClick(event) {
 function focusRowAt(list, position, action) {
   const rows = [...list.querySelectorAll("li[data-id]")];
   const row = rows[Math.min(position, rows.length - 1)];
-  (row?.querySelector(`[data-action="${action}"]`) ?? elements.listHeading).focus();
+  // On a phone that row's Delete may be folded behind More…, so fall back to its More… button.
+  const visible = (control) => control && control.offsetParent !== null;
+  const target = [`[data-action="${action}"]`, '[data-action="more"]'].map((selector) => row?.querySelector(selector)).find(visible);
+  (target ?? elements.listHeading).focus();
 }
 
 /** Marks an assignment done (with Undo) or, if it is already done, back to not done. */

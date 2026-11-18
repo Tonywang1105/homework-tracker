@@ -176,6 +176,17 @@ body.is-resizing {
     display: none;
   }
 
+  /* A compact row: title, course, size, overdue, steps done, the due date and a running timer. More… opens the
+     rest (src/ui/list.js); a Notes tag says there are notes to see. */
+  .assignment:not(.more-open)
+    :is(.type-tag, .platform-tag, .hours-tag, .spent-tag, .weight-tag, .extended-tag, .start-tag, .lesson-line, .steps, .notes, .more-action) {
+    display: none;
+  }
+
+  .assignment.more-open .notes-hint {
+    display: none;
+  }
+
   .filters-toggle {
     margin-bottom: 12px;
   }
