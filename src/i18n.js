@@ -230,6 +230,7 @@ const PHRASES = {
 
   // The workload line and empty list messages
   "work.next7": ["Next 7 days: ", "未来 7 天：", "Próximos 7 días: "],
+  "work.next7_course": ["Next 7 days in {course}: ", "{course} 未来 7 天：", "Próximos 7 días en {course}: "],
   "work.no_hours": ['{count} · add "Time needed" to see how much work that is.', "{count} · 填写「所需时间」即可看到工作量。", "{count} · añade «Tiempo necesario» para ver cuánto trabajo es."],
   "work.of_work": ["{hours} of work", "{hours}工作量", "{hours} de trabajo"],
   "work.busiest": ["busiest: {day} ({hours})", "最忙：{day}（{hours}）", "día más cargado: {day} ({hours})"],

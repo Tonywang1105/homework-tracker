@@ -1,17 +1,17 @@
 // Connects the page to the app: draws everything (render) and wires up the controls at start-up.
 
-import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=26fc70a6";
-import { currentMonth, shiftMonth } from "./calendar.js?v=26fc70a6";
-import { hasExamples } from "./examples.js?v=26fc70a6";
-import { t } from "./i18n.js?v=26fc70a6";
-import { parseSavedWidth } from "./layout.js?v=26fc70a6";
-import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=26fc70a6";
-import { combineSeries } from "./repeat.js?v=26fc70a6";
-import { loadAssignments } from "./storage.js?v=26fc70a6";
-import { splitDeleted } from "./trash.js?v=26fc70a6";
-import { isSyncing, startAccount } from "./ui/account.js?v=26fc70a6";
-import { renderAgenda } from "./ui/agendaView.js?v=26fc70a6";
-import { startCalendarDrag } from "./ui/calendarDrag.js?v=26fc70a6";
+import { courseNames, dueSoon, filterAssignments, groupAssignments, searchWords, splitRecentDone } from "./assignments.js?v=5916cd6b";
+import { currentMonth, shiftMonth } from "./calendar.js?v=5916cd6b";
+import { hasExamples } from "./examples.js?v=5916cd6b";
+import { t } from "./i18n.js?v=5916cd6b";
+import { parseSavedWidth } from "./layout.js?v=5916cd6b";
+import { DEFAULT_DAILY_HOURS, parseDailyHours, planStarts, todayPlan } from "./plan.js?v=5916cd6b";
+import { combineSeries } from "./repeat.js?v=5916cd6b";
+import { loadAssignments } from "./storage.js?v=5916cd6b";
+import { splitDeleted } from "./trash.js?v=5916cd6b";
+import { isSyncing, startAccount } from "./ui/account.js?v=5916cd6b";
+import { renderAgenda } from "./ui/agendaView.js?v=5916cd6b";
+import { startCalendarDrag } from "./ui/calendarDrag.js?v=5916cd6b";
 import {
   handleCalendarClick,
   handleDetailsStepClick,
@@ -24,13 +24,13 @@ import {
   renderWeekdayHeadings,
   showMonth,
   toggleDetails,
-} from "./ui/calendarView.js?v=26fc70a6";
-import { renderCanvasMoved, startCanvasMoved } from "./ui/canvasMovedBanner.js?v=26fc70a6";
-import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=26fc70a6";
-import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=26fc70a6";
-import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=26fc70a6";
-import { elements } from "./ui/dom.js?v=26fc70a6";
-import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=26fc70a6";
+} from "./ui/calendarView.js?v=5916cd6b";
+import { renderCanvasMoved, startCanvasMoved } from "./ui/canvasMovedBanner.js?v=5916cd6b";
+import { handleCourseColorChange, loadChosenColors, updateCourseColors } from "./ui/colorsPanel.js?v=5916cd6b";
+import { renderCoursePage, startCoursePages } from "./ui/coursePage.js?v=5916cd6b";
+import { renderDeleted, startDeletedPanel } from "./ui/deletedPanel.js?v=5916cd6b";
+import { elements } from "./ui/dom.js?v=5916cd6b";
+import { renderFocus, startFocus, tickFocus } from "./ui/focus.js?v=5916cd6b";
 import {
   closeForm,
   focusForm,
@@ -43,12 +43,12 @@ import {
   updateHoursSuggestion,
   updateRepeatFields,
   updateStepsLabel,
-} from "./ui/form.js?v=26fc70a6";
-import { offerGuide, startGuideListeners } from "./ui/guide.js?v=26fc70a6";
-import { rememberFocus, restoreFocus } from "./ui/keepFocus.js?v=26fc70a6";
-import { startCopyWeek } from "./ui/copyWeek.js?v=26fc70a6";
-import { startLanguage } from "./ui/language.js?v=26fc70a6";
-import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=26fc70a6";
+} from "./ui/form.js?v=5916cd6b";
+import { offerGuide, startGuideListeners } from "./ui/guide.js?v=5916cd6b";
+import { rememberFocus, restoreFocus } from "./ui/keepFocus.js?v=5916cd6b";
+import { startCopyWeek } from "./ui/copyWeek.js?v=5916cd6b";
+import { startLanguage } from "./ui/language.js?v=5916cd6b";
+import { renderLessonBar, startLessonBar } from "./ui/lessonBar.js?v=5916cd6b";
 import {
   applySavedFilters,
   emptyMessageText,
@@ -63,7 +63,7 @@ import {
   renderTodoRow,
   tickTimers,
   toggleDone,
-} from "./ui/list.js?v=26fc70a6";
+} from "./ui/list.js?v=5916cd6b";
 import {
   addExamples,
   canvasPanel,
@@ -76,13 +76,13 @@ import {
   renderCanvasReminder,
   setPanelOpen,
   snoozeCanvasReminder,
-} from "./ui/panels.js?v=26fc70a6";
-import { renderPastePreviews, startPastePanels } from "./ui/pastePanel.js?v=26fc70a6";
-import { renderPhoneFolds, startPhoneFolds } from "./ui/phoneFolds.js?v=26fc70a6";
-import { startReminders } from "./ui/reminders.js?v=26fc70a6";
-import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=26fc70a6";
-import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=26fc70a6";
-import { renderSelect, startSelect } from "./ui/select.js?v=26fc70a6";
+} from "./ui/panels.js?v=5916cd6b";
+import { renderPastePreviews, startPastePanels } from "./ui/pastePanel.js?v=5916cd6b";
+import { renderPhoneFolds, startPhoneFolds } from "./ui/phoneFolds.js?v=5916cd6b";
+import { startReminders } from "./ui/reminders.js?v=5916cd6b";
+import { handleQuickAddInput, handleQuickAddSubmit } from "./ui/quickAdd.js?v=5916cd6b";
+import { handleTodaySummaryClick, renderReview, renderTodaySummary } from "./ui/reviewPanel.js?v=5916cd6b";
+import { renderSelect, startSelect } from "./ui/select.js?v=5916cd6b";
 import {
   applyTheme,
   applyWeekStart,
@@ -103,15 +103,15 @@ import {
   WEEK_STARTS,
   VIEW_STORAGE_KEY,
   VIEWS,
-} from "./ui/settings.js?v=26fc70a6";
-import { startShortcuts } from "./ui/shortcuts.js?v=26fc70a6";
-import { renderStorageNote, startStorageNote } from "./ui/storageNote.js?v=26fc70a6";
-import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=26fc70a6";
-import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=26fc70a6";
-import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=26fc70a6";
-import { renderWeekBanner, startWeekBanner } from "./ui/weekBanner.js?v=26fc70a6";
-import { renderWhatsNew, startWhatsNew } from "./ui/whatsNewBanner.js?v=26fc70a6";
-import { hoursLimit, renderWeekdayHours, startWeekdayHours } from "./ui/weekdayHours.js?v=26fc70a6";
+} from "./ui/settings.js?v=5916cd6b";
+import { startShortcuts } from "./ui/shortcuts.js?v=5916cd6b";
+import { renderStorageNote, startStorageNote } from "./ui/storageNote.js?v=5916cd6b";
+import { renderTodayPlan, todayPlanList } from "./ui/todayPlan.js?v=5916cd6b";
+import { findAssignment, loadChoice, loadText, state, updateAssignments } from "./ui/store.js?v=5916cd6b";
+import { handleUndo, hideToast, showToast } from "./ui/toast.js?v=5916cd6b";
+import { renderWeekBanner, startWeekBanner } from "./ui/weekBanner.js?v=5916cd6b";
+import { renderWhatsNew, startWhatsNew } from "./ui/whatsNewBanner.js?v=5916cd6b";
+import { hoursLimit, renderWeekdayHours, startWeekdayHours } from "./ui/weekdayHours.js?v=5916cd6b";
 
 export function render() {
   // Redrawing replaces the rows, so note where keyboard focus is and put it back afterwards (see keepFocus.js).

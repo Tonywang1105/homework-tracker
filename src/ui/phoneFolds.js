@@ -3,10 +3,10 @@
 // always show and the buttons stay hidden, so nothing there changes. Open or closed isn't saved: each visit starts
 // folded, and a count on the Filters button says when a filter is narrowing the list.
 
-import { activeFilterCount } from "../assignments.js?v=26fc70a6";
-import { t } from "../i18n.js?v=26fc70a6";
-import { elements } from "./dom.js?v=26fc70a6";
-import { state } from "./store.js?v=26fc70a6";
+import { activeFilterCount } from "../assignments.js?v=5916cd6b";
+import { t } from "../i18n.js?v=5916cd6b";
+import { elements } from "./dom.js?v=5916cd6b";
+import { state } from "./store.js?v=5916cd6b";
 
 const filtersToggle = document.getElementById("filters-toggle");
 const planBox = document.getElementById("today-plan");

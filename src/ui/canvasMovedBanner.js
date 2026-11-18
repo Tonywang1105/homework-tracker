@@ -1,12 +1,12 @@
 // The box above the list naming the due dates a Canvas re-import moved, earlier ones first, until Got it. Kept on
 // this device, so it's still there after a reload: a moved deadline is easy to miss in a message that disappears.
 
-import { toDueDate } from "../assignments.js?v=26fc70a6";
-import { addMovedDates, readMovedDates } from "../canvas.js?v=26fc70a6";
-import { t } from "../i18n.js?v=26fc70a6";
-import { render } from "../main.js?v=26fc70a6";
-import { dueFormatter, elements } from "./dom.js?v=26fc70a6";
-import { loadText, removeChoice, saveChoice } from "./store.js?v=26fc70a6";
+import { toDueDate } from "../assignments.js?v=5916cd6b";
+import { addMovedDates, readMovedDates } from "../canvas.js?v=5916cd6b";
+import { t } from "../i18n.js?v=5916cd6b";
+import { render } from "../main.js?v=5916cd6b";
+import { dueFormatter, elements } from "./dom.js?v=5916cd6b";
+import { loadText, removeChoice, saveChoice } from "./store.js?v=5916cd6b";
 
 const MOVED_KEY = "homework-tracker.canvasMovedDates";
 

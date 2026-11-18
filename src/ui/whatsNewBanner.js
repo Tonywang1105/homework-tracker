@@ -1,10 +1,10 @@
 // The "New:" banner above the list: features added since this device last looked (src/whatsNew.js), until Got it.
 
-import { t } from "../i18n.js?v=26fc70a6";
-import { render } from "../main.js?v=26fc70a6";
-import { NOTES, notesToShow } from "../whatsNew.js?v=26fc70a6";
-import { elements } from "./dom.js?v=26fc70a6";
-import { loadText, saveChoice, state } from "./store.js?v=26fc70a6";
+import { t } from "../i18n.js?v=5916cd6b";
+import { render } from "../main.js?v=5916cd6b";
+import { NOTES, notesToShow } from "../whatsNew.js?v=5916cd6b";
+import { elements } from "./dom.js?v=5916cd6b";
+import { loadText, saveChoice, state } from "./store.js?v=5916cd6b";
 
 const SEEN_KEY = "homework-tracker.newsSeen";
 // Names in the banner's one line before "and N more".

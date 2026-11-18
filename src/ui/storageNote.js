@@ -1,11 +1,11 @@
 // The note above the list on an iPhone's browser while signed out: the list may be deleted after 7 days unopened, so
 // add the app to the Home Screen or sign in (see src/storageNote.js). Got it hides it on this device.
 
-import { render } from "../main.js?v=26fc70a6";
-import { isAppleMobile, needsStorageNote } from "../storageNote.js?v=26fc70a6";
-import { isSignedIn } from "./account.js?v=26fc70a6";
-import { elements } from "./dom.js?v=26fc70a6";
-import { loadText, saveChoice, state } from "./store.js?v=26fc70a6";
+import { render } from "../main.js?v=5916cd6b";
+import { isAppleMobile, needsStorageNote } from "../storageNote.js?v=5916cd6b";
+import { isSignedIn } from "./account.js?v=5916cd6b";
+import { elements } from "./dom.js?v=5916cd6b";
+import { loadText, saveChoice, state } from "./store.js?v=5916cd6b";
 
 const DISMISSED_KEY = "homework-tracker.storageNoteSeen";
 

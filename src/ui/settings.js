@@ -1,14 +1,14 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=26fc70a6";
-import { t } from "../i18n.js?v=26fc70a6";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=26fc70a6";
-import { render } from "../main.js?v=26fc70a6";
-import { parseDailyHours } from "../plan.js?v=26fc70a6";
-import { versionFromUrl } from "../version.js?v=26fc70a6";
-import { countAssignments, elements, formatDay } from "./dom.js?v=26fc70a6";
-import { removeChoice, saveChoice, state } from "./store.js?v=26fc70a6";
-import { showToast } from "./toast.js?v=26fc70a6";
+import { formatHours, workload } from "../assignments.js?v=5916cd6b";
+import { t } from "../i18n.js?v=5916cd6b";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=5916cd6b";
+import { render } from "../main.js?v=5916cd6b";
+import { parseDailyHours } from "../plan.js?v=5916cd6b";
+import { versionFromUrl } from "../version.js?v=5916cd6b";
+import { countAssignments, elements, formatDay } from "./dom.js?v=5916cd6b";
+import { removeChoice, saveChoice, state } from "./store.js?v=5916cd6b";
+import { showToast } from "./toast.js?v=5916cd6b";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 
@@ -136,13 +136,17 @@ export function setTheme(theme) {
 
 /** "Next 7 days: ~11 h of work · busiest: Thu, 10/22 (~4 h) · 3 without an estimate" */
 export function renderWorkload(now) {
-  const { count, hours, unestimated, busiest } = workload(state.assignments, now);
+  // With one course chosen (its course page, or the Course filter), the line adds up only that course's work, the
+  // same course the list below is filtered to.
+  const course = elements.courseFilter.value;
+  const assignments = course ? state.assignments.filter((a) => a.course === course) : state.assignments;
+  const { count, hours, unestimated, busiest } = workload(assignments, now);
   elements.workload.hidden = count === 0;
   if (count === 0) {
     return;
   }
   const heading = document.createElement("strong");
-  heading.textContent = t("work.next7");
+  heading.textContent = course ? t("work.next7_course", { course }) : t("work.next7");
   if (hours === 0) {
     elements.workloadText.replaceChildren(heading, t("work.no_hours", { count: countAssignments(count) }));
     return;
