@@ -1,11 +1,22 @@
 // The service worker: a small script the browser runs alongside the page, which keeps a copy of the
 // app's files so the app opens with no internet, for example when it's installed on a phone's home screen.
 //
-// It is network-first: online, every file comes fresh from the site (so a new version is never held back),
-// and each one is saved as it arrives. Only when the network fails, or takes too long, is the saved copy used.
-// Copies are saved by path without the "?v=..." the publish script adds, so each file has one copy, the latest.
+// It is network-first: online, every file comes fresh from the site (so a new version is never held back). Only when
+// the network fails, or takes too long, is a saved copy used, and never a copy from another version of the app. The
+// publish script puts the version in every file's address ("src/main.js?v=86b9f91d"), and each version's files are
+// saved together, in a cache of their own. A new version becomes the one the app opens offline only once all of its
+// files are saved, so an update cut off part-way can't leave half of one version and half of another, which stops
+// the app from starting (npm run test:update checks both cases). Older versions' caches are then removed.
+// On this laptop (npm start) files carry no version, so they're saved by path as they arrive, in one cache.
 
-const CACHE_NAME = "homework-tracker";
+// The cache for files without a version (the icons, the manifest, and everything when run locally); the earlier
+// worker kept every file here, so its copies are still used if nothing newer is saved.
+const UNVERSIONED_CACHE = "homework-tracker";
+// Each version's files: "homework-tracker-v-86b9f91d".
+const VERSION_CACHE_PREFIX = "homework-tracker-v-";
+// Which version is saved completely, so it's the one opened offline.
+const META_CACHE = "homework-tracker-meta";
+const COMPLETE_VERSION_KEY = "complete-version";
 // How long to wait for the network before using the saved copy, so a weak signal doesn't leave a blank screen.
 const NETWORK_TIMEOUT_MS = 4000;
 // Firebase's files never change at a given version number, so a saved copy can be used straight away.
@@ -96,9 +107,7 @@ const APP_FILES = [
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_FILES.map((path) => new Request(path, { cache: "reload" })))),
-  );
+  event.waitUntil(saveCurrentSite());
   self.skipWaiting();
 });
 
@@ -115,37 +124,164 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.href.startsWith(FIREBASE_PREFIX)) {
     event.respondWith(savedFirst(request));
-  } else if (url.origin === self.location.origin) {
-    event.respondWith(networkFirst(request));
+  } else if (url.origin !== self.location.origin) {
+    // Anything else (Google sign-in, the Firestore database) goes straight to the network as usual.
+    return;
+  } else if (request.mode === "navigate") {
+    event.respondWith(openPage(request, event));
+  } else if (url.searchParams.has("v")) {
+    event.respondWith(versionedFile(request, url.searchParams.get("v")));
+  } else {
+    event.respondWith(unversionedFile(request));
   }
-  // Anything else (Google sign-in, the Firestore database) goes straight to the network as usual.
 });
 
-async function networkFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
-  const key = cacheKey(request);
+/** On install: saves every file of the version the site serves now (or, run locally, every file as it is). */
+async function saveCurrentSite() {
+  const response = await fetch(scopeUrl(), { cache: "no-cache" });
+  const version = versionInPage(await response.text());
+  if (version) {
+    await saveVersion(version);
+  } else {
+    const cache = await caches.open(UNVERSIONED_CACHE);
+    await cache.addAll(APP_FILES.map((path) => new Request(path, { cache: "reload" })));
+  }
+}
+
+/** The page: fresh if the network answers in time (then its version is saved in the background), else the saved one. */
+async function openPage(request, event) {
   const network = fetch(request).then(async (response) => {
     if (response.ok) {
-      await cache.put(key, response.clone());
+      const version = versionInPage(await response.clone().text());
+      if (version) {
+        event.waitUntil(saveVersion(version).catch(() => {}));
+      } else {
+        await (await caches.open(UNVERSIONED_CACHE)).put(cacheKey(request), response.clone());
+      }
     }
     return response;
   });
   try {
     return await withTimeout(network, NETWORK_TIMEOUT_MS);
   } catch {
-    const saved = (await cache.match(key)) ?? (request.mode === "navigate" ? await cache.match(scopeUrl()) : undefined);
+    const complete = await completeVersion();
+    const saved = complete
+      ? await (await caches.open(VERSION_CACHE_PREFIX + complete)).match(scopeUrl())
+      : await (await caches.open(UNVERSIONED_CACHE)).match(scopeUrl());
     if (saved) {
-      // The network may still answer later; its copy is then saved for next time.
       network.catch(() => {});
       return saved;
     }
-    // Nothing saved yet: keep waiting for the network (or report its error).
     return network;
   }
 }
 
+/** A file of one version: fresh if the network answers in time, else that same version's saved copy, never another's. */
+async function versionedFile(request, version) {
+  const name = VERSION_CACHE_PREFIX + version;
+  const network = fetch(request).then(async (response) => {
+    if (response.ok) {
+      await (await caches.open(name)).put(cacheKey(request), response.clone());
+    }
+    return response;
+  });
+  try {
+    return await withTimeout(network, NETWORK_TIMEOUT_MS);
+  } catch {
+    const saved = (await caches.has(name)) ? await (await caches.open(name)).match(cacheKey(request)) : undefined;
+    if (saved) {
+      network.catch(() => {});
+      return saved;
+    }
+    // No copy of this version: wait for the network rather than use another version's copy.
+    return network;
+  }
+}
+
+/** A file without a version (an icon, the manifest, or any file run locally): fresh if possible, else the saved one. */
+async function unversionedFile(request) {
+  const network = fetch(request).then(async (response) => {
+    if (response.ok) {
+      await (await caches.open(UNVERSIONED_CACHE)).put(cacheKey(request), response.clone());
+    }
+    return response;
+  });
+  try {
+    return await withTimeout(network, NETWORK_TIMEOUT_MS);
+  } catch {
+    const complete = await completeVersion();
+    const saved =
+      (complete ? await (await caches.open(VERSION_CACHE_PREFIX + complete)).match(cacheKey(request)) : undefined) ??
+      (await (await caches.open(UNVERSIONED_CACHE)).match(cacheKey(request)));
+    if (saved) {
+      network.catch(() => {});
+      return saved;
+    }
+    return network;
+  }
+}
+
+// Versions being saved right now, so a page opened twice doesn't save the same version twice at once.
+const saving = new Map();
+
+/**
+ * Saves every file of `version` (those the page has already loaded are kept), then makes it the version opened
+ * offline and removes older versions. If any file can't be fetched, nothing changes and the last complete version
+ * stays; the next visit tries again.
+ */
+function saveVersion(version) {
+  if (!saving.has(version)) {
+    saving.set(version, saveAllFiles(version).finally(() => saving.delete(version)));
+  }
+  return saving.get(version);
+}
+
+async function saveAllFiles(version) {
+  if ((await completeVersion()) === version) {
+    return;
+  }
+  const cache = await caches.open(VERSION_CACHE_PREFIX + version);
+  for (const path of APP_FILES) {
+    const url = new URL(path, self.registration.scope);
+    // The publish script stamps the scripts and stylesheets; the page, icons and manifest have no version.
+    if (path.startsWith("src/") || path.startsWith("styles/")) {
+      url.searchParams.set("v", version);
+    }
+    const key = cacheKey(new Request(url));
+    if (await cache.match(key)) {
+      continue;
+    }
+    const response = await fetch(url, { cache: "no-cache" });
+    if (!response.ok) {
+      throw new Error(`Couldn't save ${path}.`);
+    }
+    // The site may have moved on to a newer version meanwhile; then this one is never completed.
+    if ((path === "./" || path === "index.html") && versionInPage(await response.clone().text()) !== version) {
+      throw new Error(`The site no longer serves version ${version}.`);
+    }
+    await cache.put(key, response);
+  }
+  await (await caches.open(META_CACHE)).put(COMPLETE_VERSION_KEY, new Response(version));
+  for (const name of await caches.keys()) {
+    if (name.startsWith(VERSION_CACHE_PREFIX) && name !== VERSION_CACHE_PREFIX + version && !saving.has(name.slice(VERSION_CACHE_PREFIX.length))) {
+      await caches.delete(name);
+    }
+  }
+}
+
+/** The version saved completely, or null if none is yet. */
+async function completeVersion() {
+  const saved = await (await caches.open(META_CACHE)).match(COMPLETE_VERSION_KEY);
+  return saved ? saved.text() : null;
+}
+
+/** The version the publish script stamped on a page's main script, or null for an unpublished (local) copy. */
+function versionInPage(html) {
+  return html.match(/src\/main\.js\?v=([\w-]+)/)?.[1] ?? null;
+}
+
 async function savedFirst(request) {
-  const cache = await caches.open(CACHE_NAME);
+  const cache = await caches.open(UNVERSIONED_CACHE);
   const saved = await cache.match(request);
   if (saved) {
     return saved;
@@ -157,7 +293,7 @@ async function savedFirst(request) {
   return response;
 }
 
-/** The address a file is saved under: without "?v=...", so a new version replaces the old copy. */
+/** The address a file is saved under, without "?v=..." (each version's files have a cache of their own). */
 function cacheKey(request) {
   const url = new URL(request.url);
   url.search = "";

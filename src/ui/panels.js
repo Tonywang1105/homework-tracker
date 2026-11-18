@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=86b9f91d";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=a2302d82";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,16 +8,16 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=86b9f91d";
-import { exampleAssignments, removeExamples } from "../examples.js?v=86b9f91d";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=86b9f91d";
-import { t } from "../i18n.js?v=86b9f91d";
-import { deletedCanvasUids } from "../trash.js?v=86b9f91d";
-import { render } from "../main.js?v=86b9f91d";
-import { currentMovedDates, restoreMovedDates, showMovedDates } from "./canvasMovedBanner.js?v=86b9f91d";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=86b9f91d";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=86b9f91d";
-import { showToast } from "./toast.js?v=86b9f91d";
+} from "../canvas.js?v=a2302d82";
+import { exampleAssignments, removeExamples } from "../examples.js?v=a2302d82";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=a2302d82";
+import { t } from "../i18n.js?v=a2302d82";
+import { deletedCanvasUids } from "../trash.js?v=a2302d82";
+import { render } from "../main.js?v=a2302d82";
+import { currentMovedDates, restoreMovedDates, showMovedDates } from "./canvasMovedBanner.js?v=a2302d82";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=a2302d82";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=a2302d82";
+import { showToast } from "./toast.js?v=a2302d82";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 

@@ -19,21 +19,21 @@ import {
   toggleStep,
   TYPE_LABELS,
   updateAssignment,
-} from "../assignments.js?v=86b9f91d";
-import { toDateKey } from "../calendar.js?v=86b9f91d";
-import { timerTagText } from "../focus.js?v=86b9f91d";
-import { t } from "../i18n.js?v=86b9f91d";
-import { latestLesson } from "../lessons.js?v=86b9f91d";
-import { render } from "../main.js?v=86b9f91d";
-import { stepDays } from "../plan.js?v=86b9f91d";
-import { spentText, startTimer, stopTimer } from "../timer.js?v=86b9f91d";
-import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=86b9f91d";
-import { primeChime } from "./focus.js?v=86b9f91d";
-import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=86b9f91d";
-import { askForLesson } from "./lessonBar.js?v=86b9f91d";
-import { toggleSelected } from "./select.js?v=86b9f91d";
-import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=86b9f91d";
-import { showToast } from "./toast.js?v=86b9f91d";
+} from "../assignments.js?v=a2302d82";
+import { toDateKey } from "../calendar.js?v=a2302d82";
+import { timerTagText } from "../focus.js?v=a2302d82";
+import { t } from "../i18n.js?v=a2302d82";
+import { latestLesson } from "../lessons.js?v=a2302d82";
+import { render } from "../main.js?v=a2302d82";
+import { stepDays } from "../plan.js?v=a2302d82";
+import { spentText, startTimer, stopTimer } from "../timer.js?v=a2302d82";
+import { dueFormatter, elements, formatDay, makeButton, makeOption, makeTag, showNote } from "./dom.js?v=a2302d82";
+import { primeChime } from "./focus.js?v=a2302d82";
+import { startCopying, startEditing, startExtending, stopEditing } from "./form.js?v=a2302d82";
+import { askForLesson } from "./lessonBar.js?v=a2302d82";
+import { toggleSelected } from "./select.js?v=a2302d82";
+import { findAssignment, loadText, saveChoice, state, updateAssignments } from "./store.js?v=a2302d82";
+import { showToast } from "./toast.js?v=a2302d82";
 
 const FILTERS_KEY = "homework-tracker.filters";
 // How long Undo is offered after deleting a row (Yihao's choice: 5 seconds felt a little short). After that it

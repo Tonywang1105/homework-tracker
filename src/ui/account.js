@@ -2,18 +2,18 @@
 // phone show the same assignments. Signed out, the app works as before, with the list saved on this device only.
 // Firebase is downloaded only when someone signs in, so people who never sign in don't load it at all.
 
-import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=86b9f91d";
-import { firebaseConfig } from "../firebase-config.js?v=86b9f91d";
-import { t } from "../i18n.js?v=86b9f91d";
-import { render } from "../main.js?v=86b9f91d";
-import { saveAssignments } from "../storage.js?v=86b9f91d";
-import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, syncRecord, toRemote } from "../sync.js?v=86b9f91d";
-import { settleFinishedTimer } from "../timer.js?v=86b9f91d";
-import { splitDeleted } from "../trash.js?v=86b9f91d";
-import { applyCourseLinks } from "./coursePage.js?v=86b9f91d";
-import { countAssignments, elements } from "./dom.js?v=86b9f91d";
-import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=86b9f91d";
-import { showToast } from "./toast.js?v=86b9f91d";
+import { joinLinks, linkChanges, visibleLinks } from "../courseLinks.js?v=a2302d82";
+import { firebaseConfig } from "../firebase-config.js?v=a2302d82";
+import { t } from "../i18n.js?v=a2302d82";
+import { render } from "../main.js?v=a2302d82";
+import { saveAssignments } from "../storage.js?v=a2302d82";
+import { completeAssignments, fieldChanges, fromRemote, listChanges, mergeLists, mergeWithLastSynced, signInPlan, syncRecord, toRemote } from "../sync.js?v=a2302d82";
+import { settleFinishedTimer } from "../timer.js?v=a2302d82";
+import { splitDeleted } from "../trash.js?v=a2302d82";
+import { applyCourseLinks } from "./coursePage.js?v=a2302d82";
+import { countAssignments, elements } from "./dom.js?v=a2302d82";
+import { loadText, removeChoice, saveChoice, state, updateDeleted } from "./store.js?v=a2302d82";
+import { showToast } from "./toast.js?v=a2302d82";
 
 const FIREBASE_URL = "https://www.gstatic.com/firebasejs/12.4.0";
 // Set only by npm run test:sync, to run against Firebase's local emulators instead of the real project (see

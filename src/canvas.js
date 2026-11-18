@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=86b9f91d";
-import { toDateKey } from "./calendar.js?v=86b9f91d";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=a2302d82";
+import { toDateKey } from "./calendar.js?v=a2302d82";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
