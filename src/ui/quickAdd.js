@@ -8,12 +8,12 @@ import {
   PRIORITY_LABELS,
   toDueDate,
   validateAssignmentInput,
-} from "../assignments.js?v=d5bd6973";
-import { t } from "../i18n.js?v=d5bd6973";
-import { parseQuickAdd } from "../quickadd.js?v=d5bd6973";
-import { elements, formatDay, timeFormatter } from "./dom.js?v=d5bd6973";
-import { state, updateAssignments } from "./store.js?v=d5bd6973";
-import { showToast } from "./toast.js?v=d5bd6973";
+} from "../assignments.js?v=c722303e";
+import { t } from "../i18n.js?v=c722303e";
+import { parseQuickAdd } from "../quickadd.js?v=c722303e";
+import { elements, formatDay, timeFormatter } from "./dom.js?v=c722303e";
+import { state, updateAssignments } from "./store.js?v=c722303e";
+import { showToast } from "./toast.js?v=c722303e";
 
 
 /** What the line would add, as a short line under the box, updated as you type. */

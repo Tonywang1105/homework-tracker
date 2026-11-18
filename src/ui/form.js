@@ -14,18 +14,18 @@ import {
   TYPES,
   validateAssignmentInput,
   withExtension,
-} from "../assignments.js?v=d5bd6973";
-import { suggestHours } from "../estimates.js?v=d5bd6973";
-import { formatList, t } from "../i18n.js?v=d5bd6973";
-import { latestLesson } from "../lessons.js?v=d5bd6973";
-import { weekdayOf } from "../plan.js?v=d5bd6973";
-import { render } from "../main.js?v=d5bd6973";
-import { createSeries, validateRepeat } from "../repeat.js?v=d5bd6973";
-import { formatSpent } from "../timer.js?v=d5bd6973";
-import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=d5bd6973";
-import { findAssignment, state, updateAssignments } from "./store.js?v=d5bd6973";
-import { showToast } from "./toast.js?v=d5bd6973";
-import { hasOwnHours, hoursLimit, weekdayName } from "./weekdayHours.js?v=d5bd6973";
+} from "../assignments.js?v=c722303e";
+import { suggestHours } from "../estimates.js?v=c722303e";
+import { formatList, t } from "../i18n.js?v=c722303e";
+import { latestLesson } from "../lessons.js?v=c722303e";
+import { weekdayOf } from "../plan.js?v=c722303e";
+import { render } from "../main.js?v=c722303e";
+import { createSeries, validateRepeat } from "../repeat.js?v=c722303e";
+import { formatSpent } from "../timer.js?v=c722303e";
+import { countAssignments, elements, formatDay, makeOption } from "./dom.js?v=c722303e";
+import { findAssignment, state, updateAssignments } from "./store.js?v=c722303e";
+import { showToast } from "./toast.js?v=c722303e";
+import { hasOwnHours, hoursLimit, weekdayName } from "./weekdayHours.js?v=c722303e";
 
 const lessonHint = document.getElementById("lesson-hint");
 const dayLoadLine = document.getElementById("day-load");

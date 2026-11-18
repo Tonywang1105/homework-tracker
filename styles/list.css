@@ -165,6 +165,16 @@
   background: color-mix(in srgb, var(--accent) 12%, var(--surface));
 }
 
+/* Due dates Canvas moved: the reminder color, with a move earlier in the overdue red, since that one is urgent. */
+.canvas-moved {
+  background: color-mix(in srgb, var(--overdue) 10%, var(--surface));
+}
+
+.moved-earlier {
+  color: var(--overdue);
+  font-weight: 600;
+}
+
 .new-banner-list {
   flex-basis: 100%;
   margin: 2px 0;
@@ -371,11 +381,6 @@
   font-weight: 600;
   color: var(--muted);
   white-space: nowrap;
-}
-
-.priority-tag-regular {
-  border: 1px solid var(--border);
-  color: var(--text);
 }
 
 .priority-tag-small {

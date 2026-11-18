@@ -1,7 +1,7 @@
 // Pure logic for assignments: no DOM and no storage, so it can be unit-tested with Node.
 
-import { formatNumber, t, tCount } from "./i18n.js?v=d5bd6973";
-import { withTimerStopped } from "./timer.js?v=d5bd6973";
+import { formatNumber, t, tCount } from "./i18n.js?v=c722303e";
+import { withTimerStopped } from "./timer.js?v=c722303e";
 
 // Sizes, most important first: ties in due time and busy calendar days follow this order.
 export const PRIORITIES = ["big", "regular", "small"];
@@ -310,6 +310,15 @@ export function splitRecentDone(done, now = new Date(), days = 14) {
   const cutoff = new Date(now.getFullYear(), now.getMonth(), now.getDate() - days);
   const isOlder = (a) => toDueDate(a.dueDate, "00:00") < cutoff;
   return { recent: done.filter((a) => !isOlder(a)), older: done.filter(isOlder) };
+}
+
+/**
+ * How many of the list's filters are narrowing it (the same filters as filterAssignments), for the count on the
+ * Filters button that folds them away on phones. Showing small reminders is the usual setting, so only hiding them
+ * counts.
+ */
+export function activeFilterCount({ course = "", platform = "", hideSmall = false, hideDone = false, search = "" } = {}) {
+  return [course !== "", platform !== "", hideSmall, hideDone, search.trim() !== ""].filter(Boolean).length;
 }
 
 /**

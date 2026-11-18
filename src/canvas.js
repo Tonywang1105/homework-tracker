@@ -1,8 +1,8 @@
 // Reads a Canvas calendar feed (.ics file) and merges its assignments into the list.
 // No DOM, so it can be unit-tested with Node, like assignments.js.
 
-import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=d5bd6973";
-import { toDateKey } from "./calendar.js?v=d5bd6973";
+import { createAssignment, DEFAULT_DUE_TIME, toDueDate, validateAssignmentInput } from "./assignments.js?v=c722303e";
+import { toDateKey } from "./calendar.js?v=c722303e";
 
 // Canvas gives each assignment a UID like "event-assignment-12345"; other calendar events use other prefixes.
 const ASSIGNMENT_UID_PREFIX = "event-assignment-";
@@ -121,7 +121,8 @@ export function isIcsCalendar(text) {
  * course name, notes, big/small and done stay as they set them. The one exception: a course still named
  * the long Canvas way ("CHEM 102 AL1 Fall 2026", from an import before names were shortened) is shortened. New assignments that are already
  * past due are skipped, so a first import doesn't fill the list with old overdue work.
- * Returns { assignments, added, updated, skippedPast }.
+ * Returns { assignments, added, updated, skippedPast, moved }, where moved lists the due dates Canvas changed (see
+ * movedDate), earlier ones first, since those are the ones that could catch the student out.
  */
 /**
  * The due fields after a re-import. Canvas still has the original date of work with an extension, so for
@@ -140,6 +141,7 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
   const byUid = new Map(existing.filter((a) => a.canvasUid).map((a) => [a.canvasUid, a]));
   const updates = new Map();
   const additions = [];
+  const moved = [];
   let skippedPast = 0;
 
   for (const item of imported) {
@@ -155,6 +157,10 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
       if (changed) {
         const { originalDueDate, originalDueTime, ...rest } = current;
         updates.set(current.id, { ...rest, title: item.title, course, ...due });
+        const move = movedDate(current, { title: item.title, ...due });
+        if (move) {
+          moved.push(move);
+        }
       }
       continue;
     }
@@ -176,7 +182,55 @@ export function mergeCanvasAssignments(existing, imported, now = new Date()) {
     added: additions.length,
     updated: updates.size,
     skippedPast,
+    moved: earliestFirst(moved),
   };
+}
+
+/**
+ * How a re-import moved an assignment's due date, { title, from, to, earlier } with from and to as
+ * { dueDate, dueTime }, or null if the date and time are the same as before. Work extended here whose extended date
+ * stays put isn't listed: Canvas only moved the original date, which the student isn't going by.
+ */
+function movedDate(before, after) {
+  if (before.dueDate === after.dueDate && before.dueTime === after.dueTime) {
+    return null;
+  }
+  const from = { dueDate: before.dueDate, dueTime: before.dueTime };
+  const to = { dueDate: after.dueDate, dueTime: after.dueTime };
+  return { title: after.title, from, to, earlier: compareDue(to, from) < 0 };
+}
+
+function compareDue(a, b) {
+  return toDueDate(a.dueDate, a.dueTime) - toDueDate(b.dueDate, b.dueTime);
+}
+
+/**
+ * The saved list of moved due dates (from mergeCanvasAssignments), shown until the student clicks Got it. Anything
+ * damaged or odd is left out rather than shown, so a broken saved value can't break the list's page.
+ */
+export function readMovedDates(text) {
+  let saved;
+  try {
+    saved = JSON.parse(text ?? "[]");
+  } catch {
+    return [];
+  }
+  const isDue = (due) => typeof due?.dueDate === "string" && typeof due.dueTime === "string" && !Number.isNaN(toDueDate(due.dueDate, due.dueTime).getTime());
+  return Array.isArray(saved) ? saved.filter((move) => typeof move?.title === "string" && isDue(move.from) && isDue(move.to) && typeof move.earlier === "boolean") : [];
+}
+
+/**
+ * The moves to show after another import while some are still showing: the new ones, plus earlier ones for other
+ * assignments, so a second import (which sees the dates already moved) doesn't hide what the first one found.
+ */
+export function addMovedDates(showing, moved) {
+  const titles = new Set(moved.map((move) => move.title));
+  return earliestFirst([...moved, ...showing.filter((move) => !titles.has(move.title))]);
+}
+
+/** Moves earlier first, then by the new due date. */
+function earliestFirst(moves) {
+  return moves.sort((a, b) => Number(b.earlier) - Number(a.earlier) || compareDue(a.to, b.to));
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;

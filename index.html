@@ -27,15 +27,15 @@
       }
     </script>
     <!-- In this order: when two rules are equally specific, the later file wins. -->
-    <link rel="stylesheet" href="styles/base.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/form.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/list.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/calendar.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/agenda.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/types.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/panels.css?v=d5bd6973" />
-    <link rel="stylesheet" href="styles/messages.css?v=d5bd6973" />
-    <script type="module" src="src/main.js?v=d5bd6973"></script>
+    <link rel="stylesheet" href="styles/base.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/form.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/list.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/calendar.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/agenda.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/types.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/panels.css?v=c722303e" />
+    <link rel="stylesheet" href="styles/messages.css?v=c722303e" />
+    <script type="module" src="src/main.js?v=c722303e"></script>
   </head>
   <body>
     <!-- Only shown when focused, so keyboard users can jump past the form straight to the list. -->
@@ -286,7 +286,10 @@
 
         <!-- Overdue work, work due today, and what the start-date plan fits into today; filled in by src/ui/todayPlan.js. -->
         <section id="today-plan" class="today-plan" aria-labelledby="today-plan-heading" hidden>
-          <h3 id="today-plan-heading" class="today-plan-heading"><span data-i18n="plan.heading">Today's plan</span> <span id="today-plan-total" class="today-plan-total"></span></h3>
+          <h3 id="today-plan-heading" class="today-plan-heading"><span data-i18n="plan.heading">Today's plan</span> <span id="today-plan-total" class="today-plan-total"></span>
+            <!-- Phones only: the plan folds to this line, so the list starts higher (src/ui/phoneFolds.js). -->
+            <button type="button" id="today-plan-toggle" class="link-button phone-only" aria-expanded="false" aria-controls="today-plan-list"></button>
+          </h3>
           <ul id="today-plan-list" class="today-plan-list"></ul>
           <p id="today-plan-empty" class="today-plan-empty" hidden></p>
         </section>
@@ -309,6 +312,8 @@
           <p id="quick-add-preview" class="quick-add-preview" aria-live="polite"></p>
         </form>
 
+        <!-- Phones only: the filters fold behind this, so the list starts higher (src/ui/phoneFolds.js). -->
+        <button type="button" id="filters-toggle" class="link-button phone-only filters-toggle" aria-expanded="false" aria-controls="filters" hidden></button>
         <div id="filters" class="filters" role="group" aria-label="Filters" data-i18n-aria="aria.filters">
           <!-- Searches the list only (finished work included), so it is hidden in Calendar view. -->
           <!-- The word "Search" is in the box's hint rather than beside it, so the filters fit on one line. -->
@@ -362,6 +367,12 @@
             <button type="button" id="week-banner-review" class="link-button" data-i18n="week.review">Weekly review</button>
             <button type="button" id="week-banner-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide this week's plan" data-i18n-aria="aria.dismiss_week">Got it</button>
           </span>
+        </div>
+        <!-- Due dates a Canvas re-import moved, until "Got it" (src/ui/canvasMovedBanner.js). -->
+        <div id="canvas-moved" class="notice-bar canvas-moved" role="region" aria-labelledby="canvas-moved-heading" hidden>
+          <strong id="canvas-moved-heading" data-i18n="canvas.moved_heading">Canvas moved these due dates:</strong>
+          <ul id="canvas-moved-list" class="new-banner-list"></ul>
+          <button type="button" id="canvas-moved-dismiss" class="link-button" data-i18n="week.got_it" aria-label="Got it, hide the moved due dates" data-i18n-aria="aria.dismiss_moved">Got it</button>
         </div>
         <div id="canvas-reminder" class="notice-bar" hidden>
           <span id="canvas-reminder-text"></span>

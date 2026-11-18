@@ -1,6 +1,6 @@
 // The panels under the To do list: Canvas import (and its reminder), backup and restore, calendar export, and example assignments.
 
-import { backupFileName, createBackup, readBackup } from "../backup.js?v=d5bd6973";
+import { backupFileName, createBackup, readBackup } from "../backup.js?v=c722303e";
 import {
   importReminder,
   isIcsCalendar,
@@ -8,15 +8,16 @@ import {
   mergeCanvasAssignments,
   readCanvasAssignments,
   snoozeUntil,
-} from "../canvas.js?v=d5bd6973";
-import { exampleAssignments, removeExamples } from "../examples.js?v=d5bd6973";
-import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=d5bd6973";
-import { t } from "../i18n.js?v=d5bd6973";
-import { deletedCanvasUids } from "../trash.js?v=d5bd6973";
-import { render } from "../main.js?v=d5bd6973";
-import { countAssignments, downloadFile, elements } from "./dom.js?v=d5bd6973";
-import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=d5bd6973";
-import { showToast } from "./toast.js?v=d5bd6973";
+} from "../canvas.js?v=c722303e";
+import { exampleAssignments, removeExamples } from "../examples.js?v=c722303e";
+import { calendarFile, calendarFileName, upcomingForExport } from "../export.js?v=c722303e";
+import { t } from "../i18n.js?v=c722303e";
+import { deletedCanvasUids } from "../trash.js?v=c722303e";
+import { render } from "../main.js?v=c722303e";
+import { currentMovedDates, restoreMovedDates, showMovedDates } from "./canvasMovedBanner.js?v=c722303e";
+import { countAssignments, downloadFile, elements } from "./dom.js?v=c722303e";
+import { loadText, removeChoice, saveChoice, state, updateAssignments } from "./store.js?v=c722303e";
+import { showToast } from "./toast.js?v=c722303e";
 
 const CANVAS_IMPORTED_KEY = "homework-tracker.canvasImportedAt";
 
@@ -108,8 +109,13 @@ export async function handleCanvasFile() {
     showToast(importSummary(result));
     return;
   }
+  const movedBefore = currentMovedDates();
+  showMovedDates(result.moved);
   updateAssignments(result.assignments);
-  showToast(importSummary(result), () => updateAssignments(previous));
+  showToast(importSummary(result), () => {
+    restoreMovedDates(movedBefore);
+    updateAssignments(previous);
+  });
 }
 
 export function renderCanvasReminder(now) {

@@ -136,6 +136,8 @@ const PHRASES = {
     "输入标题和日期（fri、tomorrow、10/30），也可以加上课程、时间、大小（big、small）或时长（2h）。日期等词用英文。",
     "Escribe un título, un día (fri, tomorrow, 10/30) y, si quieres, un curso, hora, tamaño (big, small) u horas (2h). Esas palabras van en inglés.",
   ],
+  "filter.toggle": ["Filters", "筛选", "Filtros"],
+  "filter.toggle_count": ["Filters ({n} on)", "筛选（{n} 项已开）", "Filtros ({n} activos)"],
   "filter.search": ["Search", "搜索", "Buscar"],
   "filter.course": ["Course", "课程", "Curso"],
   "filter.all_courses": ["All courses", "所有课程", "Todos los cursos"],
@@ -195,6 +197,8 @@ const PHRASES = {
   "spent.hours": ["{n} h", "{n} 小时", "{n} h"],
 
   // Today's plan
+  "plan.show": ["Show {n}", "展开 {n} 项", "Mostrar {n}"],
+  "plan.hide": ["Hide", "收起", "Ocultar"],
   "plan.heading": ["Today's plan", "今日计划", "Plan de hoy"],
   "plan.total": ["{hours} of work", "{hours}工作量", "{hours} de trabajo"],
   "plan.today_hours": ["{hours} today", "今天 {hours}", "{hours} hoy"],
@@ -299,6 +303,9 @@ const PHRASES = {
   "msg.canvas_changes": ["Canvas: {changes}.", "Canvas：{changes}。", "Canvas: {changes}."],
   "msg.canvas_new": ["imported {n} new", "新导入 {n} 项", "{n} nuevas importadas"],
   "msg.canvas_updated": ["updated {n}", "更新 {n} 项", "{n} actualizadas"],
+  "canvas.moved_heading": ["Canvas moved these due dates:", "Canvas 更改了这些截止时间：", "Canvas cambió estas fechas de entrega:"],
+  "canvas.moved_item": ["{title}: {from} → {to}", "{title}：{from} → {to}", "{title}: {from} → {to}"],
+  "canvas.moved_earlier": ["earlier", "提前了", "antes"],
   "msg.canvas_up_to_date": ["Canvas: already up to date.", "Canvas：已是最新。", "Canvas: ya está al día."],
   "msg.canvas_skipped": [" Skipped {n} already past due.", "跳过了 {n} 项已过期的。", " Se omitieron {n} ya vencidas."],
   "msg.reminder_snoozed": ["OK, I'll remind you again in 3 days.", "好的，3 天后再提醒你。", "De acuerdo, te lo recordaré en 3 días."],
@@ -591,6 +598,7 @@ const PHRASES = {
   "settings.week_start": ["Week starts on", "每周开始于", "La semana empieza el"],
   "week_start.sunday": ["Sunday", "周日", "domingo"],
   "week_start.monday": ["Monday", "周一", "lunes"],
+  "aria.dismiss_moved": ["Got it, hide the moved due dates", "知道了，隐藏更改的截止时间", "Entendido, ocultar las fechas cambiadas"],
   "aria.dismiss_new": ["Got it, hide what's new", "知道了，隐藏新功能", "Entendido, ocultar novedades"],
   "aria.dismiss_week": ["Got it, hide this week's plan", "知道了，隐藏本周计划", "Entendido, ocultar el plan de la semana"],
   "aria.theme": ["Color theme", "颜色主题", "Tema de color"],
@@ -668,6 +676,7 @@ const PHRASES = {
   "new.week_banner": ["A plan for the week on your first visit each week", "每周第一次打开时显示本周计划", "Un plan de la semana en tu primera visita de cada semana"],
   "new.monday_first": ["Weeks can start on Monday, in Settings → Appearance", "可在设置 → 外观里让每周从周一开始", "La semana puede empezar el lunes, en Ajustes → Apariencia"],
   "new.course_progress": ["Grade progress on each course page", "每门课的页面显示成绩进度", "Progreso de la nota en la página de cada curso"],
+  "new.canvas_moved": ["Canvas re-imports list the due dates that moved", "重新导入 Canvas 时会列出更改的截止时间", "Al volver a importar Canvas se listan las fechas que cambiaron"],
   "new.copy_week": ["Copy this week, in the Weekly review", "每周回顾里可以复制本周", "Copiar la semana, en el Repaso semanal"],
   "new.regular_day_reminder": [
     "Reminders now come a day before regular work too, as well as an hour before",

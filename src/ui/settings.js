@@ -1,14 +1,14 @@
 // Settings: List or Calendar view, color theme, column width, and the workload line with its daily limit.
 
-import { formatHours, workload } from "../assignments.js?v=d5bd6973";
-import { t } from "../i18n.js?v=d5bd6973";
-import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=d5bd6973";
-import { render } from "../main.js?v=d5bd6973";
-import { parseDailyHours } from "../plan.js?v=d5bd6973";
-import { versionFromUrl } from "../version.js?v=d5bd6973";
-import { countAssignments, elements, formatDay } from "./dom.js?v=d5bd6973";
-import { removeChoice, saveChoice, state } from "./store.js?v=d5bd6973";
-import { showToast } from "./toast.js?v=d5bd6973";
+import { formatHours, workload } from "../assignments.js?v=c722303e";
+import { t } from "../i18n.js?v=c722303e";
+import { clampFormWidth, DEFAULT_FORM_WIDTH, KEYBOARD_STEP } from "../layout.js?v=c722303e";
+import { render } from "../main.js?v=c722303e";
+import { parseDailyHours } from "../plan.js?v=c722303e";
+import { versionFromUrl } from "../version.js?v=c722303e";
+import { countAssignments, elements, formatDay } from "./dom.js?v=c722303e";
+import { removeChoice, saveChoice, state } from "./store.js?v=c722303e";
+import { showToast } from "./toast.js?v=c722303e";
 
 export const VIEW_STORAGE_KEY = "homework-tracker.view";
 

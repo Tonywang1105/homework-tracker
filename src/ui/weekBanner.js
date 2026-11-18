@@ -2,15 +2,15 @@
 // the top of the To do panel says what's left this week, the busiest day and the short days, until "Got it" or
 // "Weekly review" is clicked. Remembered on this device.
 
-import { formatHours, formatHoursPlain } from "../assignments.js?v=d5bd6973";
-import { formatList, t } from "../i18n.js?v=d5bd6973";
-import { render } from "../main.js?v=d5bd6973";
-import { weekdayOf } from "../plan.js?v=d5bd6973";
-import { weekAhead, weekStartKey } from "../review.js?v=d5bd6973";
-import { countAssignments, elements, formatDay } from "./dom.js?v=d5bd6973";
-import { openReview } from "./reviewPanel.js?v=d5bd6973";
-import { loadText, saveChoice, state } from "./store.js?v=d5bd6973";
-import { hoursLimit, weekdayName } from "./weekdayHours.js?v=d5bd6973";
+import { formatHours, formatHoursPlain } from "../assignments.js?v=c722303e";
+import { formatList, t } from "../i18n.js?v=c722303e";
+import { render } from "../main.js?v=c722303e";
+import { weekdayOf } from "../plan.js?v=c722303e";
+import { weekAhead, weekStartKey } from "../review.js?v=c722303e";
+import { countAssignments, elements, formatDay } from "./dom.js?v=c722303e";
+import { openReview } from "./reviewPanel.js?v=c722303e";
+import { loadText, saveChoice, state } from "./store.js?v=c722303e";
+import { hoursLimit, weekdayName } from "./weekdayHours.js?v=c722303e";
 
 const SEEN_KEY = "homework-tracker.weekBannerSeen";
 

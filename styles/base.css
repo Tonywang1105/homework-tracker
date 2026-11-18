@@ -161,7 +161,30 @@ body.is-resizing {
   user-select: none;
 }
 
+/* Buttons that only phones need (see the phone layout below). */
+.phone-only {
+  display: none;
+}
+
 @media (max-width: 760px) {
+  /* The filters and Today's plan fold behind a button each, so the list starts about a screen higher. */
+  .phone-only:not([hidden]) {
+    display: inline-block;
+  }
+
+  .filters:not(.is-open) {
+    display: none;
+  }
+
+  .filters-toggle {
+    margin-bottom: 12px;
+  }
+
+  .today-plan.can-fold:not(.is-open) .today-plan-list,
+  .today-plan.can-fold:not(.is-open) .today-plan-empty {
+    display: none;
+  }
+
   .layout {
     grid-template-columns: 1fr;
     gap: 20px;

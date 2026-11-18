@@ -3,9 +3,9 @@
 // "Show the tour again" in Settings brings it back. Called the guide here so it isn't confused with
 // the tour test in tests/tour.js.
 
-import { t } from "../i18n.js?v=d5bd6973";
-import { elements } from "./dom.js?v=d5bd6973";
-import { loadText, saveChoice } from "./store.js?v=d5bd6973";
+import { t } from "../i18n.js?v=c722303e";
+import { elements } from "./dom.js?v=c722303e";
+import { loadText, saveChoice } from "./store.js?v=c722303e";
 
 const GUIDE_SEEN_KEY = "homework-tracker.guideSeen";
 

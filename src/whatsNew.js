@@ -11,6 +11,7 @@ export const NOTES = [
   { id: "2026-11-07-copy-week", phrase: "new.copy_week" },
   { id: "2026-11-10-version", phrase: "new.version" },
   { id: "2026-11-11-regular-day-reminder", phrase: "new.regular_day_reminder" },
+  { id: "2026-11-18-canvas-moved", phrase: "new.canvas_moved" },
 ];
 
 /**
